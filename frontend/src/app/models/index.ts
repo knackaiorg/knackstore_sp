@@ -74,6 +74,20 @@ export interface Product {
   variants: ProductVariant[];
 }
 
+export interface SubmitProductReviewRequest {
+  rating: number;
+  comment?: string;
+}
+
+export interface ProductReview {
+  id: number;
+  productId: number;
+  rating: number;
+  comment?: string;
+  reviewerName: string;
+  createdAt: string;
+}
+
 // ---- Cart ----
 export interface CartEntry {
   entryId: number;
