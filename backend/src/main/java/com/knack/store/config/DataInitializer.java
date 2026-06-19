@@ -115,7 +115,7 @@ public class DataInitializer implements CommandLineRunner {
             .code("CAM-001").name("VisionPro A7 IV").brand("SonyVision")
             .description("Full-frame mirrorless camera with 33MP sensor, real-time tracking, 10fps continuous shooting, and 4K 60p video.")
             .basePrice(2499.99).imageUrl("https://images.unsplash.com/photo-1607462109225-6b64ae2dd3cb?w=400")
-            .featured(true).stockQuantity(30).averageRating(5).reviewCount(290).category(cameras).build();
+            .featured(true).stockQuantity(0).averageRating(5).reviewCount(290).category(cameras).build();
         productRepository.save(sonyCamera);
 
         // --- Headphones ---

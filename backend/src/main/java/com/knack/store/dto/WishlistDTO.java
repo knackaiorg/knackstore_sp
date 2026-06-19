@@ -24,6 +24,7 @@ public class WishlistDTO {
         private String productName;
         private String productImageUrl;
         private Double price;
+        private Boolean inStock;
         private Long variantId;
         private String variantSku;
         private String variantDescription;
