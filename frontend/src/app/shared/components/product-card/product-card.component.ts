@@ -19,8 +19,12 @@ export class ProductCardComponent {
     private router: Router
   ) {}
 
+  private get firstVariantId(): number | undefined {
+    return this.product.variants?.[0]?.id;
+  }
+
   get isWishlisted(): boolean {
-    return this.wishlistService.isWishlisted(this.product.id, undefined, true);
+    return this.wishlistService.isWishlisted(this.product.id, this.firstVariantId);
   }
 
   toggleWishlist(event: MouseEvent): void {
@@ -36,7 +40,10 @@ export class ProductCardComponent {
     }
 
     this.toggling = true;
-    this.wishlistService.toggleEntry({ productId: this.product.id }).subscribe({
+    this.wishlistService.toggleEntry({
+      productId: this.product.id,
+      variantId: this.firstVariantId
+    }).subscribe({
       next: () => {
         this.toggling = false;
       },
