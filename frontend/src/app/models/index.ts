@@ -116,6 +116,31 @@ export interface AddEntryRequest {
   quantity: number;
 }
 
+// ---- Wishlist ----
+export interface WishlistEntry {
+  entryId: number;
+  addedAt: string;
+  productId: number;
+  productCode: string;
+  productName: string;
+  productImageUrl: string;
+  price: number;
+  variantId: number | null;
+  variantSku: string | null;
+  variantDescription: string | null;
+}
+
+export interface Wishlist {
+  id: number;
+  totalItems: number;
+  entries: WishlistEntry[];
+}
+
+export interface ToggleWishlistEntryRequest {
+  productId: number;
+  variantId?: number;
+}
+
 // ---- Order ----
 export interface OrderEntry {
   productCode: string;

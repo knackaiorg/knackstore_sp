@@ -25,6 +25,7 @@ import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { StarRatingComponent } from './shared/components/star-rating/star-rating.component';
 import { ProductCardComponent } from './shared/components/product-card/product-card.component';
+import { WishlistComponent } from './pages/wishlist/wishlist.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +45,7 @@ import { ProductCardComponent } from './shared/components/product-card/product-c
     FooterComponent,
     StarRatingComponent,
     ProductCardComponent,
+    WishlistComponent,
   ],
   imports: [
     BrowserModule,
