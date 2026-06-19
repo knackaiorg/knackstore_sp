@@ -1,0 +1,62 @@
+<section class="product-carousel-section py-5 bg-light">
+  <div class="container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold mb-0">{{ title }}</h2>
+    </div>
+
+    <!-- Carousel Container -->
+    <div class="carousel-wrapper"
+         tabindex="0"
+         role="region"
+         [attr.aria-label]="title + ' carousel'"
+         (keydown)="onKeydown($event)"
+         (touchstart)="onTouchStart($event)"
+         (touchmove)="onTouchMove($event)"
+         (touchend)="onTouchEnd()">
+
+      <!-- Previous Arrow -->
+      <button class="carousel-arrow carousel-arrow-prev"
+              *ngIf="canGoPrev"
+              (click)="prev()"
+              aria-label="Previous products">
+        ‹
+      </button>
+
+      <!-- Track -->
+      <div class="carousel-track-container">
+        <div class="carousel-track"
+             #track
+             [style.transform]="'translateX(' + translateX + '%)'">
+          <div *ngFor="let product of products; let i = index"
+               class="carousel-item-wrapper"
+               [style.width.%]="100 / visibleCount">
+            <div class="carousel-item-inner">
+              <app-product-card [product]="product"></app-product-card>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Arrow -->
+      <button class="carousel-arrow carousel-arrow-next"
+              *ngIf="canGoNext"
+              (click)="next()"
+              aria-label="Next products">
+        ›
+      </button>
+    </div>
+
+    <!-- Indicators / Dots -->
+    <div class="carousel-indicators" role="tablist" aria-label="Carousel page indicators">
+      <button *ngFor="let dot of [].constructor(totalDots); let i = index"
+              class="carousel-dot"
+              [class.active]="getActiveDot() === i"
+              [attr.aria-label]="'Go to page ' + (i + 1)"
+              [attr.aria-selected]="getActiveDot() === i"
+              role="tab"
+              (click)="goToSlide(i)">
+      </button>
+    </div>
+  </div>
+</section>
