@@ -1,0 +1,11 @@
+<div *ngIf="loading" class="text-center py-5">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<app-product-carousel
+  *ngIf="!loading && products.length"
+  [products]="products"
+  [title]="'Recently Viewed Products'"
+  [viewAllLink]="'/products'"
+  [showViewAll]="true">
+</app-product-carousel>
