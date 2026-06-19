@@ -36,3 +36,4 @@ public interface ProductViewRepository extends JpaRepository<ProductView, Long> 
      */
     long countByGuestSessionId(String guestSessionId);
 }
+

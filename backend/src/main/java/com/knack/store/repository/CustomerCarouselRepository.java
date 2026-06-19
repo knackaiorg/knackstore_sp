@@ -7,4 +7,7 @@ import java.util.Optional;
 
 public interface CustomerCarouselRepository extends JpaRepository<CustomerCarousel, Long> {
     Optional<CustomerCarousel> findByCustomerId(String customerId);
+
+    long deleteByCustomerId(String customerId);
 }
+

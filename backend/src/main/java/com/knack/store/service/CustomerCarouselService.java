@@ -15,7 +15,7 @@ import java.util.ArrayList;
 @Transactional
 public class CustomerCarouselService {
 
-    private  CustomerCarouselRepository customerCarouselRepository;
+    private final CustomerCarouselRepository customerCarouselRepository;
 
     public CustomerCarouselDTO.CarouselResponse trackProduct(CustomerCarouselDTO.TrackRequest request) {
         if (request.getCustomerId() == null || request.getCustomerId().isBlank()) {
@@ -24,7 +24,9 @@ public class CustomerCarouselService {
         if (request.getProductId() == null || request.getProductId().isBlank()) {
             throw new RuntimeException("productId is required");
         }
-
+        System.out.println(
+                "Tracking product visit - customerId: " + request.getCustomerId() + ", productId: " + request.getProductId()
+        );
         CustomerCarousel carousel = customerCarouselRepository.findByCustomerId(request.getCustomerId())
                 .orElseGet(() -> CustomerCarousel.builder()
                         .customerId(request.getCustomerId())
@@ -52,6 +54,14 @@ public class CustomerCarouselService {
         return toResponse(carousel);
     }
 
+    public boolean deleteByCustomerId(String customerId) {
+        if (customerId == null || customerId.isBlank()) {
+            throw new RuntimeException("customerId is required");
+        }
+
+        return customerCarouselRepository.deleteByCustomerId(customerId) > 0;
+    }
+
     private CustomerCarouselDTO.CarouselResponse toResponse(CustomerCarousel carousel) {
         return new CustomerCarouselDTO.CarouselResponse(
                 carousel.getCustomerId(),
@@ -60,3 +70,4 @@ public class CustomerCarouselService {
         );
     }
 }
+

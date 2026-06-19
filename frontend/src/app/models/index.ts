@@ -1,5 +1,6 @@
 // ---- Auth ----
 export interface AuthResponse {
+  customerId: number;
   token: string;
   email: string;
   firstName: string;
