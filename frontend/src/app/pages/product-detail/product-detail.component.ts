@@ -5,6 +5,7 @@ import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProductReviewService } from '../../core/services/product-review.service';
+import { WishlistService } from '../../core/services/wishlist.service';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit {
@@ -14,6 +15,8 @@ export class ProductDetailComponent implements OnInit {
   loading = true;
   addingToCart = false;
   successMessage = '';
+  wishlistMessage = '';
+  togglingWishlist = false;
   reviews: ProductReview[] = [];
   reviewsLoading = true;
   submittingReview = false;
@@ -27,7 +30,8 @@ export class ProductDetailComponent implements OnInit {
     private productService: ProductService,
     private cartService: CartService,
     private authService: AuthService,
-    private productReviewService: ProductReviewService
+    private productReviewService: ProductReviewService,
+    private wishlistService: WishlistService
   ) {}
 
   ngOnInit() {
@@ -53,6 +57,40 @@ export class ProductDetailComponent implements OnInit {
 
   get inStock(): boolean {
     return (this.selectedVariant?.stock ?? this.product?.stockQuantity ?? 0) > 0;
+  }
+
+  get isWishlisted(): boolean {
+    if (!this.product) {
+      return false;
+    }
+    return this.wishlistService.isWishlisted(this.product.id, this.selectedVariant?.id);
+  }
+
+  toggleWishlist(): void {
+    if (!this.product) return;
+
+    if (!this.authService.isLoggedIn) {
+      const shouldNavigate = window.confirm('Please log in to use your wishlist. Go to login now?');
+      if (shouldNavigate) {
+        this.router.navigate(['/login']);
+      }
+      return;
+    }
+
+    this.togglingWishlist = true;
+    this.wishlistService.toggleEntry({
+      productId: this.product.id,
+      variantId: this.selectedVariant?.id
+    }).subscribe({
+      next: () => {
+        this.togglingWishlist = false;
+        this.wishlistMessage = this.isWishlisted ? 'Added to wishlist.' : 'Removed from wishlist.';
+        setTimeout(() => this.wishlistMessage = '', 2500);
+      },
+      error: () => {
+        this.togglingWishlist = false;
+      }
+    });
   }
 
   addToCart() {
