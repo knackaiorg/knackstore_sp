@@ -57,7 +57,15 @@
         </button>
       </div>
 
+      <div class="mb-3">
+        <button class="btn btn-outline-danger" [disabled]="togglingWishlist" (click)="toggleWishlist()">
+          <span *ngIf="togglingWishlist" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isWishlisted ? '♥ Remove from Wishlist' : '♡ Add to Wishlist' }}
+        </button>
+      </div>
+
       <div *ngIf="successMessage" class="alert alert-success py-2">{{ successMessage }}</div>
+      <div *ngIf="wishlistMessage" class="alert alert-info py-2">{{ wishlistMessage }}</div>
 
       <!-- Description -->
       <div class="mt-4">

@@ -27,6 +27,7 @@ import { StarRatingComponent } from './shared/components/star-rating/star-rating
 import { ProductCardComponent } from './shared/components/product-card/product-card.component';
 import { RecentlyViewedProductsComponent } from './shared/components/recently-viewed-products/recently-viewed-products.component';
 import { ProductCarouselComponent } from './shared/components/product-carousel/product-carousel.component';
+import { WishlistComponent } from './pages/wishlist/wishlist.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { ProductCarouselComponent } from './shared/components/product-carousel/p
     ProductCardComponent,
     RecentlyViewedProductsComponent,
     ProductCarouselComponent,
+    WishlistComponent,
   ],
   imports: [
     BrowserModule,
