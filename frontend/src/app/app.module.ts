@@ -25,6 +25,8 @@ import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { StarRatingComponent } from './shared/components/star-rating/star-rating.component';
 import { ProductCardComponent } from './shared/components/product-card/product-card.component';
+import { RecentlyViewedProductsComponent } from './shared/components/recently-viewed-products/recently-viewed-products.component';
+import { ProductCarouselComponent } from './shared/components/product-carousel/product-carousel.component';
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
 
 @NgModule({
@@ -45,6 +47,8 @@ import { WishlistComponent } from './pages/wishlist/wishlist.component';
     FooterComponent,
     StarRatingComponent,
     ProductCardComponent,
+    RecentlyViewedProductsComponent,
+    ProductCarouselComponent,
     WishlistComponent,
   ],
   imports: [

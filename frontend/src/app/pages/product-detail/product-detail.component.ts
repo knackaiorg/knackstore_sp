@@ -5,6 +5,7 @@ import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProductReviewService } from '../../core/services/product-review.service';
+import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
@@ -31,6 +32,7 @@ export class ProductDetailComponent implements OnInit {
     private cartService: CartService,
     private authService: AuthService,
     private productReviewService: ProductReviewService,
+    private recentlyViewedService: RecentlyViewedService
     private wishlistService: WishlistService
   ) {}
 
@@ -41,6 +43,7 @@ export class ProductDetailComponent implements OnInit {
         this.product = product;
         if (product.variants?.length) this.selectedVariant = product.variants[0];
         this.loading = false;
+        this.recentlyViewedService.addProduct(product);
       });
 
       this.loadReviews(productId);
