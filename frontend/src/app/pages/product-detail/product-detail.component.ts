@@ -32,7 +32,7 @@ export class ProductDetailComponent implements OnInit {
     private cartService: CartService,
     private authService: AuthService,
     private productReviewService: ProductReviewService,
-    private recentlyViewedService: RecentlyViewedService
+    private recentlyViewedService: RecentlyViewedService,
     private wishlistService: WishlistService
   ) {}
 
