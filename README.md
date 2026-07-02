@@ -56,7 +56,7 @@ electronics-store/
 - Shopping cart (add, update, remove, auto-merge)
 - 3-step checkout (address → payment → confirm)
 - Order placement, history, and detail view
-- Responsive Bootstrap 5 UI
+- Responsive Bootstrap 5 UI.
 
 ## Your Hackathon Task
 
