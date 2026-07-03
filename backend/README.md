@@ -6,7 +6,7 @@ All backend components for the "Recently Viewed Products" feature have been succ
 
 ---
 
-## 📦 What's Included...
+## 📦 What's Included.
 
 ### Backend Code (5 Files - Java/Spring Boot)
 1. **ProductView.java** - JPA Entity for tracking product views
