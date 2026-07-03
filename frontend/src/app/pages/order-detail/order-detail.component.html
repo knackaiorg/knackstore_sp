@@ -24,7 +24,27 @@
             <div class="d-flex justify-content-between mb-1"><span class="text-muted">Payment</span><span>{{ order.paymentMethod }}</span></div>
             <div class="d-flex justify-content-between mb-1"><span class="text-muted">Tracking</span><span class="fw-semibold">{{ order.trackingNumber }}</span></div>
             <div class="d-flex justify-content-between mb-1"><span class="text-muted">Date</span><span>{{ order.placedDate | date:'dd MMM yyyy, HH:mm' }}</span></div>
-            <div class="d-flex justify-content-between fw-bold mt-2"><span>Total</span><span class="text-primary">{{ order.totalPrice | currency:'USD' }}</span></div>
+            
+            <!-- Subtotal -->
+            <div class="d-flex justify-content-between mt-2">
+              <span class="text-muted">Subtotal</span>
+              <span>₹{{ order.subtotal | number:'1.2-2' }}</span>
+            </div>
+
+            <!-- Discount (if applied) -->
+            <div *ngIf="order.appliedPromoCode && order.discountAmount > 0" 
+                 class="d-flex justify-content-between text-success">
+              <span>
+                <i class="bi bi-tag-fill"></i> Discount ({{ order.appliedPromoCode }})
+              </span>
+              <span>-₹{{ order.discountAmount | number:'1.2-2' }}</span>
+            </div>
+
+            <!-- Total -->
+            <div class="d-flex justify-content-between fw-bold mt-2 pt-2 border-top">
+              <span>Total</span>
+              <span class="text-primary">₹{{ order.totalPrice | number:'1.2-2' }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -38,8 +58,8 @@
             <small *ngIf="e.variantDescription" class="text-muted">{{ e.variantDescription }}</small>
           </div>
           <div class="text-end">
-            <div class="text-muted small">{{ e.quantity }} × {{ e.unitPrice | currency:'USD' }}</div>
-            <div class="fw-bold">{{ e.totalPrice | currency:'USD' }}</div>
+            <div class="text-muted small">{{ e.quantity }} × ₹{{ e.unitPrice | number:'1.2-2' }}</div>
+            <div class="fw-bold">₹{{ e.totalPrice | number:'1.2-2' }}</div>
           </div>
         </div>
       </div>

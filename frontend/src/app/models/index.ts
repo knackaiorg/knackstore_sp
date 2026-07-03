@@ -7,6 +7,23 @@ export interface AuthResponse {
   lastName: string;
 }
 
+// ---- Promo Code ----
+export interface ApplyPromoCodeRequest {
+  code: string;
+}
+
+export interface ApplyPromoCodeResponse {
+  success: boolean;
+  message: string;
+  code?: string;
+  discountAmount?: number;
+}
+
+export interface RemovePromoCodeResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -107,6 +124,9 @@ export interface CartEntry {
 export interface Cart {
   id: number;
   entries: CartEntry[];
+  subtotal: number;
+  appliedPromoCode: string | null;
+  discountAmount: number;
   totalPrice: number;
   totalItems: number;
 }
@@ -157,6 +177,9 @@ export interface Order {
   id: number;
   orderCode: string;
   status: string;
+  subtotal: number;
+  appliedPromoCode: string | null;
+  discountAmount: number;
   totalPrice: number;
   paymentMethod: string;
   trackingNumber: string;
