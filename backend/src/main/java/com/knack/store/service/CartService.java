@@ -54,6 +54,9 @@ public class CartService {
             cart.getEntries().add(entry);
         }
 
+        // Clear promo code when cart is modified
+        clearPromoCodeIfApplied(cart);
+
         cartRepository.save(cart);
         return toDTO(cart);
     }
@@ -70,9 +73,17 @@ public class CartService {
         } else {
             entry.setQuantity(quantity);
         }
+
+        // Clear promo code when cart is modified
+        clearPromoCodeIfApplied(cart);
+
         cartRepository.save(cart);
         return toDTO(cart);
     }
+
+
+        // Clear promo code when cart is modified
+        clearPromoCodeIfApplied(cart);
 
     @Transactional
     public CartDTO removeEntry(String email, Long entryId) {
@@ -100,6 +111,9 @@ public class CartService {
     public CartDTO toDTO(Cart cart) {
         return CartDTO.builder()
                 .id(cart.getId())
+                .subtotal(cart.getSubtotal())
+                .appliedPromoCode(cart.getAppliedPromoCode())
+                .discountAmount(cart.getDiscountAmount() != null ? cart.getDiscountAmount() : 0.0)
                 .totalPrice(cart.getTotalPrice())
                 .totalItems(cart.getTotalItems())
                 .entries(cart.getEntries().stream().map(e -> CartDTO.CartEntryDTO.builder()
@@ -121,6 +135,13 @@ public class CartService {
     private String buildVariantDescription(ProductVariant v) {
         if (v == null) return null;
         StringBuilder sb = new StringBuilder();
+
+    private void clearPromoCodeIfApplied(Cart cart) {
+        if (cart.getAppliedPromoCode() != null) {
+            cart.setAppliedPromoCode(null);
+            cart.setDiscountAmount(0.0);
+        }
+    }
         if (v.getColor() != null) sb.append(v.getColor());
         if (v.getStorage() != null) { if (sb.length() > 0) sb.append(" / "); sb.append(v.getStorage()); }
         return sb.toString();

@@ -35,6 +35,12 @@ public class Order {
 
     private String status; // PLACED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
 
+    private Double subtotal;
+
+    private String appliedPromoCode;
+
+    private Double discountAmount;
+
     private Double totalPrice;
 
     private String paymentMethod;
