@@ -104,6 +104,7 @@ export interface ProductQuestion {
 
 export interface AnswerModel {
   answerText: string;
+  answererLabel: string;
 }
 
 export interface SubmitProductQuestionRequest {
