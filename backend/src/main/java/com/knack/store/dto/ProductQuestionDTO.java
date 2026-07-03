@@ -14,14 +14,14 @@ public class ProductQuestionDTO {
     public static class AskQuestionRequest {
         @NotBlank
         @Size(max = 200)
-        private String questionText;
+        private String question;
     }
 
     @Data
     public static class SubmitAnswerRequest {
         @NotBlank
         @Size(max = 500)
-        private String answerText;
+        private String answer;
     }
 
     @Data

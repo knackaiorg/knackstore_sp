@@ -58,7 +58,7 @@ public class QuestionService {
         Question question = Question.builder()
                 .product(product)
                 .customer(customer)
-                .questionText(request.getQuestionText().trim())
+                .questionText(request.getQuestion().trim())
                 .answered(false)
                 .build();
 
@@ -88,7 +88,7 @@ public class QuestionService {
         Answer answer = Answer.builder()
                 .question(question)
                 .customer(customer)
-                .answerText(request.getAnswerText().trim())
+                .answerText(request.getAnswer().trim())
                 .answererRole(resolveAnswererRole(authorities))
                 .build();
 
