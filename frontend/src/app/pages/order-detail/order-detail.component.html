@@ -1,11 +1,23 @@
 <div class="container py-4" style="max-width:800px">
   <a routerLink="/account/orders" class="btn btn-outline-secondary btn-sm mb-3">← Back to Orders</a>
+
   <div *ngIf="loading" class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+
   <div *ngIf="!loading && order">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <h2 class="fw-bold mb-0">Order {{ order.orderCode }}</h2>
-      <span class="badge bg-primary fs-6">{{ order.status }}</span>
+      <div class="d-flex align-items-center gap-2">
+       <button
+        type="button"
+        class="btn btn-sm btn-outline-primary"
+        (click)="onReorder()"
+      >
+        ReOrder
+      </button>
+        <span class="badge bg-primary fs-6">{{ order.status }}</span>
+      </div>
     </div>
+
     <div class="row g-3 mb-4">
       <div class="col-md-6">
         <div class="card shadow-sm h-100">
@@ -29,6 +41,7 @@
         </div>
       </div>
     </div>
+
     <div class="card shadow-sm">
       <div class="card-header fw-bold">Items Ordered</div>
       <div class="card-body p-0">
