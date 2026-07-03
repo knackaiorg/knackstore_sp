@@ -94,10 +94,19 @@ export interface ProductQuestion {
   productId: number;
   question: string;
   askedBy: string;
+  askedById?: number;
   askedAt: string;
   answer?: string;
-  answerRole?: 'Customer' | 'Team';
+  answererRole?: string;
   answeredAt?: string;
+}
+
+export interface SubmitProductQuestionRequest {
+  question: string;
+}
+
+export interface SubmitProductAnswerRequest {
+  answer: string;
 }
 
 // ---- Cart ----

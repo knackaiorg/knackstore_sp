@@ -181,10 +181,73 @@
               <div *ngIf="question.answer" class="border rounded-3 bg-white p-3 mt-3">
                 <div class="fw-semibold mb-1">Answer</div>
                 <p class="mb-2 text-muted">{{ question.answer }}</p>
-                <small class="text-muted">Answered by {{ question.answerRole ?? 'Customer' }}</small>
+                <small class="text-muted">Answered by {{ getAnswerLabel(question.answererRole) }}</small>
+              </div>
+
+              <div *ngIf="!question.answer" class="mt-3">
+                <div *ngIf="isAuthenticated; else guestAnswerPrompt" class="card border-0 bg-light p-3">
+                  <label class="form-label fw-semibold">Add Answer</label>
+                  <textarea
+                    class="form-control mb-2"
+                    [id]="'answer-' + question.id"
+                    rows="3"
+                    maxlength="500"
+                    [(ngModel)]="answerTextByQuestionId[question.id]"
+                    placeholder="Provide an answer for other shoppers"></textarea>
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted">{{ (answerTextByQuestionId[question.id] || '').length }}/500</small>
+                    <button class="btn btn-sm btn-primary" type="button"
+                      [disabled]="answerLoadingByQuestionId[question.id]"
+                      (click)="submitAnswer(question)">
+                      <span *ngIf="answerLoadingByQuestionId[question.id]" class="spinner-border spinner-border-sm me-2"></span>
+                      Submit Answer
+                    </button>
+                  </div>
+                  <div *ngIf="answerErrorByQuestionId[question.id]" class="alert alert-danger py-2 mb-2">{{ answerErrorByQuestionId[question.id] }}</div>
+                  <div *ngIf="answerSuccessByQuestionId[question.id]" class="alert alert-success py-2 mb-2">{{ answerSuccessByQuestionId[question.id] }}</div>
+                </div>
+                <ng-template #guestAnswerPrompt>
+                  <div class="card border-0 bg-light p-3">
+                    <p class="text-muted mb-0">Please <a routerLink="/login">log in</a> to answer this question.</p>
+                  </div>
+                </ng-template>
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="card border-0 shadow-sm p-4">
+          <h5 class="fw-bold mb-3">Ask a Question</h5>
+
+          <div *ngIf="isAuthenticated; else guestQuestionPrompt">
+            <div class="mb-3">
+              <label class="form-label" for="new-question">Your question</label>
+              <textarea
+                id="new-question"
+                class="form-control"
+                rows="4"
+                maxlength="200"
+                [(ngModel)]="questionText"
+                placeholder="Ask a question about this product"></textarea>
+              <div class="d-flex justify-content-between mt-1">
+                <small class="text-muted">{{ questionCharCount }}/200</small>
+                <small class="text-muted">Please keep your question concise.</small>
+              </div>
+            </div>
+            <div *ngIf="questionError" class="alert alert-danger py-2 mb-3">{{ questionError }}</div>
+            <div *ngIf="questionSuccessMessage" class="alert alert-success py-2 mb-3">{{ questionSuccessMessage }}</div>
+            <button class="btn btn-primary" type="button" [disabled]="submittingQuestion || hasAskedQuestion" (click)="submitQuestion()">
+              <span *ngIf="submittingQuestion" class="spinner-border spinner-border-sm me-2"></span>
+              Submit Question
+            </button>
+            <div *ngIf="hasAskedQuestion" class="text-muted mt-2">You've already asked a question about this product.</div>
+          </div>
+
+          <ng-template #guestQuestionPrompt>
+            <div class="card border-0 bg-light p-3">
+              <p class="text-muted mb-0">Please <a routerLink="/login">log in</a> to ask a question.</p>
+            </div>
+          </ng-template>
         </div>
       </div>
     </div>

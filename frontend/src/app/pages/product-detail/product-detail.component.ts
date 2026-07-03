@@ -23,6 +23,14 @@ export class ProductDetailComponent implements OnInit {
   reviewsLoading = true;
   questions: ProductQuestion[] = [];
   questionsLoading = true;
+  questionText = '';
+  questionError = '';
+  questionSuccessMessage = '';
+  submittingQuestion = false;
+  answerTextByQuestionId: Record<number, string> = {};
+  answerErrorByQuestionId: Record<number, string> = {};
+  answerSuccessByQuestionId: Record<number, string> = {};
+  answerLoadingByQuestionId: Record<number, boolean> = {};
   submittingReview = false;
   reviewRating: number | null = null;
   reviewComment = '';
@@ -57,6 +65,25 @@ export class ProductDetailComponent implements OnInit {
 
   get isAuthenticated(): boolean {
     return this.authService.isLoggedIn;
+  }
+
+  get questionCharCount(): number {
+    return this.questionText.length;
+  }
+
+  get hasAskedQuestion(): boolean {
+    if (!this.isAuthenticated) {
+      return false;
+    }
+
+    const currentUser = this.authService.currentUser;
+    return this.questions.some(q => {
+      if (q.askedById && currentUser?.customerId) {
+        return q.askedById === currentUser.customerId;
+      }
+      const fullName = `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim();
+      return q.askedBy === currentUser?.email || q.askedBy === fullName;
+    });
   }
 
   get displayPrice(): number {
@@ -117,6 +144,94 @@ export class ProductDetailComponent implements OnInit {
       },
       error: () => this.addingToCart = false
     });
+  }
+
+  submitQuestion(): void {
+    if (!this.product || !this.isAuthenticated) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const trimmed = this.questionText.trim();
+    if (!trimmed) {
+      this.questionError = 'Please type your question before submitting.';
+      return;
+    }
+
+    if (trimmed.length > 200) {
+      this.questionError = 'Questions may not exceed 200 characters.';
+      return;
+    }
+
+    if (this.hasAskedQuestion) {
+      this.questionError = "You've already asked a question about this product.";
+      return;
+    }
+
+    this.submittingQuestion = true;
+    this.questionError = '';
+    this.questionSuccessMessage = '';
+
+    this.productQuestionService.submitQuestion(this.product.id, { question: trimmed }).subscribe({
+      next: (question) => {
+        this.questions = [question, ...this.questions];
+        this.questionText = '';
+        this.questionSuccessMessage = 'Your question has been published.';
+        this.submittingQuestion = false;
+      },
+      error: (err) => {
+        this.submittingQuestion = false;
+        this.questionError = err?.error?.message || 'Unable to post your question right now. Please try again.';
+      }
+    });
+  }
+
+  submitAnswer(question: ProductQuestion): void {
+    if (!this.product || !this.isAuthenticated) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (question.answer) {
+      this.answerErrorByQuestionId[question.id] = 'This question has already been answered.';
+      return;
+    }
+
+    const answerText = (this.answerTextByQuestionId[question.id] ?? '').trim();
+    if (!answerText) {
+      this.answerErrorByQuestionId[question.id] = 'Please type your answer before submitting.';
+      return;
+    }
+
+    if (answerText.length > 500) {
+      this.answerErrorByQuestionId[question.id] = 'Answers may not exceed 500 characters.';
+      return;
+    }
+
+    this.answerLoadingByQuestionId[question.id] = true;
+    this.answerErrorByQuestionId[question.id] = '';
+    this.answerSuccessByQuestionId[question.id] = '';
+
+    this.productQuestionService.submitAnswer(this.product.id, question.id, { answer: answerText }).subscribe({
+      next: (updatedQuestion) => {
+        const index = this.questions.findIndex(q => q.id === question.id);
+        if (index !== -1) {
+          this.questions[index] = updatedQuestion;
+        }
+        this.answerTextByQuestionId[question.id] = '';
+        this.answerSuccessByQuestionId[question.id] = 'Answer published.';
+        this.answerLoadingByQuestionId[question.id] = false;
+      },
+      error: (err) => {
+        this.answerLoadingByQuestionId[question.id] = false;
+        this.answerErrorByQuestionId[question.id] = err?.error?.message || 'Unable to submit the answer. Please try again.';
+      }
+    });
+  }
+
+  getAnswerLabel(role?: string): string {
+    const normalized = role?.toLowerCase() ?? '';
+    return normalized === 'admin' || normalized === 'staff' ? 'Team' : 'Customer';
   }
 
   setReviewRating(star: number): void {
