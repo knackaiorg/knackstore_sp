@@ -78,8 +78,8 @@ export class ProductDetailComponent implements OnInit {
 
     const currentUser = this.authService.currentUser;
     return this.questions.some(q => {
-      if (q.askedById && currentUser?.customerId) {
-        return q.askedById === currentUser.customerId;
+      if (q.askedBy && currentUser?.customerId) {
+        return q.askedBy === currentUser.firstName;
       }
       const fullName = `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim();
       return q.askedBy === currentUser?.email || q.askedBy === fullName;

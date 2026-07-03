@@ -216,31 +216,37 @@
           </div>
         </div>
 
-        <div *ngIf="questions.length === 0" class="card border-0 shadow-sm p-4">
+        <div class="card border-0 shadow-sm p-4">
           <h5 class="fw-bold mb-3">Ask a Question</h5>
 
           <div *ngIf="isAuthenticated; else guestQuestionPrompt">
-            <div class="mb-3">
-              <label class="form-label" for="new-question">Your question</label>
-              <textarea
-                id="new-question"
-                class="form-control"
-                rows="4"
-                maxlength="200"
-                [(ngModel)]="questionText"
-                placeholder="Ask a question about this product"></textarea>
-              <div class="d-flex justify-content-between mt-1">
-                <small class="text-muted">{{ questionCharCount }}/200</small>
-                <small class="text-muted">Please keep your question concise.</small>
+            <div *ngIf="!hasAskedQuestion; else askedMessage">
+              <div class="mb-3">
+                <label class="form-label" for="new-question">Your question</label>
+                <textarea
+                  id="new-question"
+                  class="form-control"
+                  rows="4"
+                  maxlength="200"
+                  [(ngModel)]="questionText"
+                  placeholder="Ask a question about this product"></textarea>
+                <div class="d-flex justify-content-between mt-1">
+                  <small class="text-muted">{{ questionCharCount }}/200</small>
+                  <small class="text-muted">Please keep your question concise.</small>
+                </div>
               </div>
+              <div *ngIf="questionError" class="alert alert-danger py-2 mb-3">{{ questionError }}</div>
+              <div *ngIf="questionSuccessMessage" class="alert alert-success py-2 mb-3">{{ questionSuccessMessage }}</div>
+              <button class="btn btn-primary" type="button" [disabled]="submittingQuestion" (click)="submitQuestion()">
+                <span *ngIf="submittingQuestion" class="spinner-border spinner-border-sm me-2"></span>
+                Submit Question
+              </button>
             </div>
-            <div *ngIf="questionError" class="alert alert-danger py-2 mb-3">{{ questionError }}</div>
-            <div *ngIf="questionSuccessMessage" class="alert alert-success py-2 mb-3">{{ questionSuccessMessage }}</div>
-            <button class="btn btn-primary" type="button" [disabled]="submittingQuestion || hasAskedQuestion" (click)="submitQuestion()">
-              <span *ngIf="submittingQuestion" class="spinner-border spinner-border-sm me-2"></span>
-              Submit Question
-            </button>
-            <div *ngIf="hasAskedQuestion" class="text-muted mt-2">You've already asked a question about this product.</div>
+            <ng-template #askedMessage>
+              <div class="card border-0 bg-light p-3">
+                <p class="text-muted mb-0">You've already asked a question about this product.</p>
+              </div>
+            </ng-template>
           </div>
 
           <ng-template #guestQuestionPrompt>
@@ -249,7 +255,7 @@
             </div>
           </ng-template>
         </div>
-        <label class="form-label">Only one question per product is allowed.</label>
+        <!-- <label class="form-label">Only one question per product is allowed.</label> -->
       </div>
     </div>
   </div>
