@@ -89,6 +89,17 @@ export interface ProductReview {
   createdAt: string;
 }
 
+export interface ProductQuestion {
+  id: number;
+  productId: number;
+  question: string;
+  askedBy: string;
+  askedAt: string;
+  answer?: string;
+  answerRole?: 'Customer' | 'Team';
+  answeredAt?: string;
+}
+
 // ---- Cart ----
 export interface CartEntry {
   entryId: number;

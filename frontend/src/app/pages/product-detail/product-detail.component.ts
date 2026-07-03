@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Product, ProductReview, ProductVariant } from '../../models';
+import { Product, ProductQuestion, ProductReview, ProductVariant } from '../../models';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProductReviewService } from '../../core/services/product-review.service';
+import { ProductQuestionService } from '../../core/services/product-question.service';
 import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 
@@ -20,6 +21,8 @@ export class ProductDetailComponent implements OnInit {
   togglingWishlist = false;
   reviews: ProductReview[] = [];
   reviewsLoading = true;
+  questions: ProductQuestion[] = [];
+  questionsLoading = true;
   submittingReview = false;
   reviewRating: number | null = null;
   reviewComment = '';
@@ -32,6 +35,7 @@ export class ProductDetailComponent implements OnInit {
     private cartService: CartService,
     private authService: AuthService,
     private productReviewService: ProductReviewService,
+    private productQuestionService: ProductQuestionService,
     private recentlyViewedService: RecentlyViewedService,
     private wishlistService: WishlistService
   ) {}
@@ -47,6 +51,7 @@ export class ProductDetailComponent implements OnInit {
       });
 
       this.loadReviews(productId);
+      this.loadQuestions(productId);
     });
   }
 
@@ -167,6 +172,20 @@ export class ProductDetailComponent implements OnInit {
       error: () => {
         this.reviews = [];
         this.reviewsLoading = false;
+      }
+    });
+  }
+
+  private loadQuestions(productId: number): void {
+    this.questionsLoading = true;
+    this.productQuestionService.getProductQuestions(productId).subscribe({
+      next: (questions) => {
+        this.questions = questions.sort((a, b) => new Date(b.askedAt).getTime() - new Date(a.askedAt).getTime());
+        this.questionsLoading = false;
+      },
+      error: () => {
+        this.questions = [];
+        this.questionsLoading = false;
       }
     });
   }
