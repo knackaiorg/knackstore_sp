@@ -96,6 +96,7 @@ export interface ProductQuestion {
   askedBy: string;
   askedById?: number;
   askedAt: string;
+  createdAt: string
   answer?: AnswerModel;
   // answerModel?: AnswerModel;
   answererRole?: string;
