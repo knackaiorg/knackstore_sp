@@ -238,6 +238,22 @@ public class DataInitializer implements CommandLineRunner {
                 .discountValue(15.0)
                 .minimumOrderAmount(null) // No minimum for this percentage promo
                 .active(true)
+                .build(),
+            // Expired/Inactive promo code
+            PromoCode.builder()
+                .code("COOL")
+                .discountType(PromoCode.DiscountType.PERCENTAGE)
+                .discountValue(25.0)
+                .minimumOrderAmount(1500.0)
+                .active(false) // Inactive/Expired code
+                .build(),
+            // Alphabetic-only promo code
+            PromoCode.builder()
+                .code("SUMMER")
+                .discountType(PromoCode.DiscountType.PERCENTAGE)
+                .discountValue(12.0)
+                .minimumOrderAmount(800.0)
+                .active(true)
                 .build()
         );
 
