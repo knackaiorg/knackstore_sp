@@ -4,7 +4,7 @@
 
 ## Quick Start.
 
-### Backend (Spring Boot)
+### Backend (Spring Boot)....
 ```bash
 cd backend
 ./mvnw spring-boot:run
