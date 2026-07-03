@@ -2,7 +2,7 @@
 
 > **Spring Boot + Angular electronics store. Clone, run, and extend.**
 
-## Quick Start
+## Quick Start.
 
 ### Backend (Spring Boot)
 ```bash
