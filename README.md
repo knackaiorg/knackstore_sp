@@ -1,4 +1,4 @@
-# KnackStore — Knack AI Hackathon Starter App
+# KnackStore — Knack AI Hackathon Starter App.
 
 > **Spring Boot + Angular electronics store. Clone, run, and extend.**
 
