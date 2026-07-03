@@ -60,7 +60,7 @@ electronics-store/
 
 ## Your Hackathon Task
 
-Extend this repo to implement one of the five tasks in `features.md`. Use AI tools to help you generate code, user stories, and test cases. See the hackathon brief for the full workflow.
+Extend this repo to implement one of the five tasks in `features.md`. Use AI tools to help you generate code, user stories, and test cases. See the hackathon brief for the full workflow
 
 ---
 
