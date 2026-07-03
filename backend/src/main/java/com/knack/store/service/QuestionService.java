@@ -121,6 +121,7 @@ public class QuestionService {
         return ProductQuestionDTO.QuestionResponse.builder()
                 .id(question.getId())
                 .productId(question.getProduct().getId())
+                .askedBy(question.getCustomer().getFirstName())
                 .questionText(question.getQuestionText())
                 .createdAt(question.getCreatedAt())
                 .answered(question.isAnswered() && answerResponse != null)

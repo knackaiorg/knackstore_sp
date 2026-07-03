@@ -40,6 +40,7 @@ public class ProductQuestionDTO {
     public static class QuestionResponse {
         private Long id;
         private Long productId;
+        private String askedBy;
         private String questionText;
         private LocalDateTime createdAt;
         private boolean answered;
