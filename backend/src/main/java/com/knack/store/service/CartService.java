@@ -81,14 +81,14 @@ public class CartService {
         return toDTO(cart);
     }
 
-
-        // Clear promo code when cart is modified
-        clearPromoCodeIfApplied(cart);
-
     @Transactional
     public CartDTO removeEntry(String email, Long entryId) {
         Cart cart = getOrCreateCart(email);
         cart.getEntries().removeIf(e -> e.getId().equals(entryId));
+
+        // Clear promo code when cart is modified
+        clearPromoCodeIfApplied(cart);
+
         cartRepository.save(cart);
         return toDTO(cart);
     }
@@ -135,15 +135,15 @@ public class CartService {
     private String buildVariantDescription(ProductVariant v) {
         if (v == null) return null;
         StringBuilder sb = new StringBuilder();
+        if (v.getColor() != null) sb.append(v.getColor());
+        if (v.getStorage() != null) { if (sb.length() > 0) sb.append(" / "); sb.append(v.getStorage()); }
+        return sb.toString();
+    }
 
     private void clearPromoCodeIfApplied(Cart cart) {
         if (cart.getAppliedPromoCode() != null) {
             cart.setAppliedPromoCode(null);
             cart.setDiscountAmount(0.0);
         }
-    }
-        if (v.getColor() != null) sb.append(v.getColor());
-        if (v.getStorage() != null) { if (sb.length() > 0) sb.append(" / "); sb.append(v.getStorage()); }
-        return sb.toString();
     }
 }

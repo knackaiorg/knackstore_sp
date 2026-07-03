@@ -27,6 +27,7 @@ public class PromoCode {
 
     private Double minimumOrderAmount;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
 
