@@ -34,8 +34,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configure(http))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers("/api/carousel/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/questions").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(

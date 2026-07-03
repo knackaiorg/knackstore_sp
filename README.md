@@ -11,7 +11,7 @@ cd backend
 ```
 API → http://localhost:8080 | H2 Console → http://localhost:8080/h2-console
 
-### Frontend (Angular)
+### Frontend (Angular).
 ```bash
 cd frontend
 npm install
@@ -60,7 +60,7 @@ electronics-store/
 
 ## Your Hackathon Task
 
-Extend this repo to implement one of the five tasks in `features.md`. Use AI tools to help you generate code, user stories, and test cases. See the hackathon brief for the full workflow.
+Extend this repo to implement one of the five tasks in `features.md`. Use AI tools to help you generate code, user stories, and test cases. See the hackathon brief for the full workflow
 
 ---
 
