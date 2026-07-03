@@ -173,14 +173,14 @@
             <div class="card-body py-3">
               <div class="d-flex justify-content-between align-items-start gap-3">
                 <div>
-                  <div class="fw-semibold">Q: {{ question.question }}</div>
+                  <div class="fw-semibold">Q: {{ question.questionText }}</div>
                   <small class="text-muted">Asked by {{ question.askedBy }} · {{ question.askedAt | date:'mediumDate' }}</small>
                 </div>
               </div>
 
               <div *ngIf="question.answer" class="border rounded-3 bg-white p-3 mt-3">
                 <div class="fw-semibold mb-1">Answer</div>
-                <p class="mb-2 text-muted">{{ question.answer }}</p>
+                <p class="mb-2 text-muted">{{ question.answer?.answerText }}</p>
                 <small class="text-muted">Answered by {{ getAnswerLabel(question.answererRole) }}</small>
               </div>
 
@@ -216,7 +216,7 @@
           </div>
         </div>
 
-        <div class="card border-0 shadow-sm p-4">
+        <div *ngIf="questions.length === 0" class="card border-0 shadow-sm p-4">
           <h5 class="fw-bold mb-3">Ask a Question</h5>
 
           <div *ngIf="isAuthenticated; else guestQuestionPrompt">

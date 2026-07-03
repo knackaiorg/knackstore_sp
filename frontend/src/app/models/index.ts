@@ -92,13 +92,18 @@ export interface ProductReview {
 export interface ProductQuestion {
   id: number;
   productId: number;
-  question: string;
+  questionText: string;
   askedBy: string;
   askedById?: number;
   askedAt: string;
-  answer?: string;
+  answer?: AnswerModel;
+  // answerModel?: AnswerModel;
   answererRole?: string;
   answeredAt?: string;
+}
+
+export interface AnswerModel {
+  answerText: string;
 }
 
 export interface SubmitProductQuestionRequest {

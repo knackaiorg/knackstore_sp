@@ -18,7 +18,11 @@ export class ProductQuestionService {
     return this.http.post<ProductQuestion>(`${this.apiUrl}/products/${productId}/questions`, request);
   }
 
-  submitAnswer(productId: number, questionId: number, request: SubmitProductAnswerRequest): Observable<ProductQuestion> {
-    return this.http.post<ProductQuestion>(`${this.apiUrl}/products/${productId}/questions/${questionId}/answer`, request);
+//   submitAnswer(productId: number, questionId: number, request: SubmitProductAnswerRequest): Observable<ProductQuestion> {
+//     return this.http.post<ProductQuestion>(`${this.apiUrl}/products/${productId}/questions/${questionId}/answer`, request);
+//   }
+
+  submitAnswer(questionId: number, request: SubmitProductAnswerRequest): Observable<ProductQuestion> {
+    return this.http.post<ProductQuestion>(`${this.apiUrl}/questions/${questionId}/answer`, request);
   }
 }
