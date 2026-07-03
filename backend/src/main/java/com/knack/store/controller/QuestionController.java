@@ -40,7 +40,7 @@ public class QuestionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/questions/{questionId}/answers")
+    @PostMapping("/questions/{questionId}/answer")
     @Operation(summary = "Answer question", description = "Submit one answer for an unanswered product question.")
     public ResponseEntity<ProductQuestionDTO.QuestionResponse> submitAnswer(
             @AuthenticationPrincipal UserDetails user,

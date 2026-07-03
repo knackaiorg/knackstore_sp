@@ -212,7 +212,9 @@ export class ProductDetailComponent implements OnInit {
     this.answerErrorByQuestionId[question.id] = '';
     this.answerSuccessByQuestionId[question.id] = '';
 
-    this.productQuestionService.submitAnswer(this.product.id, question.id, { answer: answerText }).subscribe({
+    this.productQuestionService.submitAnswer(
+      // this.product.id, 
+      question.id, { answer: answerText }).subscribe({
       next: (updatedQuestion) => {
         const index = this.questions.findIndex(q => q.id === question.id);
         if (index !== -1) {
