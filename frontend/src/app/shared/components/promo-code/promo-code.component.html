@@ -1,0 +1,82 @@
+<!-- Promo Code Section -->
+<div class="promo-code-section">
+  <!-- Alert Messages -->
+  <div *ngIf="showMessage" class="alert alert-dismissible fade show mb-3" 
+       [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'" 
+       role="alert">
+    <i class="bi" [ngClass]="messageType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+    {{ messageText }}
+    <button type="button" class="btn-close" (click)="hideMessage()" aria-label="Close"></button>
+  </div>
+
+  <!-- Applied Promo Code Display -->
+  <div *ngIf="appliedPromoCode" class="applied-promo-card mb-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <i class="bi bi-tag-fill text-success me-2"></i>
+        <span class="fw-semibold">Promo Code Applied:</span>
+        <span class="ms-2 badge bg-success">{{ appliedPromoCode }}</span>
+      </div>
+      <button 
+        type="button" 
+        class="btn btn-sm btn-outline-danger"
+        (click)="removePromoCode()"
+        [disabled]="isRemoving">
+        <span *ngIf="isRemoving" class="spinner-border spinner-border-sm me-1"></span>
+        {{ isRemoving ? 'Removing...' : 'Remove' }}
+      </button>
+    </div>
+    <div class="discount-info mt-2">
+      <small class="text-success">
+        <i class="bi bi-check-circle"></i>
+        You saved ₹{{ discountAmount | number:'1.2-2' }} with this code!
+      </small>
+    </div>
+  </div>
+
+  <!-- Promo Code Input Form (always visible) -->
+  <div class="promo-code-form">
+    <form [formGroup]="promoForm" (ngSubmit)="applyPromoCode()">
+      <label class="form-label fw-semibold mb-2">
+        <i class="bi bi-tag me-1"></i>
+        Have a Promo Code?
+      </label>
+      
+      <div class="input-group">
+        <input 
+          type="text" 
+          class="form-control"
+          formControlName="code"
+          placeholder="Enter promo code (e.g., SAVE10)"
+          maxlength="20"
+          [class.is-invalid]="codeControl?.invalid && codeControl?.touched">
+        
+        <button 
+          type="submit" 
+          class="btn btn-primary"
+          [disabled]="isApplying">
+          <span *ngIf="isApplying" class="spinner-border spinner-border-sm me-1"></span>
+          {{ isApplying ? 'Applying...' : 'Apply' }}
+        </button>
+      </div>
+
+      <!-- Validation Error Messages -->
+      <div *ngIf="codeControl?.invalid && codeControl?.touched" class="invalid-feedback d-block">
+        <small *ngIf="hasError('code', 'pattern')">
+          <i class="bi bi-exclamation-circle"></i>
+          Promo code must contain only letters and numbers
+        </small>
+        <small *ngIf="hasError('code', 'maxlength')">
+          <i class="bi bi-exclamation-circle"></i>
+          Promo code must be 20 characters or less
+        </small>
+      </div>
+
+      <!-- Hint Text -->
+      <small class="text-muted d-block mt-2">
+        <i class="bi bi-info-circle"></i>
+        Enter your promo code to get a discount on your order
+      </small>
+    </form>
+  </div>
+</div>

@@ -4,6 +4,8 @@
 
 ## Quick Start
 
+# check github hook for build run
+
 ### Backend (Spring Boot)
 ```bash
 cd backend
@@ -19,7 +21,7 @@ npm start
 ```
 App → http://localhost:4200
 
-### Demo Login
+### Demo Login....
 Email: `demo@knack.com` | Password: `Demo@1234`
 
 ---
