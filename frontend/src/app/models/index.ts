@@ -218,6 +218,7 @@ export interface Order {
 export interface PlaceOrderRequest {
   deliveryAddress: Address;
   paymentMethod: string;
+  orderStatus: string;
 }
 
 // ---- Customer ----

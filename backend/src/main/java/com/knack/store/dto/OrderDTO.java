@@ -37,5 +37,6 @@ public class OrderDTO {
     public static class PlaceOrderRequest {
         private AddressDTO deliveryAddress;
         private String paymentMethod;
+        private String orderStatus;
     }
 }
