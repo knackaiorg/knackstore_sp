@@ -106,6 +106,33 @@ export interface ProductReview {
   createdAt: string;
 }
 
+export interface ProductQuestion {
+  id: number;
+  productId: number;
+  questionText: string;
+  askedBy: string;
+  askedById?: number;
+  askedAt: string;
+  createdAt: string
+  answer?: AnswerModel;
+  // answerModel?: AnswerModel;
+  answererRole?: string;
+  answeredAt?: string;
+}
+
+export interface AnswerModel {
+  answerText: string;
+  answererLabel: string;
+}
+
+export interface SubmitProductQuestionRequest {
+  question: string;
+}
+
+export interface SubmitProductAnswerRequest {
+  answer: string;
+}
+
 // ---- Cart ----
 export interface CartEntry {
   entryId: number;

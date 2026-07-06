@@ -27,6 +27,11 @@ public class Customer {
 
     private String phone;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private UserRole role = UserRole.CUSTOMER;
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "firstName", column = @Column(name = "addr_first_name")),
