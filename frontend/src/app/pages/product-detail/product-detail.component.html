@@ -180,8 +180,8 @@
 
               <div *ngIf="question.answer" class="border rounded-3 bg-white p-3 mt-3">
                 <div class="fw-semibold mb-1">Answer</div>
-                <p class="mb-2 text-muted">{{ question.answer?.answerText }}</p>
-                <small class="text-muted">Answered by {{ question.answer?.answererLabel }}</small>
+                <p class="mb-2 text-muted">{{ question.answer.answerText }}</p>
+                <small class="text-muted">Answered by {{ question.answer.answererLabel }}</small>
               </div>
 
               <div *ngIf="!question.answer" class="mt-3">
