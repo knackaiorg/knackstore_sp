@@ -118,7 +118,7 @@ public class WishlistService {
                         .productName(e.getProduct().getName())
                         .productImageUrl(e.getProduct().getImageUrl())
                         .price(e.getVariant() != null ? e.getVariant().getPrice() : e.getProduct().getBasePrice())
-                    .inStock(e.getVariant() != null
+                        .inStock(e.getVariant() != null
                         ? e.getVariant().getStock() > 0
                         : e.getProduct().getStockQuantity() > 0)
                         .variantId(e.getVariant() != null ? e.getVariant().getId() : null)

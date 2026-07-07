@@ -1,0 +1,15 @@
+<div *ngIf="loading" class="text-center py-5">
+  <div class="spinner-border text-primary"></div>
+</div>
+
+<div *ngIf="!loading && error" class="text-center py-3">
+  <p class="text-muted">{{ error }}</p>
+</div>
+
+<app-product-carousel
+  *ngIf="!loading && !error && products.length"
+  [products]="products"
+  [title]="'Recently Viewed Products'"
+  [viewAllLink]="'/products'"
+  [showViewAll]="true">
+</app-product-carousel>

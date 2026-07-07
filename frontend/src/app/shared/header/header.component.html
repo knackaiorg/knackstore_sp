@@ -5,10 +5,35 @@
     </a>
 
     <div class="d-flex align-items-center gap-2 flex-grow-1 mx-3">
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search products..."
-               [(ngModel)]="searchQuery" (keyup.enter)="onSearch()">
+      <div class="input-group search-dropdown-wrapper" style="position:relative;">
+         <input type="text" class="form-control" placeholder="Search products..."
+           [(ngModel)]="searchQuery" (ngModelChange)="onSearchInput()" (input)="onSearchInput()" (keydown)="onKeydown($event)" autocomplete="off">
+        <button *ngIf="searchQuery" type="button" class="btn btn-outline-light" aria-label="Clear search" (click)="clearSearch()" style="padding:0 10px;">
+          ✕
+        </button>
         <button class="btn btn-warning" (click)="onSearch()">🔍</button>
+
+        <div *ngIf="showSuggestions" class="list-group position-absolute suggestion-dropdown" style="z-index:1050; top:100%; left:0; right:0; width:100%;">
+          <ng-container *ngFor="let group of suggestions">
+            <div class="list-group-item list-group-item-secondary small fw-bold">{{ group.title }}</div>
+                <button type="button" class="list-group-item list-group-item-action suggestion-item" *ngFor="let item of group.items"
+                  (click)="selectSuggestion(item, group.type)"
+                  [class.active]="getFlatIndex(item) === activeIndex">
+              <div class="d-flex align-items-center gap-2">
+                <img *ngIf="item.imageUrl || item.image || item.logo" [src]="item.imageUrl || item.image || item.logo" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px">
+                <div>
+                  <div class="fw-semibold" [innerHTML]="item.highlightedName || item.name"></div>
+                  <div *ngIf="item.highlightedSubtitle || item.subtitle" class="small text-muted" [innerHTML]="item.highlightedSubtitle || item.subtitle"></div>
+                  <div *ngIf="item.basePrice || item.price" class="small text-muted">{{ (item.basePrice || item.price) | currency }}</div>
+                </div>
+              </div>
+            </button>
+          </ng-container>
+        </div>
+
+        <div *ngIf="noSuggestions" class="list-group position-absolute suggestion-dropdown" style="z-index:1050; top:100%; left:0; right:0; width:100%;">
+          <div class="list-group-item text-muted">No results found</div>
+        </div>
       </div>
     </div>
 

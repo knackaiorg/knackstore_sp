@@ -1,9 +1,27 @@
 // ---- Auth ----
 export interface AuthResponse {
+  customerId: number;
   token: string;
   email: string;
   firstName: string;
   lastName: string;
+}
+
+// ---- Promo Code ----
+export interface ApplyPromoCodeRequest {
+  code: string;
+}
+
+export interface ApplyPromoCodeResponse {
+  success: boolean;
+  message: string;
+  code?: string;
+  discountAmount?: number;
+}
+
+export interface RemovePromoCodeResponse {
+  success: boolean;
+  message: string;
 }
 
 export interface LoginRequest {
@@ -88,6 +106,33 @@ export interface ProductReview {
   createdAt: string;
 }
 
+export interface ProductQuestion {
+  id: number;
+  productId: number;
+  questionText: string;
+  askedBy: string;
+  askedById?: number;
+  askedAt: string;
+  createdAt: string
+  answer?: AnswerModel;
+  // answerModel?: AnswerModel;
+  answererRole?: string;
+  answeredAt?: string;
+}
+
+export interface AnswerModel {
+  answerText: string;
+  answererLabel: string;
+}
+
+export interface SubmitProductQuestionRequest {
+  question: string;
+}
+
+export interface SubmitProductAnswerRequest {
+  answer: string;
+}
+
 // ---- Cart ----
 export interface CartEntry {
   entryId: number;
@@ -106,6 +151,9 @@ export interface CartEntry {
 export interface Cart {
   id: number;
   entries: CartEntry[];
+  subtotal: number;
+  appliedPromoCode: string | null;
+  discountAmount: number;
   totalPrice: number;
   totalItems: number;
 }
@@ -157,6 +205,9 @@ export interface Order {
   id: number;
   orderCode: string;
   status: string;
+  subtotal: number;
+  appliedPromoCode: string | null;
+  discountAmount: number;
   totalPrice: number;
   paymentMethod: string;
   trackingNumber: string;
@@ -168,6 +219,7 @@ export interface Order {
 export interface PlaceOrderRequest {
   deliveryAddress: Address;
   paymentMethod: string;
+  orderStatus: string;
 }
 
 // ---- Customer ----

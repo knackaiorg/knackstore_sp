@@ -25,6 +25,8 @@ export class ProductCardComponent {
 
   get isWishlisted(): boolean {
     return this.wishlistService.isWishlisted(this.product.id, this.firstVariantId);
+  get isWishlisted(): boolean {
+    return this.wishlistService.isWishlisted(this.product.id, undefined, true);
   }
 
   toggleWishlist(event: MouseEvent): void {
@@ -44,6 +46,7 @@ export class ProductCardComponent {
       productId: this.product.id,
       variantId: this.firstVariantId
     }).subscribe({
+    this.wishlistService.toggleEntry({ productId: this.product.id }).subscribe({
       next: () => {
         this.toggling = false;
       },

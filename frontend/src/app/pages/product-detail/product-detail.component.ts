@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Product, ProductReview, ProductVariant } from '../../models';
+import { Product, ProductQuestion, ProductReview, ProductVariant } from '../../models';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProductReviewService } from '../../core/services/product-review.service';
+import { ProductQuestionService } from '../../core/services/product-question.service';
+import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
@@ -19,6 +21,16 @@ export class ProductDetailComponent implements OnInit {
   togglingWishlist = false;
   reviews: ProductReview[] = [];
   reviewsLoading = true;
+  questions: ProductQuestion[] = [];
+  questionsLoading = true;
+  questionText = '';
+  questionError = '';
+  questionSuccessMessage = '';
+  submittingQuestion = false;
+  answerTextByQuestionId: Record<number, string> = {};
+  answerErrorByQuestionId: Record<number, string> = {};
+  answerSuccessByQuestionId: Record<number, string> = {};
+  answerLoadingByQuestionId: Record<number, boolean> = {};
   submittingReview = false;
   reviewRating: number | null = null;
   reviewComment = '';
@@ -31,6 +43,8 @@ export class ProductDetailComponent implements OnInit {
     private cartService: CartService,
     private authService: AuthService,
     private productReviewService: ProductReviewService,
+    private productQuestionService: ProductQuestionService,
+    private recentlyViewedService: RecentlyViewedService,
     private wishlistService: WishlistService
   ) {}
 
@@ -41,14 +55,35 @@ export class ProductDetailComponent implements OnInit {
         this.product = product;
         if (product.variants?.length) this.selectedVariant = product.variants[0];
         this.loading = false;
+        this.recentlyViewedService.addProduct(product);
       });
 
       this.loadReviews(productId);
+      this.loadQuestions(productId);
     });
   }
 
   get isAuthenticated(): boolean {
     return this.authService.isLoggedIn;
+  }
+
+  get questionCharCount(): number {
+    return this.questionText.length;
+  }
+
+  get hasAskedQuestion(): boolean {
+    if (!this.isAuthenticated) {
+      return false;
+    }
+
+    const currentUser = this.authService.currentUser;
+    return this.questions.some(q => {
+      if (q.askedBy && currentUser?.customerId) {
+        return q.askedBy === currentUser.firstName;
+      }
+      const fullName = `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim();
+      return q.askedBy === currentUser?.email || q.askedBy === fullName;
+    });
   }
 
   get displayPrice(): number {
@@ -111,6 +146,96 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
+  submitQuestion(): void {
+    if (!this.product || !this.isAuthenticated) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const trimmed = this.questionText.trim();
+    if (!trimmed) {
+      this.questionError = 'Please type your question before submitting.';
+      return;
+    }
+
+    if (trimmed.length > 200) {
+      this.questionError = 'Questions may not exceed 200 characters.';
+      return;
+    }
+
+    if (this.hasAskedQuestion) {
+      this.questionError = "You've already asked a question about this product.";
+      return;
+    }
+
+    this.submittingQuestion = true;
+    this.questionError = '';
+    this.questionSuccessMessage = '';
+
+    this.productQuestionService.submitQuestion(this.product.id, { question: trimmed }).subscribe({
+      next: (question) => {
+        this.questions = [question, ...this.questions];
+        this.questionText = '';
+        this.questionSuccessMessage = 'Your question has been published.';
+        this.submittingQuestion = false;
+      },
+      error: (err) => {
+        this.submittingQuestion = false;
+        this.questionError = err?.error?.message || 'Unable to post your question right now. Please try again.';
+      }
+    });
+  }
+
+  submitAnswer(question: ProductQuestion): void {
+    if (!this.product || !this.isAuthenticated) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (question.answer) {
+      this.answerErrorByQuestionId[question.id] = 'This question has already been answered.';
+      return;
+    }
+
+    const answerText = (this.answerTextByQuestionId[question.id] ?? '').trim();
+    if (!answerText) {
+      this.answerErrorByQuestionId[question.id] = 'Please type your answer before submitting.';
+      return;
+    }
+
+    if (answerText.length > 500) {
+      this.answerErrorByQuestionId[question.id] = 'Answers may not exceed 500 characters.';
+      return;
+    }
+
+    this.answerLoadingByQuestionId[question.id] = true;
+    this.answerErrorByQuestionId[question.id] = '';
+    this.answerSuccessByQuestionId[question.id] = '';
+
+    this.productQuestionService.submitAnswer(
+      // this.product.id, 
+      question.id, { answer: answerText }).subscribe({
+      next: (updatedQuestion) => {
+        const index = this.questions.findIndex(q => q.id === question.id);
+        if (index !== -1) {
+          this.questions[index] = updatedQuestion;
+        }
+        this.answerTextByQuestionId[question.id] = '';
+        this.answerSuccessByQuestionId[question.id] = 'Answer published.';
+        this.answerLoadingByQuestionId[question.id] = false;
+      },
+      error: (err) => {
+        this.answerLoadingByQuestionId[question.id] = false;
+        this.answerErrorByQuestionId[question.id] = err?.error?.message || 'Unable to submit the answer. Please try again.';
+      }
+    });
+  }
+
+  getAnswerLabel(role?: string): string {
+    const normalized = role?.toLowerCase() ?? '';
+    return normalized === 'admin' || normalized === 'staff' ? 'Team' : 'Customer';
+  }
+
   setReviewRating(star: number): void {
     this.reviewRating = star;
     this.reviewError = '';
@@ -164,6 +289,20 @@ export class ProductDetailComponent implements OnInit {
       error: () => {
         this.reviews = [];
         this.reviewsLoading = false;
+      }
+    });
+  }
+
+  private loadQuestions(productId: number): void {
+    this.questionsLoading = true;
+    this.productQuestionService.getProductQuestions(productId).subscribe({
+      next: (questions) => {
+        this.questions = questions.sort((a, b) => new Date(b.askedAt).getTime() - new Date(a.askedAt).getTime());
+        this.questionsLoading = false;
+      },
+      error: () => {
+        this.questions = [];
+        this.questionsLoading = false;
       }
     });
   }
