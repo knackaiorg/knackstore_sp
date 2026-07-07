@@ -9,7 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -36,11 +34,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configure(http))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
-                        .requestMatchers("/api/carousel/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/questions").permitAll()
+                        .requestMatchers("/api/search/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(
@@ -65,7 +61,7 @@ public class SecurityConfig {
                 .map(c -> org.springframework.security.core.userdetails.User
                         .withUsername(c.getEmail())
                         .password(c.getPassword())
-                        .roles((c.getRole() != null ? c.getRole().name() : "CUSTOMER"))
+                        .roles("CUSTOMER")
                         .build())
                 .orElseThrow(() -> new UsernameNotFoundException("Customer not found: " + email));
     }
