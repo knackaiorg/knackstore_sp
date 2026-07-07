@@ -35,7 +35,7 @@ public class Product {
 
     private boolean featured;
 
-    private int averageRating;
+    private double averageRating;
 
     private int reviewCount;
 

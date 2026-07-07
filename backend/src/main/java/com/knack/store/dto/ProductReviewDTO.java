@@ -32,4 +32,10 @@ public class ProductReviewDTO {
         private String reviewerName;
         private LocalDateTime createdAt;
     }
+
+    @Data
+    @Builder
+    public static class ReviewEligibilityResponse {
+        private boolean alreadyReviewed;
+    }
 }

@@ -88,6 +88,25 @@ export interface ProductReview {
   createdAt: string;
 }
 
+export interface ReviewWsDTO {
+  id: number;
+  productId: number;
+  rating: number;
+  comment?: string;
+  reviewerName: string;
+  createdAt: string;
+}
+
+export interface ReviewListWsDTO {
+  reviews: ReviewWsDTO[];
+  totalCount: number;
+  averageRating: number;
+}
+
+export interface ReviewEligibilityDTO {
+  alreadyReviewed: boolean;
+}
+
 // ---- Cart ----
 export interface CartEntry {
   entryId: number;

@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Product, ProductReview, ProductVariant } from '../../models';
+import { Product, ProductVariant, ReviewWsDTO, ReviewListWsDTO, ReviewEligibilityDTO } from '../../models';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ProductReviewService } from '../../core/services/product-review.service';
-import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit {
@@ -15,21 +14,24 @@ export class ProductDetailComponent implements OnInit {
   loading = true;
   addingToCart = false;
   successMessage = '';
-  reviews: ProductReview[] = [];
+  reviews: ReviewWsDTO[] = [];
   reviewsLoading = true;
   submittingReview = false;
   reviewRating: number | null = null;
   reviewComment = '';
   reviewError = '';
   reviewSuccessMessage = '';
+  averageRating = 0;
+  totalReviewCount = 0;
+  alreadyReviewed = false;
+  checkingEligibility = false;
 
   constructor(
     private route: ActivatedRoute, private router: Router,
     private productService: ProductService,
     private cartService: CartService,
     private authService: AuthService,
-    private productReviewService: ProductReviewService,
-    private recentlyViewedService: RecentlyViewedService
+    private productReviewService: ProductReviewService
   ) {}
 
   ngOnInit() {
@@ -37,12 +39,15 @@ export class ProductDetailComponent implements OnInit {
       const productId = +p['id'];
       this.productService.getProductById(productId).subscribe(product => {
         this.product = product;
+        console.log('Product loaded:', product);
         if (product.variants?.length) this.selectedVariant = product.variants[0];
         this.loading = false;
-        this.recentlyViewedService.addProduct(product);
       });
 
       this.loadReviews(productId);
+      if (this.isAuthenticated) {
+        this.checkReviewEligibility(productId);
+      }
     });
   }
 
@@ -100,17 +105,19 @@ export class ProductDetailComponent implements OnInit {
       next: (review) => {
         this.submittingReview = false;
         this.reviews = [review, ...this.reviews];
-
+        
+        // Update product stats
         if (this.product) {
-          const totalCount = this.product.reviewCount + 1;
-          const updatedAverage = Math.round(((this.product.averageRating * this.product.reviewCount) + review.rating) / totalCount);
-          this.product.reviewCount = totalCount;
-          this.product.averageRating = updatedAverage;
+          this.totalReviewCount = this.totalReviewCount + 1;
+          this.averageRating = Math.round(((this.averageRating * (this.totalReviewCount - 1)) + review.rating) / this.totalReviewCount * 10) / 10;
+          this.product.reviewCount = this.totalReviewCount;
+          this.product.averageRating = this.averageRating;
         }
 
         this.reviewRating = null;
         this.reviewComment = '';
         this.reviewSuccessMessage = 'Thanks! Your review has been published.';
+        this.alreadyReviewed = true;
       },
       error: (err) => {
         this.submittingReview = false;
@@ -122,13 +129,31 @@ export class ProductDetailComponent implements OnInit {
   private loadReviews(productId: number): void {
     this.reviewsLoading = true;
     this.productReviewService.getProductReviews(productId).subscribe({
-      next: (reviews) => {
-        this.reviews = reviews;
+      next: (reviewList: ReviewListWsDTO) => {
+        this.reviews = reviewList.reviews;
+        this.averageRating = reviewList.averageRating;
+        this.totalReviewCount = reviewList.totalCount;
         this.reviewsLoading = false;
       },
       error: () => {
         this.reviews = [];
+        this.averageRating = 0;
+        this.totalReviewCount = 0;
         this.reviewsLoading = false;
+      }
+    });
+  }
+
+  private checkReviewEligibility(productId: number): void {
+    this.checkingEligibility = true;
+    this.productReviewService.getReviewEligibility(productId).subscribe({
+      next: (eligibility: ReviewEligibilityDTO) => {
+        this.alreadyReviewed = eligibility.alreadyReviewed;
+        this.checkingEligibility = false;
+      },
+      error: () => {
+        this.alreadyReviewed = false;
+        this.checkingEligibility = false;
       }
     });
   }
