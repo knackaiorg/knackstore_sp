@@ -4,14 +4,16 @@
 
 ## Quick Start.
 
-### Backend (Spring Boot)....
+# check github hook for build run
+
+### Backend (Spring Boot)
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
 API → http://localhost:8080 | H2 Console → http://localhost:8080/h2-console
 
-### Frontend (Angular)
+### Frontend (Angular).
 ```bash
 cd frontend
 npm install
@@ -19,7 +21,7 @@ npm start
 ```
 App → http://localhost:4200
 
-### Demo Login
+### Demo Login....
 Email: `demo@knack.com` | Password: `Demo@1234`
 
 ---
@@ -60,7 +62,7 @@ electronics-store/
 
 ## Your Hackathon Task
 
-Extend this repo to implement one of the five tasks in `features.md`. Use AI tools to help you generate code, user stories, and test cases. See the hackathon brief for the full workflow.
+Extend this repo to implement one of the five tasks in `features.md`. Use AI tools to help you generate code, user stories, and test cases. See the hackathon brief for the full workflow
 
 ---
 

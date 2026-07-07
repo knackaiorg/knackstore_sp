@@ -48,7 +48,8 @@ export class CheckoutComponent implements OnInit {
     this.placing = true;
     this.orderService.placeOrder({
       deliveryAddress: this.addressForm.value,
-      paymentMethod: this.paymentMethod
+      paymentMethod: this.paymentMethod,
+      orderStatus: 'PENDING'
     }).subscribe({
       next: order => this.router.navigate(['/order-confirmation', order.orderCode]),
       error: () => this.placing = false

@@ -15,7 +15,17 @@ import { OrderService } from '../../core/services/order.service';
         <div class="row g-2">
           <div class="col-6"><small class="text-muted">Order Code</small><div class="fw-bold">{{ order.orderCode }}</div></div>
           <div class="col-6"><small class="text-muted">Status</small><div><span class="badge bg-primary">{{ order.status }}</span></div></div>
-          <div class="col-6"><small class="text-muted">Total</small><div class="fw-bold text-primary">{{ order.totalPrice | currency:'USD' }}</div></div>
+          
+          <div class="col-6"><small class="text-muted">Subtotal</small><div>₹{{ order.subtotal | number:'1.2-2' }}</div></div>
+          <div class="col-6" *ngIf="order.appliedPromoCode && order.discountAmount > 0">
+            <small class="text-muted">Discount</small>
+            <div class="text-success">
+              <i class="bi bi-tag-fill"></i> {{ order.appliedPromoCode }}
+              <div class="small">-₹{{ order.discountAmount | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          
+          <div class="col-6"><small class="text-muted">Total</small><div class="fw-bold text-primary fs-5">₹{{ order.totalPrice | number:'1.2-2' }}</div></div>
           <div class="col-6"><small class="text-muted">Tracking No.</small><div class="fw-bold">{{ order.trackingNumber }}</div></div>
         </div>
       </div>

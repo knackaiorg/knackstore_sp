@@ -13,21 +13,29 @@ export class RecentlyViewedProductsComponent implements OnInit, OnDestroy {
 
   products: Product[] = [];
   loading = true;
+  error: string | null = null;
 
-  private subscription?: Subscription;
+  private subscriptions: Subscription[] = [];
 
   constructor(private recentlyViewedService: RecentlyViewedService) {}
 
   ngOnInit() {
-    this.subscription = this.recentlyViewedService.history$.subscribe(products => {
-      this.products = this.excludeProductId
-        ? products.filter(p => p.id !== this.excludeProductId)
-        : products;
-      this.loading = false;
-    });
+    this.subscriptions.push(
+      this.recentlyViewedService.history$.subscribe((products: Product[]) => {
+        this.products = this.excludeProductId
+          ? products.filter((p: Product) => p.id !== this.excludeProductId)
+          : products;
+      }),
+      this.recentlyViewedService.loading$.subscribe((loading: boolean) => {
+        this.loading = loading;
+      }),
+      this.recentlyViewedService.error$.subscribe((error: string | null) => {
+        this.error = error;
+      })
+    );
   }
 
   ngOnDestroy() {
-    this.subscription?.unsubscribe();
+    this.subscriptions.forEach(s => s.unsubscribe());
   }
 }
