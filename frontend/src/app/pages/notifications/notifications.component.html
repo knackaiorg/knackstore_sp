@@ -1,0 +1,48 @@
+<div class="container py-4">
+  <h2 class="fw-bold mb-3">My Notification</h2>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+  </div>
+
+  <div *ngIf="!loading && error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!loading && !error && message" class="alert alert-info py-2">{{ message }}</div>
+
+  <div *ngIf="!loading && !error && notifications.length === 0" class="card shadow-sm">
+    <div class="card-body">
+      <p class="mb-0 text-muted">No notifications found.</p>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !error && notifications.length > 0" class="row g-3">
+    <div *ngFor="let n of notifications" class="col-12 col-md-6">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="mb-0 fw-bold">SKU: {{ n.sku }}</h6>
+            <span class="badge" [class.bg-warning]="n.notificationStatus === 'PENDING'" [class.bg-success]="n.notificationStatus !== 'PENDING'">
+              {{ n.notificationStatus }}
+            </span>
+          </div>
+          <p class="mb-1"><strong>Email:</strong> {{ n.email }}</p>
+          <p class="mb-1"><strong>Subscribed:</strong> {{ n.subscribedAt | date:'medium' }}</p>
+          <p class="mb-0"><strong>Notified At:</strong> {{ n.notifiedAt ? (n.notifiedAt | date:'medium') : 'Not yet' }}</p>
+
+          <button
+            *ngIf="n.notificationStatus === 'PENDING'"
+            class="btn btn-sm btn-outline-danger mt-3"
+            [disabled]="deletingIds.has(n.id)"
+            (click)="deleteNotification(n)">
+            <span *ngIf="deletingIds.has(n.id)" class="spinner-border spinner-border-sm me-1"></span>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p *ngIf="!loading && !error && notifications.length > 0" class="text-muted small mt-3 mb-0">
+    Total notifications: {{ totalCount }}
+  </p>
+</div>
