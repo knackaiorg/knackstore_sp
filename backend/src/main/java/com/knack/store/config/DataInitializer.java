@@ -21,7 +21,6 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
     private final CartRepository cartRepository;
-    private final PromoCodeRepository promoCodeRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -29,7 +28,6 @@ public class DataInitializer implements CommandLineRunner {
         seedCategories();
         seedProducts();
         seedDemoCustomer();
-        seedPromoCodes();
         log.info("Electronics Store data initialised successfully.");
     }
 
@@ -198,66 +196,5 @@ public class DataInitializer implements CommandLineRunner {
         cartRepository.save(cart);
 
         log.info("Demo customer created: demo@knack.com / Demo@1234");
-    }
-
-    private void seedPromoCodes() {
-        if (promoCodeRepository.count() > 0) return;
-
-        List<PromoCode> promoCodes = List.of(
-            PromoCode.builder()
-                .code("WELCOME10")
-                .discountType(PromoCode.DiscountType.PERCENTAGE)
-                .discountValue(10.0)
-                .minimumOrderAmount(500.0)
-                .active(true)
-                .build(),
-            PromoCode.builder()
-                .code("FLAT500")
-                .discountType(PromoCode.DiscountType.FIXED)
-                .discountValue(500.0)
-                .minimumOrderAmount(2000.0)
-                .active(true)
-                .build(),
-            PromoCode.builder()
-                .code("SAVE20")
-                .discountType(PromoCode.DiscountType.PERCENTAGE)
-                .discountValue(20.0)
-                .minimumOrderAmount(1000.0)
-                .active(true)
-                .build(),
-            PromoCode.builder()
-                .code("MEGA1000")
-                .discountType(PromoCode.DiscountType.FIXED)
-                .discountValue(1000.0)
-                .minimumOrderAmount(5000.0)
-                .active(true)
-                .build(),
-            PromoCode.builder()
-                .code("FIRST15")
-                .discountType(PromoCode.DiscountType.PERCENTAGE)
-                .discountValue(15.0)
-                .minimumOrderAmount(null) // No minimum for this percentage promo
-                .active(true)
-                .build(),
-            // Expired/Inactive promo code
-            PromoCode.builder()
-                .code("COOL")
-                .discountType(PromoCode.DiscountType.PERCENTAGE)
-                .discountValue(25.0)
-                .minimumOrderAmount(1500.0)
-                .active(false) // Inactive/Expired code
-                .build(),
-            // Alphabetic-only promo code
-            PromoCode.builder()
-                .code("SUMMER")
-                .discountType(PromoCode.DiscountType.PERCENTAGE)
-                .discountValue(12.0)
-                .minimumOrderAmount(800.0)
-                .active(true)
-                .build()
-        );
-
-        promoCodeRepository.saveAll(promoCodes);
-        log.info("Seeded {} promo codes", promoCodes.size());
     }
 }

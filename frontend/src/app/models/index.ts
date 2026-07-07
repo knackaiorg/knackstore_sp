@@ -1,27 +1,9 @@
 // ---- Auth ----
 export interface AuthResponse {
-  customerId: number;
   token: string;
   email: string;
   firstName: string;
   lastName: string;
-}
-
-// ---- Promo Code ----
-export interface ApplyPromoCodeRequest {
-  code: string;
-}
-
-export interface ApplyPromoCodeResponse {
-  success: boolean;
-  message: string;
-  code?: string;
-  discountAmount?: number;
-}
-
-export interface RemovePromoCodeResponse {
-  success: boolean;
-  message: string;
 }
 
 export interface LoginRequest {
@@ -92,47 +74,6 @@ export interface Product {
   variants: ProductVariant[];
 }
 
-export interface SubmitProductReviewRequest {
-  rating: number;
-  comment?: string;
-}
-
-export interface ProductReview {
-  id: number;
-  productId: number;
-  rating: number;
-  comment?: string;
-  reviewerName: string;
-  createdAt: string;
-}
-
-export interface ProductQuestion {
-  id: number;
-  productId: number;
-  questionText: string;
-  askedBy: string;
-  askedById?: number;
-  askedAt: string;
-  createdAt: string
-  answer?: AnswerModel;
-  // answerModel?: AnswerModel;
-  answererRole?: string;
-  answeredAt?: string;
-}
-
-export interface AnswerModel {
-  answerText: string;
-  answererLabel: string;
-}
-
-export interface SubmitProductQuestionRequest {
-  question: string;
-}
-
-export interface SubmitProductAnswerRequest {
-  answer: string;
-}
-
 // ---- Cart ----
 export interface CartEntry {
   entryId: number;
@@ -151,9 +92,6 @@ export interface CartEntry {
 export interface Cart {
   id: number;
   entries: CartEntry[];
-  subtotal: number;
-  appliedPromoCode: string | null;
-  discountAmount: number;
   totalPrice: number;
   totalItems: number;
 }
@@ -162,31 +100,6 @@ export interface AddEntryRequest {
   productId: number;
   variantId?: number;
   quantity: number;
-}
-
-// ---- Wishlist ----
-export interface WishlistEntry {
-  entryId: number;
-  addedAt: string;
-  productId: number;
-  productCode: string;
-  productName: string;
-  productImageUrl: string;
-  price: number;
-  variantId: number | null;
-  variantSku: string | null;
-  variantDescription: string | null;
-}
-
-export interface Wishlist {
-  id: number;
-  totalItems: number;
-  entries: WishlistEntry[];
-}
-
-export interface ToggleWishlistEntryRequest {
-  productId: number;
-  variantId?: number;
 }
 
 // ---- Order ----
@@ -204,9 +117,6 @@ export interface Order {
   id: number;
   orderCode: string;
   status: string;
-  subtotal: number;
-  appliedPromoCode: string | null;
-  discountAmount: number;
   totalPrice: number;
   paymentMethod: string;
   trackingNumber: string;
@@ -218,7 +128,6 @@ export interface Order {
 export interface PlaceOrderRequest {
   deliveryAddress: Address;
   paymentMethod: string;
-  orderStatus: string;
 }
 
 // ---- Customer ----
@@ -229,4 +138,27 @@ export interface Customer {
   lastName: string;
   phone: string;
   defaultAddress: Address;
+}
+
+// ---- Notifications ----
+export interface StockNotificationItem {
+  id: number;
+  userId: number;
+  sku: string;
+  email: string;
+  notificationStatus: string;
+  subscribedAt: string;
+  notifiedAt: string | null;
+}
+
+export interface FetchAllNotificationsResponse {
+  success: boolean;
+  message: string;
+  notifications: StockNotificationItem[];
+  totalCount: number;
+}
+
+export interface DeleteNotificationResponse {
+  success: boolean;
+  message: string;
 }
