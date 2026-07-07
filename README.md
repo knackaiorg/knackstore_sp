@@ -2,7 +2,9 @@
 
 > **Spring Boot + Angular electronics store. Clone, run, and extend.**
 
-## Quick Start
+## Quick Start.
+
+# check github hook for build run
 
 ### Backend (Spring Boot)
 ```bash
@@ -11,7 +13,7 @@ cd backend
 ```
 API → http://localhost:8080 | H2 Console → http://localhost:8080/h2-console
 
-### Frontend (Angular)
+### Frontend (Angular).
 ```bash
 cd frontend
 npm install
@@ -19,7 +21,7 @@ npm start
 ```
 App → http://localhost:4200
 
-### Demo Login
+### Demo Login....
 Email: `demo@knack.com` | Password: `Demo@1234`
 
 ---
@@ -56,11 +58,11 @@ electronics-store/
 - Shopping cart (add, update, remove, auto-merge)
 - 3-step checkout (address → payment → confirm)
 - Order placement, history, and detail view
-- Responsive Bootstrap 5 UI
+- Responsive Bootstrap 5 UI.
 
 ## Your Hackathon Task
 
-Extend this repo to implement one of the five tasks in `features.md`. Use AI tools to help you generate code, user stories, and test cases. See the hackathon brief for the full workflow.
+Extend this repo to implement one of the five tasks in `features.md`. Use AI tools to help you generate code, user stories, and test cases. See the hackathon brief for the full workflow
 
 ---
 

@@ -6,6 +6,7 @@ import com.knack.store.dto.CustomerDTO;
 import com.knack.store.model.Address;
 import com.knack.store.model.Cart;
 import com.knack.store.model.Customer;
+import com.knack.store.model.UserRole;
 import com.knack.store.repository.CartRepository;
 import com.knack.store.repository.CustomerRepository;
 import com.knack.store.security.JwtUtil;
@@ -26,15 +27,25 @@ public class CustomerService {
     private final AuthenticationManager authenticationManager;
 
     public AuthDTO.AuthResponse register(AuthDTO.RegisterRequest request) {
+        return registerWithRole(request, UserRole.CUSTOMER);
+    }
+
+    public AuthDTO.AuthResponse registerStaff(AuthDTO.RegisterRequest request) {
+        return registerWithRole(request, UserRole.STAFF);
+    }
+
+    private AuthDTO.AuthResponse registerWithRole(AuthDTO.RegisterRequest request, UserRole role) {
         if (customerRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered");
         }
+
         Customer customer = Customer.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .phone(request.getPhone())
+                .role(role)
                 .build();
         customerRepository.save(customer);
 
@@ -42,7 +53,15 @@ public class CustomerService {
         cartRepository.save(cart);
 
         String token = jwtUtil.generateToken(customer.getEmail());
-        return new AuthDTO.AuthResponse(token, customer.getEmail(), customer.getFirstName(), customer.getLastName());
+        AuthDTO.AuthResponse response = new AuthDTO.AuthResponse(
+                customer.getId(),
+                token,
+                customer.getEmail(),
+                customer.getFirstName(),
+                customer.getLastName()
+        );
+        response.setRole(customer.getRole().name());
+        return response;
     }
 
     public AuthDTO.AuthResponse login(AuthDTO.LoginRequest request) {
@@ -51,7 +70,15 @@ public class CustomerService {
         Customer customer = customerRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
         String token = jwtUtil.generateToken(customer.getEmail());
-        return new AuthDTO.AuthResponse(token, customer.getEmail(), customer.getFirstName(), customer.getLastName());
+        AuthDTO.AuthResponse response = new AuthDTO.AuthResponse(
+                customer.getId(),
+                token,
+                customer.getEmail(),
+                customer.getFirstName(),
+                customer.getLastName()
+        );
+        response.setRole(customer.getRole() != null ? customer.getRole().name() : UserRole.CUSTOMER.name());
+        return response;
     }
 
     public CustomerDTO getProfile(String email) {

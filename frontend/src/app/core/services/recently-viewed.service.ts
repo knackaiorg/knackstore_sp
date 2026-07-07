@@ -1,9 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, forkJoin } from 'rxjs';
+import { map, tap, catchError, switchMap, skip } from 'rxjs/operators';
 import { Product } from '../../models';
 import { AuthService } from './auth.service';
+import { ProductService } from './product.service';
 import { environment } from '../../../environments/environment';
+
+interface CarouselResponse {
+  customerId: string;
+  productIds: string[];
+  updatedAt: string;
+}
 
 const STORAGE_KEY = 'recently_viewed_products';
 const MAX_ITEMS = 10;
@@ -12,18 +20,28 @@ const MAX_ITEMS = 10;
 export class RecentlyViewedService {
   private apiUrl = environment.apiUrl;
   private historySubject = new BehaviorSubject<Product[]>([]);
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  private errorSubject = new BehaviorSubject<string | null>(null);
+  private trackingInProgress = new Set<number>();
 
-  /** Observable stream of recently viewed products (most recent first). */
   history$ = this.historySubject.asObservable();
+  loading$ = this.loadingSubject.asObservable();
+  error$ = this.errorSubject.asObservable();
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private productService: ProductService
   ) {
     this.loadHistory();
+
+    // Re-load history when auth state changes (login/logout)
+    // skip(1) avoids duplicate call since loadHistory() was already called above
+    // this.authService.currentUser$.pipe(skip(1)).subscribe(() => {
+    //   this.loadHistory();
+    // });
   }
 
-  /** Add a product to the recently viewed list. */
   addProduct(product: Product): void {
     if (this.authService.isLoggedIn) {
       this.addToServerHistory(product);
@@ -32,26 +50,36 @@ export class RecentlyViewedService {
     }
   }
 
-  /** Reload the history from the active storage source. */
   loadHistory(): void {
     if (this.authService.isLoggedIn) {
-      this.fetchServerHistory().subscribe(products => {
-        this.historySubject.next(products);
+      this.loadingSubject.next(true);
+      this.errorSubject.next(null);
+      this.fetchServerHistory().subscribe({
+        next: (products: Product[]) => {
+          this.historySubject.next(products);
+          this.loadingSubject.next(false);
+        },
+        error: () => {
+          this.errorSubject.next('Failed to load recently viewed products.');
+          this.loadingSubject.next(false);
+        }
       });
     } else {
       this.historySubject.next(this.getLocalHistory());
     }
   }
 
-  /** Clear all recently viewed history from the active storage. */
-  clearHistory(): void {
+  clearHistory(): Observable<boolean> {
     if (this.authService.isLoggedIn) {
-      this.clearServerHistory().subscribe(() => {
-        this.historySubject.next([]);
-      });
+      return this.clearServerHistory().pipe(
+        tap(() => this.historySubject.next([])),
+        map(() => true),
+        catchError(() => of(false))
+      );
     } else {
       localStorage.removeItem(STORAGE_KEY);
       this.historySubject.next([]);
+      return of(true);
     }
   }
 
@@ -71,10 +99,8 @@ export class RecentlyViewedService {
 
   private addToLocalHistory(product: Product): void {
     let history = this.getLocalHistory();
-    // Remove duplicate then prepend
-    history = history.filter(p => p.id !== product.id);
+    history = history.filter((p: Product) => p.id !== product.id);
     history.unshift(product);
-    // Cap at max
     if (history.length > MAX_ITEMS) {
       history = history.slice(0, MAX_ITEMS);
     }
@@ -83,31 +109,56 @@ export class RecentlyViewedService {
   }
 
   // ──────────────────────────────────────────────
-  // Logged-in user (server API) placeholder methods
-  // Replace these with real API calls when the
-  // backend endpoints are available.
+  // Logged-in user (server API) methods
   // ──────────────────────────────────────────────
 
-  /** Fetch recently viewed products from the server. */
+  private get customerId(): string {
+    return String(this.authService.currentUser?.customerId ?? '');
+  }
+
   private fetchServerHistory(): Observable<Product[]> {
-    // TODO: Replace with real endpoint, e.g.:
-    // return this.http.get<Product[]>(`${this.apiUrl}/users/recently-viewed`);
-    return of(this.getLocalHistory());
+    const id = this.customerId;
+    if (!id) return of([]);
+
+    return this.http.get<CarouselResponse>(`${this.apiUrl}/carousel/${id}`).pipe(
+      switchMap((response: CarouselResponse) => {
+        const productIds = (response.productIds || []).map((pid: string) => Number(pid));
+        if (!productIds.length) return of([]);
+
+        const requests = productIds.map((pid: number) =>
+          this.productService.getProductById(pid).pipe(catchError(() => of(null)))
+        );
+        return forkJoin(requests).pipe(
+          map((products) => products.filter((p): p is Product => p !== null))
+        );
+      }),
+      catchError(() => of([]))
+    );
   }
 
-  /** Persist a viewed product to the server. */
   private addToServerHistory(product: Product): void {
-    // TODO: Replace with real endpoint, e.g.:
-    // this.http.post(`${this.apiUrl}/users/recently-viewed/${product.id}`, {}).subscribe();
-    // For now, fall back to localStorage so the feature works end-to-end.
-    this.addToLocalHistory(product);
+    if (this.trackingInProgress.has(product.id)) return;
+    this.trackingInProgress.add(product.id);
+
+    const payload = {
+      customerId: this.customerId,
+      productId: String(product.id)
+    };
+
+    this.http.post<CarouselResponse>(`${this.apiUrl}/carousel/track`, payload).subscribe({
+      next: () => {
+        this.trackingInProgress.delete(product.id);
+        this.loadHistory();
+      },
+      error: () => {
+        this.trackingInProgress.delete(product.id);
+      }
+    });
   }
 
-  /** Clear server-side recently viewed history. */
   private clearServerHistory(): Observable<void> {
-    // TODO: Replace with real endpoint, e.g.:
-    // return this.http.delete<void>(`${this.apiUrl}/users/recently-viewed`);
-    localStorage.removeItem(STORAGE_KEY);
-    return of(undefined);
+    const id = this.customerId;
+    if (!id) return of(undefined);
+    return this.http.delete<void>(`${this.apiUrl}/carousel/${id}`);
   }
 }

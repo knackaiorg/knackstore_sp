@@ -75,12 +75,48 @@
       <div class="card shadow-sm">
         <div class="card-header fw-bold">Order Summary</div>
         <div class="card-body" *ngIf="cart">
+          <!-- Items -->
           <div *ngFor="let e of cart.entries" class="d-flex justify-content-between mb-2 small">
             <span>{{ e.productName }} × {{ e.quantity }}</span>
-            <span>{{ e.lineTotal | currency:'USD' }}</span>
+            <span>₹{{ e.lineTotal | number:'1.2-2' }}</span>
           </div>
           <hr>
-          <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>{{ cart.totalPrice | currency:'USD' }}</span></div>
+          
+          <!-- Subtotal -->
+          <div class="d-flex justify-content-between mb-2">
+            <span>Subtotal ({{ cart.totalItems }} items)</span>
+            <span>₹{{ cart.subtotal | number:'1.2-2' }}</span>
+          </div>
+
+          <!-- Discount (if applied) -->
+          <div *ngIf="cart.appliedPromoCode && cart.discountAmount > 0" 
+               class="d-flex justify-content-between mb-2 text-success">
+            <span>
+              <i class="bi bi-tag-fill me-1"></i>
+              Discount ({{ cart.appliedPromoCode }})
+            </span>
+            <span>-₹{{ cart.discountAmount | number:'1.2-2' }}</span>
+          </div>
+
+          <!-- Shipping -->
+          <div class="d-flex justify-content-between mb-2">
+            <span>Shipping</span>
+            <span class="text-success">Free</span>
+          </div>
+
+          <hr>
+
+          <!-- Total -->
+          <div class="d-flex justify-content-between fw-bold fs-5">
+            <span>Total</span>
+            <span>₹{{ cart.totalPrice | number:'1.2-2' }}</span>
+          </div>
+
+          <!-- Applied Promo Code Badge (if any) -->
+          <div *ngIf="cart.appliedPromoCode" class="alert alert-success mt-3 mb-0 py-2 small">
+            <i class="bi bi-check-circle-fill me-1"></i>
+            Promo code <strong>{{ cart.appliedPromoCode }}</strong> applied!
+          </div>
         </div>
       </div>
     </div>

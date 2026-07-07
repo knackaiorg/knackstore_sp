@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, concatMap, from, last, Observable, tap } from 'rxjs';
 import { Cart, AddEntryRequest } from '../../models';
 import { environment } from '../../../environments/environment';
 
@@ -23,7 +23,17 @@ export class CartService {
   updateEntry(entryId: number, quantity: number): Observable<Cart> {
     return this.http.put<Cart>(`${this.apiUrl}/cart/entries/${entryId}`, { quantity }).pipe(tap(c => this.cartSubject.next(c)));
   }
-
+  // Add multiple entries sequentially (e.g. for reorder), emits the final cart state
+  addEntries(requests: AddEntryRequest[]): Observable<Cart> {
+    return from(requests).pipe(
+      concatMap(request => this.addEntry(request)),
+      last() // emit only the final cart after all entries are added
+    );
+  }
+  reorder(orderCode: string): Observable<Cart> {
+  return this.http.post<Cart>(`${this.apiUrl}/orders/${orderCode}/reorder`, {})
+    .pipe(tap(c => this.cartSubject.next(c)));
+}
   removeEntry(entryId: number): Observable<Cart> {
     return this.http.delete<Cart>(`${this.apiUrl}/cart/entries/${entryId}`).pipe(tap(c => this.cartSubject.next(c)));
   }
