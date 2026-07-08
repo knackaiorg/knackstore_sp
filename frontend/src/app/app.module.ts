@@ -29,6 +29,7 @@ import { RecentlyViewedProductsComponent } from './shared/components/recently-vi
 import { ProductCarouselComponent } from './shared/components/product-carousel/product-carousel.component';
 import { PromoCodeComponent } from './shared/components/promo-code/promo-code.component';
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
+import { NotificationsComponent } from './pages/notifications/notifications.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +53,7 @@ import { WishlistComponent } from './pages/wishlist/wishlist.component';
     ProductCarouselComponent,
     PromoCodeComponent,
     WishlistComponent,
+    NotificationsComponent
   ],
   imports: [
     BrowserModule,

@@ -8,6 +8,7 @@ import { ProductReviewService } from '../../core/services/product-review.service
 import { ProductQuestionService } from '../../core/services/product-question.service';
 import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
 import { WishlistService } from '../../core/services/wishlist.service';
+import { StockNotificationService } from 'src/app/core/services/stock-notification.service';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit {
@@ -36,7 +37,8 @@ export class ProductDetailComponent implements OnInit {
   reviewComment = '';
   reviewError = '';
   reviewSuccessMessage = '';
-
+  notifyMeMessage = '';
+  notifyMeClicked = false;
   constructor(
     private route: ActivatedRoute, private router: Router,
     private productService: ProductService,
@@ -45,7 +47,8 @@ export class ProductDetailComponent implements OnInit {
     private productReviewService: ProductReviewService,
     private productQuestionService: ProductQuestionService,
     private recentlyViewedService: RecentlyViewedService,
-    private wishlistService: WishlistService
+    private wishlistService: WishlistService,
+    private stockNotificationService: StockNotificationService
   ) {}
 
   ngOnInit() {
@@ -54,6 +57,8 @@ export class ProductDetailComponent implements OnInit {
       this.productService.getProductById(productId).subscribe(product => {
         this.product = product;
         if (product.variants?.length) this.selectedVariant = product.variants[0];
+        this.notifyMeClicked = false;
+        this.notifyMeMessage = '';
         this.loading = false;
         this.recentlyViewedService.addProduct(product);
       });
@@ -62,7 +67,10 @@ export class ProductDetailComponent implements OnInit {
       this.loadQuestions(productId);
     });
   }
-
+  get currentStock(): number {
+    // if (environment.forceOutOfStockForTesting) return 0;
+    return this.selectedVariant?.stock ?? this.product?.stockQuantity ?? 0;
+  }
   get isAuthenticated(): boolean {
     return this.authService.isLoggedIn;
   }
@@ -91,7 +99,39 @@ export class ProductDetailComponent implements OnInit {
   }
 
   get inStock(): boolean {
-    return (this.selectedVariant?.stock ?? this.product?.stockQuantity ?? 0) > 0;
+    return this.currentStock > 0;
+  }
+
+  handlePrimaryAction() {
+    if (!this.inStock) {
+      if (!this.authService.isLoggedIn) {
+        this.notifyMeClicked = false;
+        this.notifyMeMessage = '';
+        this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+        return;
+      }
+
+      this.notifyMeClicked = true;
+      this.notifyMeMessage = 'We will let you know when this is back in stock';
+      this.callNotifyMeApi();
+      return;
+    }
+
+    this.notifyMeClicked = false;
+    this.notifyMeMessage = '';
+    this.addToCart();
+  }
+  
+  private callNotifyMeApi() {
+    if (!this.product || !this.authService.currentUser?.email) return;
+
+    const sku = this.selectedVariant?.sku ?? this.product.code;
+    const email = this.authService.currentUser.email;
+
+    this.stockNotificationService.registerNotifyMe(sku, email).subscribe({
+      next: () => {},
+      error: () => {}
+    });
   }
 
   get isWishlisted(): boolean {
@@ -130,7 +170,10 @@ export class ProductDetailComponent implements OnInit {
 
   addToCart() {
     if (!this.product) return;
-    if (!this.authService.isLoggedIn) { this.router.navigate(['/login']); return; }
+    if (!this.authService.isLoggedIn) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
     this.addingToCart = true;
     this.cartService.addEntry({
       productId: this.product.id,
