@@ -40,22 +40,24 @@
 
       <!-- Stock Status -->
       <div class="mb-3">
-        <span *ngIf="inStock" class="badge bg-success">In Stock</span>
-        <span *ngIf="!inStock" class="badge bg-danger">Out of Stock</span>
+        <span *ngIf="currentStock > 0" class="badge bg-success">In Stock ({{ currentStock }})</span>
+        <span *ngIf="currentStock === 0" class="badge bg-danger">Out of Stock</span>
       </div>
 
       <!-- Quantity + Add to Cart -->
       <div class="d-flex align-items-center gap-3 mb-3">
-        <div class="input-group" style="width: 120px">
+        <div *ngIf="inStock" class="input-group" style="width: 120px">
           <button class="btn btn-outline-secondary" (click)="quantity = quantity > 1 ? quantity - 1 : quantity">−</button>
           <input type="number" class="form-control text-center" [(ngModel)]="quantity" min="1" max="10">
           <button class="btn btn-outline-secondary" (click)="quantity = quantity < 10 ? quantity + 1 : quantity">+</button>
         </div>
-        <button class="btn btn-warning btn-lg flex-grow-1" [disabled]="!inStock || addingToCart" (click)="addToCart()">
+        <button class="btn btn-warning btn-lg flex-grow-1" [disabled]="addingToCart" (click)="handlePrimaryAction()">
           <span *ngIf="addingToCart" class="spinner-border spinner-border-sm me-2"></span>
-          🛒 Add to Cart
+          <span *ngIf="inStock">🛒 Add to Cart</span>
+          <span *ngIf="!inStock">Notify Me</span>
         </button>
       </div>
+      <div *ngIf="notifyMeClicked && notifyMeMessage && !inStock" class="small mb-3 color-red">{{ notifyMeMessage }}</div>
 
       <div class="mb-3">
         <button class="btn btn-outline-danger" [disabled]="togglingWishlist" (click)="toggleWishlist()">

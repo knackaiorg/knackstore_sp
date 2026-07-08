@@ -49,7 +49,27 @@ export interface Address {
   country: string;
   phone: string;
 }
+// ---- Notifications ----
+export interface StockNotificationItem {
+  id: number;
+  userId: number;
+  sku: string;
+  email: string;
+  notificationStatus: string;
+  subscribedAt: string;
+  notifiedAt: string | null;
+}
 
+export interface FetchAllNotificationsResponse {
+  success: boolean;
+  message: string;
+  notifications: StockNotificationItem[];
+  totalCount: number;
+}
+export interface DeleteNotificationResponse {
+  success: boolean;
+  message: string;
+}
 // ---- Category ----
 export interface Category {
   id: number;
