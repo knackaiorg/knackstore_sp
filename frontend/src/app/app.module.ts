@@ -19,13 +19,15 @@ import { OrderDetailComponent } from './pages/order-detail/order-detail.componen
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ProfileComponent } from './pages/profile/profile.component';
-import { NotificationsComponent } from './pages/notifications/notifications.component';
 
 // Shared
 import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { StarRatingComponent } from './shared/components/star-rating/star-rating.component';
 import { ProductCardComponent } from './shared/components/product-card/product-card.component';
+import { RecentlyViewedProductsComponent } from './shared/components/recently-viewed-products/recently-viewed-products.component';
+import { ProductCarouselComponent } from './shared/components/product-carousel/product-carousel.component';
+import { WishlistComponent } from './pages/wishlist/wishlist.component';
 
 @NgModule({
   declarations: [
@@ -41,11 +43,13 @@ import { ProductCardComponent } from './shared/components/product-card/product-c
     LoginComponent,
     RegisterComponent,
     ProfileComponent,
-    NotificationsComponent,
     HeaderComponent,
     FooterComponent,
     StarRatingComponent,
     ProductCardComponent,
+    RecentlyViewedProductsComponent,
+    ProductCarouselComponent,
+    WishlistComponent,
   ],
   imports: [
     BrowserModule,
