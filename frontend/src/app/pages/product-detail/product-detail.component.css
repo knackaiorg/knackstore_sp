@@ -1,3 +1,23 @@
-.color-red {
-    color: red;
+.reviews-section {
+	max-width: 900px;
+}
+
+.review-stars {
+	color: #d0d4da;
+	letter-spacing: 0.08rem;
+}
+
+.review-stars .filled {
+	color: #f5a623;
+}
+
+.rating-input .star-btn {
+	color: #d0d4da;
+	font-size: 1.8rem;
+	line-height: 1;
+	text-decoration: none;
+}
+
+.rating-input .star-btn.active {
+	color: #f5a623;
 }
