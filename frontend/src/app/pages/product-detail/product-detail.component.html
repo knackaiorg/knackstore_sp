@@ -4,7 +4,7 @@
   <div *ngIf="!loading && product" class="row g-5">
     <!-- Image -->
     <div class="col-md-5">
-      <img [src]="product.imageUrl" [alt]="product.name" class="img-fluid rounded shadow" (error)="$any($event.target).src='assets/images/image-fallback.svg'">
+      <img [src]="product.imageUrl" [alt]="product.name" class="img-fluid rounded shadow">
     </div>
 
     <!-- Details -->
@@ -24,7 +24,7 @@
       <h3 class="text-primary fw-bold mt-3">{{ displayPrice | currency:'USD' }}</h3>
 
       <!-- Variants -->
-      <div *ngIf="product.variants.length" class="mb-3">
+      <div *ngIf="product.variants?.length" class="mb-3">
         <label class="fw-semibold mb-2 d-block">Select Variant:</label>
         <div class="d-flex flex-wrap gap-2">
           <button *ngFor="let v of product.variants"
@@ -40,35 +40,42 @@
 
       <!-- Stock Status -->
       <div class="mb-3">
-        <span *ngIf="currentStock > 0" class="badge bg-success">In Stock ({{ currentStock }})</span>
-        <span *ngIf="currentStock === 0" class="badge bg-danger">Out of Stock</span>
+        <span *ngIf="inStock" class="badge bg-success">In Stock</span>
+        <span *ngIf="!inStock" class="badge bg-danger">Out of Stock</span>
       </div>
 
       <!-- Quantity + Add to Cart -->
       <div class="d-flex align-items-center gap-3 mb-3">
-        <div *ngIf="inStock" class="input-group" style="width: 120px">
+        <div class="input-group" style="width: 120px">
           <button class="btn btn-outline-secondary" (click)="quantity = quantity > 1 ? quantity - 1 : quantity">−</button>
           <input type="number" class="form-control text-center" [(ngModel)]="quantity" min="1" max="10">
           <button class="btn btn-outline-secondary" (click)="quantity = quantity < 10 ? quantity + 1 : quantity">+</button>
         </div>
-        <button class="btn btn-warning btn-lg flex-grow-1" [disabled]="addingToCart || notifyingMe" (click)="handlePrimaryAction()">
+        <button class="btn btn-warning btn-lg flex-grow-1" [disabled]="!inStock || addingToCart" (click)="addToCart()">
           <span *ngIf="addingToCart" class="spinner-border spinner-border-sm me-2"></span>
-          <span *ngIf="notifyingMe" class="spinner-border spinner-border-sm me-2"></span>
-          <span *ngIf="inStock">🛒 Add to Cart</span>
-          <span *ngIf="!inStock">🔔 Notify Me</span>
+          🛒 Add to Cart
         </button>
       </div>
 
-      <div *ngIf="notifyMeClicked && notifyMeMessage && !inStock" class="small mb-3 text-success fw-semibold">{{ notifyMeMessage }}</div>
-      <div *ngIf="notifyMeClicked && notifyMeError && !inStock" class="small mb-3 text-danger fw-semibold">{{ notifyMeError }}</div>
+      <div class="mb-3">
+        <button class="btn btn-outline-danger" [disabled]="togglingWishlist" (click)="toggleWishlist()">
+          <span *ngIf="togglingWishlist" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isWishlisted ? '♥ Remove from Wishlist' : '♡ Add to Wishlist' }}
+        </button>
+      </div>
 
       <div *ngIf="successMessage" class="alert alert-success py-2">{{ successMessage }}</div>
+      <div *ngIf="wishlistMessage" class="alert alert-info py-2">{{ wishlistMessage }}</div>
 
       <!-- Description -->
       <div class="mt-4">
         <h5 class="fw-bold">Description</h5>
         <p class="text-muted">{{ product.description }}</p>
       </div>
+    </div>
+
+    <div class="col-12 mt-3">
+      <app-recently-viewed-products [excludeProductId]="product.id"></app-recently-viewed-products>
     </div>
 
     <div class="col-12 mt-3">
@@ -84,7 +91,7 @@
           No reviews yet. Be the first to share your experience.
         </div>
 
-        <div *ngIf="!reviewsLoading && reviews.length" class="mb-4">
+        <div *ngIf="reviews.length" class="mb-4">
           <div *ngFor="let review of reviews" class="card border-0 bg-light-subtle mb-2">
             <div class="card-body py-3">
               <div class="d-flex justify-content-between align-items-start gap-3">
@@ -101,52 +108,39 @@
           </div>
         </div>
 
-        <div *ngIf="isAuthenticated; else guestReviewPrompt">
-          <div *ngIf="alreadyReviewed" class="card border-0 bg-info-subtle">
-            <div class="card-body p-4">
-              <h5 class="fw-bold mb-2">✓ You've reviewed this product</h5>
-              <p class="text-muted mb-0">Thank you for sharing your feedback! You can only submit one review per product.</p>
-            </div>
-          </div>
+        <div *ngIf="isAuthenticated; else guestReviewPrompt" class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h5 class="fw-bold mb-3">Write a review</h5>
 
-          <div *ngIf="!alreadyReviewed && !checkingEligibility" class="card border-0 shadow-sm">
-            <div class="card-body p-4">
-              <h5 class="fw-bold mb-3">Write a review</h5>
-
-              <label class="form-label fw-semibold">Your rating <span class="text-danger">*</span></label>
-              <div class="rating-input mb-3" role="radiogroup" aria-label="Star rating">
-                <button
-                  *ngFor="let star of [1,2,3,4,5]"
-                  type="button"
-                  class="btn btn-link p-0 me-1 star-btn"
-                  [class.active]="reviewRating != null && star <= reviewRating"
-                  [attr.aria-label]="'Rate ' + star + ' star'"
-                  (click)="setReviewRating(star)">
-                  ★
-                </button>
-              </div>
-
-              <label class="form-label fw-semibold" for="review-comment">Your comments (optional)</label>
-              <textarea
-                id="review-comment"
-                class="form-control mb-3"
-                rows="4"
-                maxlength="2000"
-                [(ngModel)]="reviewComment"
-                placeholder="Tell other shoppers what you liked or disliked"></textarea>
-
-              <div *ngIf="reviewError" class="alert alert-danger py-2 mb-3">{{ reviewError }}</div>
-              <div *ngIf="reviewSuccessMessage" class="alert alert-success py-2 mb-3">{{ reviewSuccessMessage }}</div>
-
-              <button class="btn btn-primary" type="button" [disabled]="submittingReview" (click)="submitReview()">
-                <span *ngIf="submittingReview" class="spinner-border spinner-border-sm me-2"></span>
-                Submit Review
+            <label class="form-label fw-semibold">Your rating <span class="text-danger">*</span></label>
+            <div class="rating-input mb-3" role="radiogroup" aria-label="Star rating">
+              <button
+                *ngFor="let star of [1,2,3,4,5]"
+                type="button"
+                class="btn btn-link p-0 me-1 star-btn"
+                [class.active]="reviewRating != null && star <= reviewRating"
+                [attr.aria-label]="'Rate ' + star + ' star'"
+                (click)="setReviewRating(star)">
+                ★
               </button>
             </div>
-          </div>
 
-          <div *ngIf="checkingEligibility" class="text-center py-3">
-            <div class="spinner-border spinner-border-sm text-primary"></div>
+            <label class="form-label fw-semibold" for="review-comment">Your comments (optional)</label>
+            <textarea
+              id="review-comment"
+              class="form-control mb-3"
+              rows="4"
+              maxlength="2000"
+              [(ngModel)]="reviewComment"
+              placeholder="Tell other shoppers what you liked or disliked"></textarea>
+
+            <div *ngIf="reviewError" class="alert alert-danger py-2 mb-3">{{ reviewError }}</div>
+            <div *ngIf="reviewSuccessMessage" class="alert alert-success py-2 mb-3">{{ reviewSuccessMessage }}</div>
+
+            <button class="btn btn-primary" type="button" [disabled]="submittingReview" (click)="submitReview()">
+              <span *ngIf="submittingReview" class="spinner-border spinner-border-sm me-2"></span>
+              Submit Review
+            </button>
           </div>
         </div>
 

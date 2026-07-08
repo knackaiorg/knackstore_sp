@@ -12,7 +12,10 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, Lo
     List<ProductReview> findByProductIdAndApprovedTrueOrderByCreatedAtDesc(Long productId);
 
     long countByProductIdAndApprovedTrue(Long productId);
+	
+	List<ProductReview> findByProductIdOrderByCreatedAtDesc(Long productId);
 
+    long countByProductId(Long productId);
     boolean existsByProductIdAndCustomerId(Long productId, Long customerId);
 
     @Query("SELECT COALESCE(AVG(r.rating), 0) FROM ProductReview r WHERE r.product.id = :productId AND r.approved = true")

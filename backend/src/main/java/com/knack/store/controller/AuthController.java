@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,5 +30,12 @@ public class AuthController {
     @Operation(summary = "Login", description = "Authenticate with email and password and return a JWT.")
     public ResponseEntity<AuthDTO.AuthResponse> login(@Valid @RequestBody AuthDTO.LoginRequest request) {
         return ResponseEntity.ok(customerService.login(request));
+    }
+
+    @PostMapping("/register-staff")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Register staff", description = "Create a new staff account (admin only).")
+    public ResponseEntity<AuthDTO.AuthResponse> registerStaff(@Valid @RequestBody AuthDTO.RegisterRequest request) {
+        return ResponseEntity.ok(customerService.registerStaff(request));
     }
 }

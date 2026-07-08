@@ -31,8 +31,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                // Use default CORS configuration (CorsConfig defines the CorsConfigurationSource bean)
-                .cors().and()
+                .cors(cors -> cors.configure(http))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // allow preflight requests
@@ -40,6 +39,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/products/**").permitAll()
+						.requestMatchers("/api/search/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/api/notify_me").permitAll()
                         .requestMatchers("/api/fetch_all_notifications").permitAll()

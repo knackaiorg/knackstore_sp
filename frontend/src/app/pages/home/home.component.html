@@ -23,7 +23,7 @@
       <div *ngFor="let cat of categories" class="col-6 col-md-4 col-lg-2">
         <a [routerLink]="['/products']" [queryParams]="{category: cat.code}" class="text-decoration-none">
           <div class="category-card text-center p-3 border rounded shadow-sm h-100">
-            <img [src]="cat.imageUrl" [alt]="cat.name" class="category-img rounded mb-2" (error)="$any($event.target).src='assets/images/image-fallback.svg'">
+            <img [src]="cat.imageUrl" [alt]="cat.name" class="category-img rounded mb-2">
             <p class="mb-0 fw-semibold text-dark small">{{ cat.name }}</p>
           </div>
         </a>
@@ -49,6 +49,9 @@
     </div>
   </div>
 </section>
+
+<!-- Recently Viewed Products -->
+<app-recently-viewed-products></app-recently-viewed-products>
 
 <!-- USP Strip -->
 <section class="py-4 bg-dark text-white">

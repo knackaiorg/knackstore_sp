@@ -1,13 +1,20 @@
 <div class="card h-100 product-card shadow-sm">
+  <button
+    class="btn btn-sm wishlist-btn"
+    [class.active]="isWishlisted"
+    [disabled]="toggling"
+    (click)="toggleWishlist($event)">
+    {{ isWishlisted ? '♥' : '♡' }}
+  </button>
+
   <a [routerLink]="['/products', product.id]">
-    <img [src]="product.imageUrl" class="card-img-top product-image" [alt]="product.name" (error)="$any($event.target).src='assets/images/image-fallback.svg'">
+    <img [src]="product.imageUrl" class="card-img-top product-image" [alt]="product.name">
   </a>
   <div class="card-body d-flex flex-column">
     <small class="text-muted">{{ product.brand }}</small>
     <h6 class="card-title">
       <a [routerLink]="['/products', product.id]" class="text-decoration-none text-dark">{{ product.name }}</a>
     </h6>
-
     <app-star-rating [rating]="product.averageRating" [count]="product.reviewCount"></app-star-rating>
     <div class="mt-auto pt-2">
       <span class="fw-bold text-primary fs-5">{{ product.basePrice | currency:'USD' }}</span>

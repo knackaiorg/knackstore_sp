@@ -12,15 +12,31 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByFeaturedTrue();
     List<Product> findByCategoryCode(String categoryCode);
 
+    // Product suggestions should match product name only.
+    @Query("""
+           SELECT p FROM Product p
+           WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%'))
+           ORDER BY p.name ASC
+           """)
+    List<Product> findTop10ByNameContainingIgnoreCase(@Param("query") String query);
+
+    @Query("""
+           SELECT DISTINCT p.brand
+           FROM Product p
+           WHERE LOWER(p.brand) LIKE LOWER(CONCAT('%', :query, '%'))
+           ORDER BY p.brand ASC
+           """)
+    List<String> findDistinctBrandsContaining(@Param("query") String query);
+
     @Query("SELECT p FROM Product p WHERE " +
-           "(:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
-           "(:categoryCode IS NULL OR p.category.code = :categoryCode) AND " +
-           "(:brand IS NULL OR p.brand = :brand) AND " +
-           "(:minPrice IS NULL OR p.basePrice >= :minPrice) AND " +
-           "(:maxPrice IS NULL OR p.basePrice <= :maxPrice)")
+            "(:search IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+            "(:categoryCode IS NULL OR p.category.code = :categoryCode) AND " +
+            "(:brand IS NULL OR p.brand = :brand) AND " +
+            "(:minPrice IS NULL OR p.basePrice >= :minPrice) AND " +
+            "(:maxPrice IS NULL OR p.basePrice <= :maxPrice)")
     List<Product> searchProducts(@Param("search") String search,
-                                  @Param("categoryCode") String categoryCode,
-                                  @Param("brand") String brand,
-                                  @Param("minPrice") Double minPrice,
-                                  @Param("maxPrice") Double maxPrice);
+                                 @Param("categoryCode") String categoryCode,
+                                 @Param("brand") String brand,
+                                 @Param("minPrice") Double minPrice,
+                                 @Param("maxPrice") Double maxPrice);
 }
