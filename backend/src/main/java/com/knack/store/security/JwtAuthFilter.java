@@ -30,13 +30,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String token = extractToken(request);
 
         if (StringUtils.hasText(token) && jwtUtil.isTokenValid(token)) {
-            String email = jwtUtil.extractEmail(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-            UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            try {
+                String email = jwtUtil.extractEmail(token);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+              
+                UsernamePasswordAuthenticationToken auth =
+                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            } catch (UsernameNotFoundException ex) {
+                // Ignore stale tokens for deleted/non-existent users and continue as anonymous.
+                SecurityContextHolder.clearContext();
+            }
         }
 
         filterChain.doFilter(request, response);

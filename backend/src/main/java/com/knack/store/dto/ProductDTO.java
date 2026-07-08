@@ -15,7 +15,7 @@ public class ProductDTO {
     private Double basePrice;
     private String imageUrl;
     private boolean featured;
-    private int averageRating;
+    private double averageRating;
     private int reviewCount;
     private int stockQuantity;
     private CategoryDTO category;
