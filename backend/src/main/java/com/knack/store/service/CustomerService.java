@@ -42,7 +42,7 @@ public class CustomerService {
         cartRepository.save(cart);
 
         String token = jwtUtil.generateToken(customer.getEmail());
-        return new AuthDTO.AuthResponse(customer.getId(), token, customer.getEmail(), customer.getFirstName(), customer.getLastName());
+        return new AuthDTO.AuthResponse(token, customer.getEmail(), customer.getFirstName(), customer.getLastName());
     }
 
     public AuthDTO.AuthResponse login(AuthDTO.LoginRequest request) {
@@ -51,7 +51,7 @@ public class CustomerService {
         Customer customer = customerRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
         String token = jwtUtil.generateToken(customer.getEmail());
-        return new AuthDTO.AuthResponse(customer.getId(), token, customer.getEmail(), customer.getFirstName(), customer.getLastName());
+        return new AuthDTO.AuthResponse(token, customer.getEmail(), customer.getFirstName(), customer.getLastName());
     }
 
     public CustomerDTO getProfile(String email) {
