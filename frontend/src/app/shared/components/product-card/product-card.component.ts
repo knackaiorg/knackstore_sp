@@ -1,8 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
 import { Product } from '../../../models';
-import { AuthService } from '../../../core/services/auth.service';
-import { WishlistService } from '../../../core/services/wishlist.service';
 
 @Component({
   selector: 'app-product-card',

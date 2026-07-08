@@ -7,23 +7,6 @@ export interface AuthResponse {
   lastName: string;
 }
 
-// ---- Promo Code ----
-export interface ApplyPromoCodeRequest {
-  code: string;
-}
-
-export interface ApplyPromoCodeResponse {
-  success: boolean;
-  message: string;
-  code?: string;
-  discountAmount?: number;
-}
-
-export interface RemovePromoCodeResponse {
-  success: boolean;
-  message: string;
-}
-
 export interface LoginRequest {
   email: string;
   password: string;
@@ -106,6 +89,25 @@ export interface ProductReview {
   createdAt: string;
 }
 
+export interface ReviewWsDTO {
+  id: number;
+  productId: number;
+  rating: number;
+  comment?: string;
+  reviewerName: string;
+  createdAt: string;
+}
+
+export interface ReviewListWsDTO {
+  reviews: ReviewWsDTO[];
+  totalCount: number;
+  averageRating: number;
+}
+
+export interface ReviewEligibilityDTO {
+  alreadyReviewed: boolean;
+}
+
 export interface ProductQuestion {
   id: number;
   productId: number;
@@ -151,9 +153,6 @@ export interface CartEntry {
 export interface Cart {
   id: number;
   entries: CartEntry[];
-  subtotal: number;
-  appliedPromoCode: string | null;
-  discountAmount: number;
   totalPrice: number;
   totalItems: number;
 }
@@ -205,9 +204,6 @@ export interface Order {
   id: number;
   orderCode: string;
   status: string;
-  subtotal: number;
-  appliedPromoCode: string | null;
-  discountAmount: number;
   totalPrice: number;
   paymentMethod: string;
   trackingNumber: string;
@@ -219,7 +215,6 @@ export interface Order {
 export interface PlaceOrderRequest {
   deliveryAddress: Address;
   paymentMethod: string;
-  orderStatus: string;
 }
 
 // ---- Customer ----
@@ -230,4 +225,27 @@ export interface Customer {
   lastName: string;
   phone: string;
   defaultAddress: Address;
+}
+
+// ---- Notifications ----
+export interface StockNotificationItem {
+  id: number;
+  userId: number;
+  sku: string;
+  email: string;
+  notificationStatus: string;
+  subscribedAt: string;
+  notifiedAt: string | null;
+}
+
+export interface FetchAllNotificationsResponse {
+  success: boolean;
+  message: string;
+  notifications: StockNotificationItem[];
+  totalCount: number;
+}
+
+export interface DeleteNotificationResponse {
+  success: boolean;
+  message: string;
 }

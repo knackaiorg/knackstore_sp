@@ -21,7 +21,6 @@ public class DataInitializer implements CommandLineRunner {
     private final ProductRepository productRepository;
     private final CustomerRepository customerRepository;
     private final CartRepository cartRepository;
-    private final PromoCodeRepository promoCodeRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -29,18 +28,17 @@ public class DataInitializer implements CommandLineRunner {
         seedCategories();
         seedProducts();
         seedDemoCustomer();
-        seedPromoCodes();
         log.info("Electronics Store data initialised successfully.");
     }
 
     private void seedCategories() {
         List<Category> categories = List.of(
-            Category.builder().code("phones").name("Smartphones").description("Latest smartphones from top brands").imageUrl("https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400").build(),
-            Category.builder().code("laptops").name("Laptops").description("High-performance laptops for work and play").imageUrl("https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400").build(),
-            Category.builder().code("cameras").name("Cameras").description("Professional and consumer cameras").imageUrl("https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400").build(),
-            Category.builder().code("headphones").name("Headphones").description("Premium audio headphones and earbuds").imageUrl("https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400").build(),
-            Category.builder().code("tablets").name("Tablets").description("Tablets for productivity and entertainment").imageUrl("https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400").build(),
-            Category.builder().code("accessories").name("Accessories").description("Cases, chargers, cables and more").imageUrl("https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400").build()
+            Category.builder().code("phones").name("Smartphones").description("Latest smartphones from top brands").imageUrl("https://picsum.photos/seed/cat-phones/800/600").build(),
+            Category.builder().code("laptops").name("Laptops").description("High-performance laptops for work and play").imageUrl("https://picsum.photos/seed/cat-laptops/800/600").build(),
+            Category.builder().code("cameras").name("Cameras").description("Professional and consumer cameras").imageUrl("https://picsum.photos/seed/cat-cameras/800/600").build(),
+            Category.builder().code("headphones").name("Headphones").description("Premium audio headphones and earbuds").imageUrl("https://picsum.photos/seed/cat-headphones/800/600").build(),
+            Category.builder().code("tablets").name("Tablets").description("Tablets for productivity and entertainment").imageUrl("https://picsum.photos/seed/cat-tablets/800/600").build(),
+            Category.builder().code("accessories").name("Accessories").description("Cases, chargers, cables and more").imageUrl("https://picsum.photos/seed/cat-accessories/800/600").build()
         );
         categoryRepository.saveAll(categories);
     }
@@ -57,7 +55,7 @@ public class DataInitializer implements CommandLineRunner {
         Product iphone = Product.builder()
             .code("PHONE-001").name("AlphaPhone Pro 15").brand("AlphaTech")
             .description("The most powerful AlphaPhone yet. Features a 6.1-inch Super Retina XDR display, advanced triple-camera system, and all-day battery life.")
-            .basePrice(999.99).imageUrl("https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5?w=400")
+            .basePrice(999.99).imageUrl("https://picsum.photos/seed/phone-001/800/600")
             .featured(true).stockQuantity(150).averageRating(5).reviewCount(320).category(phones).build();
         productRepository.save(iphone);
         saveVariants(iphone,
@@ -69,7 +67,7 @@ public class DataInitializer implements CommandLineRunner {
         Product galaxy = Product.builder()
             .code("PHONE-002").name("GalaxyEdge S25").brand("StellarTech")
             .description("Cutting-edge Android flagship with a 6.6-inch Dynamic AMOLED display, 200MP camera, and 5000mAh battery.")
-            .basePrice(899.99).imageUrl("https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400")
+            .basePrice(899.99).imageUrl("https://picsum.photos/seed/phone-002/800/600")
             .featured(true).stockQuantity(120).averageRating(4).reviewCount(210).category(phones).build();
         productRepository.save(galaxy);
         saveVariants(galaxy,
@@ -80,7 +78,7 @@ public class DataInitializer implements CommandLineRunner {
         Product pixel = Product.builder()
             .code("PHONE-003").name("PurePhone 9").brand("NexaTech")
             .description("The smartest pure Android phone with AI-powered photography, seven years of updates, and clean software.")
-            .basePrice(699.99).imageUrl("https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400")
+            .basePrice(699.99).imageUrl("https://picsum.photos/seed/phone-003/800/600")
             .featured(false).stockQuantity(80).averageRating(4).reviewCount(180).category(phones).build();
         productRepository.save(pixel);
         saveVariants(pixel,
@@ -92,7 +90,7 @@ public class DataInitializer implements CommandLineRunner {
         Product macbook = Product.builder()
             .code("LAPTOP-001").name("UltraBook Pro 14").brand("AlphaTech")
             .description("Supercharged by the M3 Pro chip. With a stunning Liquid Retina XDR display, 18-hour battery life, and all the ports you need.")
-            .basePrice(1999.99).imageUrl("https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400")
+            .basePrice(1999.99).imageUrl("https://picsum.photos/seed/laptop-001/800/600")
             .featured(true).stockQuantity(60).averageRating(5).reviewCount(450).category(laptops).build();
         productRepository.save(macbook);
         saveVariants(macbook,
@@ -104,7 +102,7 @@ public class DataInitializer implements CommandLineRunner {
         Product dell = Product.builder()
             .code("LAPTOP-002").name("ProBook XPS 15").brand("DellTech")
             .description("The XPS 15 combines stunning OLED display technology with premium performance in an incredibly thin and light design.")
-            .basePrice(1499.99).imageUrl("https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=400")
+            .basePrice(1499.99).imageUrl("https://picsum.photos/seed/laptop-002/800/600")
             .featured(true).stockQuantity(45).averageRating(4).reviewCount(210).category(laptops).build();
         productRepository.save(dell);
         saveVariants(dell,
@@ -116,15 +114,15 @@ public class DataInitializer implements CommandLineRunner {
         Product sonyCamera = Product.builder()
             .code("CAM-001").name("VisionPro A7 IV").brand("SonyVision")
             .description("Full-frame mirrorless camera with 33MP sensor, real-time tracking, 10fps continuous shooting, and 4K 60p video.")
-            .basePrice(2499.99).imageUrl("https://images.unsplash.com/photo-1607462109225-6b64ae2dd3cb?w=400")
-            .featured(true).stockQuantity(0).averageRating(5).reviewCount(290).category(cameras).build();
+            .basePrice(2499.99).imageUrl("https://picsum.photos/seed/camera-001/800/600")
+            .featured(true).stockQuantity(30).averageRating(5).reviewCount(290).category(cameras).build();
         productRepository.save(sonyCamera);
 
         // --- Headphones ---
         Product sonyWH = Product.builder()
             .code("HEAD-001").name("SoundMax WH-1000XM6").brand("SonyAudio")
             .description("Industry-leading noise cancelling with exceptional sound quality, 30-hour battery life, and comfortable all-day wear.")
-            .basePrice(349.99).imageUrl("https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400")
+            .basePrice(349.99).imageUrl("https://picsum.photos/seed/head-001/800/600")
             .featured(true).stockQuantity(200).averageRating(5).reviewCount(1200).category(headphones).build();
         productRepository.save(sonyWH);
         saveVariants(sonyWH,
@@ -135,7 +133,7 @@ public class DataInitializer implements CommandLineRunner {
         Product airpods = Product.builder()
             .code("HEAD-002").name("AirBuds Pro 2").brand("AlphaTech")
             .description("Active noise cancellation, transparency mode, and adaptive audio. Personalised Spatial Audio with dynamic head tracking.")
-            .basePrice(249.99).imageUrl("https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=400")
+            .basePrice(249.99).imageUrl("https://picsum.photos/seed/head-002/800/600")
             .featured(false).stockQuantity(300).averageRating(4).reviewCount(850).category(headphones).build();
         productRepository.save(airpods);
 
@@ -143,7 +141,7 @@ public class DataInitializer implements CommandLineRunner {
         Product ipad = Product.builder()
             .code("TAB-001").name("SlateBook Pro 12.9").brand("AlphaTech")
             .description("Supercharged by the M2 chip. With the world's most advanced display, incredible performance, and all-day battery life.")
-            .basePrice(1099.99).imageUrl("https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400")
+            .basePrice(1099.99).imageUrl("https://picsum.photos/seed/tab-001/800/600")
             .featured(true).stockQuantity(70).averageRating(5).reviewCount(430).category(tablets).build();
         productRepository.save(ipad);
         saveVariants(ipad,
@@ -156,14 +154,14 @@ public class DataInitializer implements CommandLineRunner {
         Product charger = Product.builder()
             .code("ACC-001").name("HyperCharge 100W USB-C").brand("AlphaTech")
             .description("100W USB-C Power Adapter charges your laptop, tablet, or phone at maximum speed. Compact design with foldable plug.")
-            .basePrice(49.99).imageUrl("https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400")
+            .basePrice(49.99).imageUrl("https://picsum.photos/seed/acc-001/800/600")
             .featured(false).stockQuantity(500).averageRating(4).reviewCount(320).category(accessories).build();
         productRepository.save(charger);
 
         Product case1 = Product.builder()
             .code("ACC-002").name("ArmorCase Pro").brand("GuardTech")
             .description("Military-grade drop protection with a slim profile. Compatible with wireless charging. Available for all major phone models.")
-            .basePrice(39.99).imageUrl("https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400")
+            .basePrice(39.99).imageUrl("https://picsum.photos/seed/acc-002/800/600")
             .featured(false).stockQuantity(400).averageRating(4).reviewCount(180).category(accessories).build();
         productRepository.save(case1);
     }
@@ -198,66 +196,5 @@ public class DataInitializer implements CommandLineRunner {
         cartRepository.save(cart);
 
         log.info("Demo customer created: demo@knack.com / Demo@1234");
-    }
-
-    private void seedPromoCodes() {
-        if (promoCodeRepository.count() > 0) return;
-
-        List<PromoCode> promoCodes = List.of(
-            PromoCode.builder()
-                .code("WELCOME10")
-                .discountType(PromoCode.DiscountType.PERCENTAGE)
-                .discountValue(10.0)
-                .minimumOrderAmount(500.0)
-                .active(true)
-                .build(),
-            PromoCode.builder()
-                .code("FLAT500")
-                .discountType(PromoCode.DiscountType.FIXED)
-                .discountValue(500.0)
-                .minimumOrderAmount(2000.0)
-                .active(true)
-                .build(),
-            PromoCode.builder()
-                .code("SAVE20")
-                .discountType(PromoCode.DiscountType.PERCENTAGE)
-                .discountValue(20.0)
-                .minimumOrderAmount(1000.0)
-                .active(true)
-                .build(),
-            PromoCode.builder()
-                .code("MEGA1000")
-                .discountType(PromoCode.DiscountType.FIXED)
-                .discountValue(1000.0)
-                .minimumOrderAmount(5000.0)
-                .active(true)
-                .build(),
-            PromoCode.builder()
-                .code("FIRST15")
-                .discountType(PromoCode.DiscountType.PERCENTAGE)
-                .discountValue(15.0)
-                .minimumOrderAmount(null) // No minimum for this percentage promo
-                .active(true)
-                .build(),
-            // Expired/Inactive promo code
-            PromoCode.builder()
-                .code("COOL")
-                .discountType(PromoCode.DiscountType.PERCENTAGE)
-                .discountValue(25.0)
-                .minimumOrderAmount(1500.0)
-                .active(false) // Inactive/Expired code
-                .build(),
-            // Alphabetic-only promo code
-            PromoCode.builder()
-                .code("SUMMER")
-                .discountType(PromoCode.DiscountType.PERCENTAGE)
-                .discountValue(12.0)
-                .minimumOrderAmount(800.0)
-                .active(true)
-                .build()
-        );
-
-        promoCodeRepository.saveAll(promoCodes);
-        log.info("Seeded {} promo codes", promoCodes.size());
     }
 }

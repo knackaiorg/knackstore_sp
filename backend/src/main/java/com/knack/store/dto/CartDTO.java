@@ -9,9 +9,6 @@ import java.util.List;
 public class CartDTO {
     private Long id;
     private List<CartEntryDTO> entries;
-    private Double subtotal;
-    private String appliedPromoCode;
-    private Double discountAmount;
     private Double totalPrice;
     private int totalItems;
 

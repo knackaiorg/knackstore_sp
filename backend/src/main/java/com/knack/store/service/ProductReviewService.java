@@ -10,6 +10,8 @@ import com.knack.store.repository.ProductReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,16 +28,21 @@ public class ProductReviewService {
     public ProductReviewDTO.ProductReviewResponse submitReview(String email, Long productId,
                                                               ProductReviewDTO.SubmitReviewRequest request) {
         Customer customer = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Customer not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + productId));
+
+        if (productReviewRepository.existsByProductIdAndCustomerId(productId, customer.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "You've already reviewed this product.");
+        }
 
         ProductReview review = ProductReview.builder()
                 .product(product)
                 .customer(customer)
                 .rating(request.getRating())
                 .comment(request.getComment())
+            .approved(true)
                 .build();
 
         ProductReview saved = productReviewRepository.save(review);
@@ -46,21 +53,35 @@ public class ProductReviewService {
 
     public List<ProductReviewDTO.ProductReviewResponse> getProductReviews(Long productId) {
         if (!productRepository.existsById(productId)) {
-            throw new RuntimeException("Product not found: " + productId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + productId);
         }
 
-        return productReviewRepository.findByProductIdOrderByCreatedAtDesc(productId)
+        return productReviewRepository.findByProductIdAndApprovedTrueOrderByCreatedAtDesc(productId)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
+    public ProductReviewDTO.ReviewEligibilityResponse getReviewEligibility(String email, Long productId) {
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found"));
+
+        if (!productRepository.existsById(productId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found: " + productId);
+        }
+
+        boolean alreadyReviewed = productReviewRepository.existsByProductIdAndCustomerId(productId, customer.getId());
+        return ProductReviewDTO.ReviewEligibilityResponse.builder()
+                .alreadyReviewed(alreadyReviewed)
+                .build();
+    }
+
     private void refreshProductRatingStats(Product product) {
-        long totalReviews = productReviewRepository.countByProductId(product.getId());
+        long totalReviews = productReviewRepository.countByProductIdAndApprovedTrue(product.getId());
         Double average = productReviewRepository.averageRatingByProductId(product.getId());
 
         product.setReviewCount((int) totalReviews);
-        product.setAverageRating((int) Math.round(average != null ? average : 0D));
+        product.setAverageRating(average != null ? average : 0D);
         productRepository.save(product);
     }
 
@@ -76,13 +97,6 @@ public class ProductReviewService {
     }
 
     private String buildReviewerName(Customer customer) {
-        String fullName = ((customer.getFirstName() != null ? customer.getFirstName().trim() : "")
-                + " "
-                + (customer.getLastName() != null ? customer.getLastName().trim() : "")).trim();
-
-        if (!fullName.isEmpty()) {
-            return fullName;
-        }
-        return customer.getEmail();
+        return "Customer";
     }
 }
