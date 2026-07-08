@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
+import { WishlistService } from '../../core/services/wishlist.service';
 
 @Component({ selector: 'app-login', templateUrl: './login.component.html' })
 export class LoginComponent {
@@ -14,8 +14,8 @@ export class LoginComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private cartService: CartService,
-    private router: Router,
-    private route: ActivatedRoute
+    private wishlistService: WishlistService,
+    private router: Router
   ) {
     this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]], password: ['', Validators.required] });
   }
@@ -24,9 +24,9 @@ export class LoginComponent {
     this.loading = true; this.error = '';
     this.authService.login(this.form.value).subscribe({
       next: () => {
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/';
         this.cartService.loadCart().subscribe();
-        this.router.navigateByUrl(returnUrl);
+        this.wishlistService.loadWishlist().subscribe();
+        this.router.navigate(['/']);
       },
       error: () => { this.error = 'Invalid email or password.'; this.loading = false; }
     });

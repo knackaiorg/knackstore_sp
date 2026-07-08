@@ -31,23 +31,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                // Use default CORS configuration (CorsConfig defines the CorsConfigurationSource bean)
-                .cors().and()
+                .cors(cors -> cors.configure(http))
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // allow preflight requests
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/products/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers("/api/carousel/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
-                        .requestMatchers("/api/notify_me").permitAll()
-                        .requestMatchers("/api/fetch_all_notifications").permitAll()
-                        .requestMatchers("/api/delete_notification").permitAll()
-                        // also permit the endpoints without the /api prefix (controller was moved to root)
-                        .requestMatchers("/notify_me").permitAll()
-                        .requestMatchers("/fetch_all_notifications").permitAll()
-                        .requestMatchers("/delete_notification").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
