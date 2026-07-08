@@ -1,7 +1,6 @@
 package com.knack.store.controller;
 
 import com.knack.store.dto.OrderDTO;
-import com.knack.store.dto.ReorderDTO;
 import com.knack.store.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,18 +39,4 @@ public class OrderController {
                                               @PathVariable String orderCode) {
         return ResponseEntity.ok(orderService.getOrderByCode(user.getUsername(), orderCode));
     }
-
-    @PostMapping("/{orderCode}/reorder")
-    @Operation(
-        summary = "Reorder",
-        description = "Add all items from a past order to the current shopping cart. Uses current catalog prices. Merges with existing cart items. Authorization required."
-    )
-    public ResponseEntity<ReorderDTO.ReorderResponse> reorder(
-            @AuthenticationPrincipal UserDetails user,
-            @PathVariable String orderCode) {
-        ReorderDTO.ReorderRequest request = new ReorderDTO.ReorderRequest();
-        request.setOrderCode(orderCode);
-        return ResponseEntity.ok(orderService.reorder(user.getUsername(), request));
-    }
 }
-

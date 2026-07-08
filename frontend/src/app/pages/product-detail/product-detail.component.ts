@@ -4,10 +4,8 @@ import { Product, ProductVariant, ProductReview, ProductQuestion, ReviewWsDTO, R
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
-import { ProductReviewService } from '../../core/services/product-review.service';
-import { ProductQuestionService } from '../../core/services/product-question.service';
-import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
-import { WishlistService } from '../../core/services/wishlist.service';
+import { StockNotificationService } from '../../core/services/stock-notification.service';
+import { environment } from '../../../environments/environment';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit {
@@ -16,6 +14,7 @@ export class ProductDetailComponent implements OnInit {
   quantity = 1;
   loading = true;
   addingToCart = false;
+  notifyingMe = false;
   successMessage = '';
   reviews: ReviewWsDTO[] = [];
   wishlistMessage = '';
@@ -41,6 +40,9 @@ export class ProductDetailComponent implements OnInit {
   totalReviewCount = 0;
   alreadyReviewed = false;
   checkingEligibility = false;
+  notifyMeMessage = '';
+  notifyMeError = '';
+  notifyMeClicked = false;
 
   constructor(
     private route: ActivatedRoute, private router: Router,
@@ -50,16 +52,19 @@ export class ProductDetailComponent implements OnInit {
     private productReviewService: ProductReviewService
     private productQuestionService: ProductQuestionService,
     private recentlyViewedService: RecentlyViewedService,
-    private wishlistService: WishlistService
+    private wishlistService: WishlistService,
+    private stockNotificationService: StockNotificationService
   ) {}
 
   ngOnInit() {
     this.route.params.subscribe(p => {
-      const productId = +p['id'];
-      this.productService.getProductById(productId).subscribe(product => {
+      this.productService.getProductById(+p['id']).subscribe(product => {
         this.product = product;
         console.log('Product loaded:', product);
         if (product.variants?.length) this.selectedVariant = product.variants[0];
+        this.notifyMeClicked = false;
+        this.notifyMeMessage = '';
+        this.notifyMeError = '';
         this.loading = false;
       });
 
@@ -71,74 +76,78 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
-  get isAuthenticated(): boolean {
-    return this.authService.isLoggedIn;
-  }
-
-  get questionCharCount(): number {
-    return this.questionText.length;
-  }
-
-  get hasAskedQuestion(): boolean {
-    if (!this.isAuthenticated) {
-      return false;
-    }
-
-    const currentUser = this.authService.currentUser;
-    return this.questions.some(q => {
-      if (q.askedBy && currentUser?.customerId) {
-        return q.askedBy === currentUser.firstName;
-      }
-      const fullName = `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim();
-      return q.askedBy === currentUser?.email || q.askedBy === fullName;
-    });
-  }
-
   get displayPrice(): number {
     return this.selectedVariant?.price ?? this.product?.basePrice ?? 0;
   }
 
+  get currentStock(): number {
+    // if (environment.forceOutOfStockForTesting) return 0;
+    return this.selectedVariant?.stock ?? this.product?.stockQuantity ?? 0;
+  }
+
   get inStock(): boolean {
-    return (this.selectedVariant?.stock ?? this.product?.stockQuantity ?? 0) > 0;
+    return this.currentStock > 0;
   }
 
-  get isWishlisted(): boolean {
-    if (!this.product) {
-      return false;
-    }
-    return this.wishlistService.isWishlisted(this.product.id, this.selectedVariant?.id);
-  }
-
-  toggleWishlist(): void {
-    if (!this.product) return;
-
-    if (!this.authService.isLoggedIn) {
-      const shouldNavigate = window.confirm('Please log in to use your wishlist. Go to login now?');
-      if (shouldNavigate) {
-        this.router.navigate(['/login']);
+  handlePrimaryAction() {
+    if (!this.inStock) {
+      if (!this.authService.isLoggedIn) {
+        this.notifyMeClicked = false;
+        this.notifyMeMessage = '';
+        this.notifyMeError = '';
+        this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+        return;
       }
+
+      this.notifyMe();
       return;
     }
 
-    this.togglingWishlist = true;
-    this.wishlistService.toggleEntry({
-      productId: this.product.id,
-      variantId: this.selectedVariant?.id
-    }).subscribe({
-      next: () => {
-        this.togglingWishlist = false;
-        this.wishlistMessage = this.isWishlisted ? 'Added to wishlist.' : 'Removed from wishlist.';
-        setTimeout(() => this.wishlistMessage = '', 2500);
+    this.notifyMeClicked = false;
+    this.notifyMeMessage = '';
+    this.notifyMeError = '';
+    this.addToCart();
+  }
+
+  notifyMe() {
+    if (!this.product || !this.authService.currentUser) return;
+
+    this.notifyingMe = true;
+    this.notifyMeClicked = true;
+    this.notifyMeMessage = '';
+    this.notifyMeError = '';
+
+    const sku = this.selectedVariant?.sku || this.product.code || `PROD-${this.product.id}`;
+    const email = this.authService.currentUser.email;
+
+    this.stockNotificationService.registerNotifyMe(sku, email).subscribe({
+      next: (response: any) => {
+        this.notifyingMe = false;
+        if (response.success) {
+          this.notifyMeMessage = response.message;
+        } else {
+          this.notifyMeError = response.message || 'Failed to subscribe. Please try again.';
+        }
+        setTimeout(() => {
+          this.notifyMeMessage = '';
+          this.notifyMeError = '';
+        }, 5000);
       },
-      error: () => {
-        this.togglingWishlist = false;
+      error: (err) => {
+        this.notifyingMe = false;
+        this.notifyMeError = 'Failed to subscribe. Please try again.';
+        console.error('Notify Me Error:', err);
+        setTimeout(() => this.notifyMeError = '', 5000);
       }
     });
   }
 
   addToCart() {
     if (!this.product) return;
-    if (!this.authService.isLoggedIn) { this.router.navigate(['/login']); return; }
+    if (!this.authService.isLoggedIn) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
     this.addingToCart = true;
     this.cartService.addEntry({
       productId: this.product.id,
@@ -153,6 +162,7 @@ export class ProductDetailComponent implements OnInit {
       error: () => this.addingToCart = false
     });
   }
+}
 
   submitQuestion(): void {
     if (!this.product || !this.isAuthenticated) {
@@ -335,3 +345,4 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 }
+

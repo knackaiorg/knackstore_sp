@@ -11,9 +11,6 @@ public class OrderDTO {
     private Long id;
     private String orderCode;
     private String status;
-    private Double subtotal;
-    private String appliedPromoCode;
-    private Double discountAmount;
     private Double totalPrice;
     private String paymentMethod;
     private String trackingNumber;
@@ -37,6 +34,5 @@ public class OrderDTO {
     public static class PlaceOrderRequest {
         private AddressDTO deliveryAddress;
         private String paymentMethod;
-        private String orderStatus;
     }
 }

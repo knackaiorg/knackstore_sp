@@ -29,24 +29,16 @@ public class AuthDTO {
 
     @Data
     public static class AuthResponse {
-        private Long customerId;
         private String token;
         private String email;
         private String firstName;
         private String lastName;
-        private String role;
 
-        public AuthResponse(Long customerId, String token, String email, String firstName, String lastName) {
-            this(customerId, token, email, firstName, lastName, null);
-        }
-
-        public AuthResponse(Long customerId, String token, String email, String firstName, String lastName, String role) {
-            this.customerId = customerId;
+        public AuthResponse(String token, String email, String firstName, String lastName) {
             this.token = token;
             this.email = email;
             this.firstName = firstName;
             this.lastName = lastName;
-            this.role = role;
         }
     }
 }
