@@ -26,14 +26,18 @@
               </h6>
               <small *ngIf="entry.variantDescription" class="text-muted">{{ entry.variantDescription }}</small>
               <div class="fw-bold text-primary mt-1">{{ entry.price | currency:'USD' }}</div>
+              <small *ngIf="isOutOfStock(entry)" class="text-danger fw-semibold d-block">Out of Stock</small>
             </div>
 
             <button
-              class="btn btn-sm btn-warning"
-              [disabled]="movingEntryId === entry.entryId"
+              class="btn btn-sm"
+              [class.btn-secondary]="isOutOfStock(entry)"
+              [class.btn-warning]="!isOutOfStock(entry)"
+              [disabled]="movingEntryId === entry.entryId || isOutOfStock(entry)"
+              [title]="isOutOfStock(entry) ? 'Out of stock' : 'Move to Cart'"
               (click)="moveToCart(entry.entryId)">
-              <span *ngIf="movingEntryId === entry.entryId" class="spinner-border spinner-border-sm me-1"></span>
-              Move to Cart
+              <span *ngIf="movingEntryId === entry.entryId && !isOutOfStock(entry)" class="spinner-border spinner-border-sm me-1"></span>
+              {{ isOutOfStock(entry) ? 'Out of Stock' : 'Move to Cart' }}
             </button>
 
             <button

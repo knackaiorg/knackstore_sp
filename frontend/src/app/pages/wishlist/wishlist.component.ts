@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Wishlist, WishlistEntry } from '../../models';
 import { Wishlist } from '../../models';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { CartService } from '../../core/services/cart.service';
@@ -43,6 +44,11 @@ export class WishlistComponent implements OnInit {
   }
 
   moveToCart(entryId: number): void {
+    const entry = this.wishlist?.entries.find(e => e.entryId === entryId);
+    if (entry && entry.inStock === false) {
+      return;
+    }
+
     this.movingEntryId = entryId;
     this.wishlistService.moveToCart(entryId).subscribe({
       next: wishlist => {
@@ -58,5 +64,9 @@ export class WishlistComponent implements OnInit {
 
   viewProduct(productId: number): void {
     this.router.navigate(['/products', productId]);
+  }
+
+  isOutOfStock(entry: WishlistEntry): boolean {
+    return entry.inStock === false;
   }
 }

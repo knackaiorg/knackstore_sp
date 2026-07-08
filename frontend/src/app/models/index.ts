@@ -172,6 +172,7 @@ export interface WishlistEntry {
   productName: string;
   productImageUrl: string;
   price: number;
+  inStock?: boolean;
   variantId: number | null;
   variantSku: string | null;
   variantDescription: string | null;
