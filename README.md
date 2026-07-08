@@ -13,7 +13,7 @@ cd backend
 ```
 API → http://localhost:8080 | H2 Console → http://localhost:8080/h2-console
 
-### Frontend (Angular).
+### Frontend (Angular)
 ```bash
 cd frontend
 npm install
