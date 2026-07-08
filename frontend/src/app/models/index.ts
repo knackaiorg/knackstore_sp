@@ -162,3 +162,29 @@ export interface DeleteNotificationResponse {
   success: boolean;
   message: string;
 }
+
+// ---- Reviews -----
+export interface SubmitProductReviewRequest {
+  rating: number;
+  comment?: string;
+}
+
+export interface ReviewWsDTO {
+  id: number;
+  productId: number;
+  rating: number;
+  comment?: string;
+  reviewerName: string;
+  createdAt: string;
+}
+
+export interface ReviewListWsDTO {
+  reviews: ReviewWsDTO[];
+  totalCount: number;
+  averageRating: number;
+}
+
+
+export interface ReviewEligibilityDTO {
+  alreadyReviewed: boolean;
+}
