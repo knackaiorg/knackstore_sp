@@ -6,6 +6,10 @@ import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
 import { StockNotificationService } from '../../core/services/stock-notification.service';
 import { environment } from '../../../environments/environment';
+import { ProductQuestionService } from 'src/app/core/services/product-question.service';
+import { RecentlyViewedService } from 'src/app/core/services/recently-viewed.service';
+import { WishlistService } from 'src/app/core/services/wishlist.service';
+import { ProductReviewService } from 'src/app/core/services/product-review.service';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit {
@@ -19,7 +23,7 @@ export class ProductDetailComponent implements OnInit {
   reviews: ReviewWsDTO[] = [];
   wishlistMessage = '';
   togglingWishlist = false;
-  reviews: ProductReview[] = [];
+  // reviews: ProductReview[] = [];
   reviewsLoading = true;
   questions: ProductQuestion[] = [];
   questionsLoading = true;
@@ -49,7 +53,7 @@ export class ProductDetailComponent implements OnInit {
     private productService: ProductService,
     private cartService: CartService,
     private authService: AuthService,
-    private productReviewService: ProductReviewService
+    private productReviewService: ProductReviewService,
     private productQuestionService: ProductQuestionService,
     private recentlyViewedService: RecentlyViewedService,
     private wishlistService: WishlistService,
@@ -68,6 +72,7 @@ export class ProductDetailComponent implements OnInit {
         this.loading = false;
       });
 
+      const productId = +p['id'];
       this.loadReviews(productId);
       if (this.isAuthenticated) {
         this.checkReviewEligibility(productId);
@@ -76,8 +81,31 @@ export class ProductDetailComponent implements OnInit {
     });
   }
 
+  get isAuthenticated(): boolean {
+    return this.authService.isLoggedIn;
+  }
+
+  get questionCharCount(): number {
+    return this.questionText.length;
+  }
+
   get displayPrice(): number {
     return this.selectedVariant?.price ?? this.product?.basePrice ?? 0;
+  }
+
+   get hasAskedQuestion(): boolean {
+    if (!this.isAuthenticated) {
+      return false;
+    }
+
+    const currentUser = this.authService.currentUser;
+    return this.questions.some(q => {
+      if (q.askedById && currentUser?.customerId) {
+        return q.askedById === currentUser.customerId;
+      }
+      const fullName = `${currentUser?.firstName ?? ''} ${currentUser?.lastName ?? ''}`.trim();
+      return q.askedBy === currentUser?.email || q.askedBy === fullName;
+    });
   }
 
   get currentStock(): number {
@@ -162,7 +190,6 @@ export class ProductDetailComponent implements OnInit {
       error: () => this.addingToCart = false
     });
   }
-}
 
   submitQuestion(): void {
     if (!this.product || !this.isAuthenticated) {
