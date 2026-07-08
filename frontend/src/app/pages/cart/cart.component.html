@@ -13,7 +13,7 @@
         <div class="card-body p-0">
           <div *ngFor="let entry of cart.entries; let last = last"
                class="d-flex align-items-center p-3 gap-3" [class.border-bottom]="!last">
-            <img [src]="entry.productImageUrl" [alt]="entry.productName" class="rounded" style="width:80px;height:80px;object-fit:cover">
+            <img [src]="entry.productImageUrl" [alt]="entry.productName" class="rounded" style="width:80px;height:80px;object-fit:cover" onerror="this.onerror=null;">
             <div class="flex-grow-1">
               <h6 class="mb-0 fw-semibold">{{ entry.productName }}</h6>
               <small *ngIf="entry.variantDescription" class="text-muted">{{ entry.variantDescription }}</small>

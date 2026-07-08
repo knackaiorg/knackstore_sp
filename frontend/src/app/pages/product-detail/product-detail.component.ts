@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Product, ProductReview, ProductVariant } from '../../models';
+import { Product, ProductVariant } from '../../models';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
-import { ProductReviewService } from '../../core/services/product-review.service';
-import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
-import { WishlistService } from '../../core/services/wishlist.service';
+import { StockNotificationService } from '../../core/services/stock-notification.service';
+import { environment } from '../../../environments/environment';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit {
@@ -15,90 +14,105 @@ export class ProductDetailComponent implements OnInit {
   quantity = 1;
   loading = true;
   addingToCart = false;
+  notifyingMe = false;
   successMessage = '';
-  wishlistMessage = '';
-  togglingWishlist = false;
-  reviews: ProductReview[] = [];
-  reviewsLoading = true;
-  submittingReview = false;
-  reviewRating: number | null = null;
-  reviewComment = '';
-  reviewError = '';
-  reviewSuccessMessage = '';
+  notifyMeMessage = '';
+  notifyMeError = '';
+  notifyMeClicked = false;
 
   constructor(
     private route: ActivatedRoute, private router: Router,
     private productService: ProductService,
     private cartService: CartService,
     private authService: AuthService,
-    private productReviewService: ProductReviewService,
-    private recentlyViewedService: RecentlyViewedService,
-    private wishlistService: WishlistService
+    private stockNotificationService: StockNotificationService
   ) {}
 
   ngOnInit() {
     this.route.params.subscribe(p => {
-      const productId = +p['id'];
-      this.productService.getProductById(productId).subscribe(product => {
+      this.productService.getProductById(+p['id']).subscribe(product => {
         this.product = product;
         if (product.variants?.length) this.selectedVariant = product.variants[0];
+        this.notifyMeClicked = false;
+        this.notifyMeMessage = '';
+        this.notifyMeError = '';
         this.loading = false;
-        this.recentlyViewedService.addProduct(product);
       });
-
-      this.loadReviews(productId);
     });
-  }
-
-  get isAuthenticated(): boolean {
-    return this.authService.isLoggedIn;
   }
 
   get displayPrice(): number {
     return this.selectedVariant?.price ?? this.product?.basePrice ?? 0;
   }
 
+  get currentStock(): number {
+    // if (environment.forceOutOfStockForTesting) return 0;
+    return this.selectedVariant?.stock ?? this.product?.stockQuantity ?? 0;
+  }
+
   get inStock(): boolean {
-    return (this.selectedVariant?.stock ?? this.product?.stockQuantity ?? 0) > 0;
+    return this.currentStock > 0;
   }
 
-  get isWishlisted(): boolean {
-    if (!this.product) {
-      return false;
-    }
-    return this.wishlistService.isWishlisted(this.product.id, this.selectedVariant?.id);
-  }
-
-  toggleWishlist(): void {
-    if (!this.product) return;
-
-    if (!this.authService.isLoggedIn) {
-      const shouldNavigate = window.confirm('Please log in to use your wishlist. Go to login now?');
-      if (shouldNavigate) {
-        this.router.navigate(['/login']);
+  handlePrimaryAction() {
+    if (!this.inStock) {
+      if (!this.authService.isLoggedIn) {
+        this.notifyMeClicked = false;
+        this.notifyMeMessage = '';
+        this.notifyMeError = '';
+        this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+        return;
       }
+
+      this.notifyMe();
       return;
     }
 
-    this.togglingWishlist = true;
-    this.wishlistService.toggleEntry({
-      productId: this.product.id,
-      variantId: this.selectedVariant?.id
-    }).subscribe({
-      next: () => {
-        this.togglingWishlist = false;
-        this.wishlistMessage = this.isWishlisted ? 'Added to wishlist.' : 'Removed from wishlist.';
-        setTimeout(() => this.wishlistMessage = '', 2500);
+    this.notifyMeClicked = false;
+    this.notifyMeMessage = '';
+    this.notifyMeError = '';
+    this.addToCart();
+  }
+
+  notifyMe() {
+    if (!this.product || !this.authService.currentUser) return;
+
+    this.notifyingMe = true;
+    this.notifyMeClicked = true;
+    this.notifyMeMessage = '';
+    this.notifyMeError = '';
+
+    const sku = this.selectedVariant?.sku || this.product.code || `PROD-${this.product.id}`;
+    const email = this.authService.currentUser.email;
+
+    this.stockNotificationService.registerNotifyMe(sku, email).subscribe({
+      next: (response: any) => {
+        this.notifyingMe = false;
+        if (response.success) {
+          this.notifyMeMessage = response.message;
+        } else {
+          this.notifyMeError = response.message || 'Failed to subscribe. Please try again.';
+        }
+        setTimeout(() => {
+          this.notifyMeMessage = '';
+          this.notifyMeError = '';
+        }, 5000);
       },
-      error: () => {
-        this.togglingWishlist = false;
+      error: (err) => {
+        this.notifyingMe = false;
+        this.notifyMeError = 'Failed to subscribe. Please try again.';
+        console.error('Notify Me Error:', err);
+        setTimeout(() => this.notifyMeError = '', 5000);
       }
     });
   }
 
   addToCart() {
     if (!this.product) return;
-    if (!this.authService.isLoggedIn) { this.router.navigate(['/login']); return; }
+    if (!this.authService.isLoggedIn) {
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
     this.addingToCart = true;
     this.cartService.addEntry({
       productId: this.product.id,
@@ -113,61 +127,6 @@ export class ProductDetailComponent implements OnInit {
       error: () => this.addingToCart = false
     });
   }
-
-  setReviewRating(star: number): void {
-    this.reviewRating = star;
-    this.reviewError = '';
-  }
-
-  submitReview(): void {
-    if (!this.product) return;
-
-    this.reviewError = '';
-    this.reviewSuccessMessage = '';
-
-    if (this.reviewRating == null) {
-      this.reviewError = 'Please select a star rating before submitting your review.';
-      return;
-    }
-
-    this.submittingReview = true;
-    this.productReviewService.submitReview(this.product.id, {
-      rating: this.reviewRating,
-      comment: this.reviewComment?.trim() || undefined
-    }).subscribe({
-      next: (review) => {
-        this.submittingReview = false;
-        this.reviews = [review, ...this.reviews];
-
-        if (this.product) {
-          const totalCount = this.product.reviewCount + 1;
-          const updatedAverage = Math.round(((this.product.averageRating * this.product.reviewCount) + review.rating) / totalCount);
-          this.product.reviewCount = totalCount;
-          this.product.averageRating = updatedAverage;
-        }
-
-        this.reviewRating = null;
-        this.reviewComment = '';
-        this.reviewSuccessMessage = 'Thanks! Your review has been published.';
-      },
-      error: (err) => {
-        this.submittingReview = false;
-        this.reviewError = err?.error?.message || 'Unable to submit review right now. Please try again.';
-      }
-    });
-  }
-
-  private loadReviews(productId: number): void {
-    this.reviewsLoading = true;
-    this.productReviewService.getProductReviews(productId).subscribe({
-      next: (reviews) => {
-        this.reviews = reviews;
-        this.reviewsLoading = false;
-      },
-      error: () => {
-        this.reviews = [];
-        this.reviewsLoading = false;
-      }
-    });
-  }
 }
+
+
