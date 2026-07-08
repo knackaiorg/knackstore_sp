@@ -29,12 +29,14 @@ public class AuthDTO {
 
     @Data
     public static class AuthResponse {
+        private Long customerId;
         private String token;
         private String email;
         private String firstName;
         private String lastName;
 
-        public AuthResponse(String token, String email, String firstName, String lastName) {
+        public AuthResponse(Long customerId, String token, String email, String firstName, String lastName) {
+            this.customerId = customerId;
             this.token = token;
             this.email = email;
             this.firstName = firstName;

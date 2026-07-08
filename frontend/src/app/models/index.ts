@@ -1,5 +1,6 @@
 // ---- Auth ----
 export interface AuthResponse {
+  customerId: number;
   token: string;
   email: string;
   firstName: string;
@@ -74,6 +75,20 @@ export interface Product {
   variants: ProductVariant[];
 }
 
+export interface SubmitProductReviewRequest {
+  rating: number;
+  comment?: string;
+}
+
+export interface ProductReview {
+  id: number;
+  productId: number;
+  rating: number;
+  comment?: string;
+  reviewerName: string;
+  createdAt: string;
+}
+
 // ---- Cart ----
 export interface CartEntry {
   entryId: number;
@@ -100,6 +115,31 @@ export interface AddEntryRequest {
   productId: number;
   variantId?: number;
   quantity: number;
+}
+
+// ---- Wishlist ----
+export interface WishlistEntry {
+  entryId: number;
+  addedAt: string;
+  productId: number;
+  productCode: string;
+  productName: string;
+  productImageUrl: string;
+  price: number;
+  variantId: number | null;
+  variantSku: string | null;
+  variantDescription: string | null;
+}
+
+export interface Wishlist {
+  id: number;
+  totalItems: number;
+  entries: WishlistEntry[];
+}
+
+export interface ToggleWishlistEntryRequest {
+  productId: number;
+  variantId?: number;
 }
 
 // ---- Order ----
@@ -138,27 +178,4 @@ export interface Customer {
   lastName: string;
   phone: string;
   defaultAddress: Address;
-}
-
-// ---- Notifications ----
-export interface StockNotificationItem {
-  id: number;
-  userId: number;
-  sku: string;
-  email: string;
-  notificationStatus: string;
-  subscribedAt: string;
-  notifiedAt: string | null;
-}
-
-export interface FetchAllNotificationsResponse {
-  success: boolean;
-  message: string;
-  notifications: StockNotificationItem[];
-  totalCount: number;
-}
-
-export interface DeleteNotificationResponse {
-  success: boolean;
-  message: string;
 }

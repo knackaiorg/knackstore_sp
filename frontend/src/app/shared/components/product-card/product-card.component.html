@@ -1,6 +1,14 @@
 <div class="card h-100 product-card shadow-sm">
+  <button
+    class="btn btn-sm wishlist-btn"
+    [class.active]="isWishlisted"
+    [disabled]="toggling"
+    (click)="toggleWishlist($event)">
+    {{ isWishlisted ? '♥' : '♡' }}
+  </button>
+
   <a [routerLink]="['/products', product.id]">
-    <img [src]="product.imageUrl" class="card-img-top product-image" [alt]="product.name" onerror="this.onerror=null;this.src='assets/image-placeholder.svg'">
+    <img [src]="product.imageUrl" class="card-img-top product-image" [alt]="product.name">
   </a>
   <div class="card-body d-flex flex-column">
     <small class="text-muted">{{ product.brand }}</small>
