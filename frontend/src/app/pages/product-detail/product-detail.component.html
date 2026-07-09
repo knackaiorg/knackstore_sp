@@ -24,7 +24,7 @@
       <h3 class="text-primary fw-bold mt-3">{{ displayPrice | currency:'USD' }}</h3>
 
       <!-- Variants -->
-      <div *ngIf="product.variants.length" class="mb-3">
+      <div *ngIf="product.variants?.length" class="mb-3">
         <label class="fw-semibold mb-2 d-block">Select Variant:</label>
         <div class="d-flex flex-wrap gap-2">
           <button *ngFor="let v of product.variants"
@@ -68,6 +68,96 @@
       <div class="mt-4">
         <h5 class="fw-bold">Description</h5>
         <p class="text-muted">{{ product.description }}</p>
+      </div>
+    </div>
+
+    <div class="col-12 mt-3">
+      <hr>
+      <div class="reviews-section">
+        <h4 class="fw-bold mb-3">Customer Reviews</h4>
+
+        <div *ngIf="reviewsLoading" class="text-center py-3">
+          <div class="spinner-border spinner-border-sm text-primary"></div>
+        </div>
+
+        <div *ngIf="!reviewsLoading && reviews.length === 0" class="text-muted mb-4">
+          No reviews yet. Be the first to share your experience.
+        </div>
+
+        <div *ngIf="!reviewsLoading && reviews.length" class="mb-4">
+          <div *ngFor="let review of reviews" class="card border-0 bg-light-subtle mb-2">
+            <div class="card-body py-3">
+              <div class="d-flex justify-content-between align-items-start gap-3">
+                <div>
+                  <div class="fw-semibold">{{ review.reviewerName }}</div>
+                  <div class="review-stars" aria-label="Review rating">
+                    <span *ngFor="let star of [1,2,3,4,5]" [class.filled]="star <= review.rating">★</span>
+                  </div>
+                </div>
+                <small class="text-muted">{{ review.createdAt | date:'mediumDate' }}</small>
+              </div>
+              <p *ngIf="review.comment" class="mb-0 mt-2 text-muted">{{ review.comment }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="isAuthenticated; else guestReviewPrompt">
+          <div *ngIf="alreadyReviewed" class="card border-0 bg-info-subtle">
+            <div class="card-body p-4">
+              <h5 class="fw-bold mb-2">✓ You've reviewed this product</h5>
+              <p class="text-muted mb-0">Thank you for sharing your feedback! You can only submit one review per product.</p>
+            </div>
+          </div>
+
+          <div *ngIf="!alreadyReviewed && !checkingEligibility" class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+              <h5 class="fw-bold mb-3">Write a review</h5>
+
+              <label class="form-label fw-semibold">Your rating <span class="text-danger">*</span></label>
+              <div class="rating-input mb-3" role="radiogroup" aria-label="Star rating">
+                <button
+                  *ngFor="let star of [1,2,3,4,5]"
+                  type="button"
+                  class="btn btn-link p-0 me-1 star-btn"
+                  [class.active]="reviewRating != null && star <= reviewRating"
+                  [attr.aria-label]="'Rate ' + star + ' star'"
+                  (click)="setReviewRating(star)">
+                  ★
+                </button>
+              </div>
+
+              <label class="form-label fw-semibold" for="review-comment">Your comments (optional)</label>
+              <textarea
+                id="review-comment"
+                class="form-control mb-3"
+                rows="4"
+                maxlength="2000"
+                [(ngModel)]="reviewComment"
+                placeholder="Tell other shoppers what you liked or disliked"></textarea>
+
+              <div *ngIf="reviewError" class="alert alert-danger py-2 mb-3">{{ reviewError }}</div>
+              <div *ngIf="reviewSuccessMessage" class="alert alert-success py-2 mb-3">{{ reviewSuccessMessage }}</div>
+
+              <button class="btn btn-primary" type="button" [disabled]="submittingReview" (click)="submitReview()">
+                <span *ngIf="submittingReview" class="spinner-border spinner-border-sm me-2"></span>
+                Submit Review
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="checkingEligibility" class="text-center py-3">
+            <div class="spinner-border spinner-border-sm text-primary"></div>
+          </div>
+        </div>
+
+        <ng-template #guestReviewPrompt>
+          <div class="card border-0 bg-light">
+            <div class="card-body p-4">
+              <h5 class="fw-bold mb-2">Share your experience</h5>
+              <p class="text-muted mb-0">Please <a routerLink="/login">log in</a> to submit a rating and review for this product.</p>
+            </div>
+          </div>
+        </ng-template>
       </div>
     </div>
   </div>
