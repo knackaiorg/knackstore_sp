@@ -59,6 +59,7 @@
         </button>
       </div>
       <div *ngIf="notifyMeClicked && notifyMeMessage && !inStock" class="small mb-3 color-red">{{ notifyMeMessage }}</div>
+      <div *ngIf="addToCartError" class="alert alert-warning small py-2 mb-3">{{ addToCartError }}</div>
 
       <div class="mb-3">
         <button class="btn btn-outline-danger" [disabled]="togglingWishlist" (click)="toggleWishlist()">

@@ -40,6 +40,7 @@ export class ProductDetailComponent implements OnInit {
   reviewSuccessMessage = '';
   notifyMeMessage = '';
   notifyMeClicked = false;
+  addToCartError = '';
   constructor(
     private route: ActivatedRoute, private router: Router,
     private productService: ProductService,
@@ -70,7 +71,7 @@ export class ProductDetailComponent implements OnInit {
   }
   get currentStock(): number {
     // if (environment.forceOutOfStockForTesting) return 0;
-    return this.selectedVariant?.stock ?? this.product?.stockQuantity ?? 0;
+    return this.selectedVariant?.availableStock ?? this.product?.availableQuantity ?? 0;
   }
   get isAuthenticated(): boolean {
     return this.authService.isLoggedIn;
@@ -180,6 +181,7 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
     this.addingToCart = true;
+    this.addToCartError = '';
     this.cartService.addEntry({
       productId: this.product.id,
       variantId: this.selectedVariant?.id,
@@ -190,7 +192,10 @@ export class ProductDetailComponent implements OnInit {
         this.successMessage = 'Added to cart!';
         setTimeout(() => this.successMessage = '', 3000);
       },
-      error: () => this.addingToCart = false
+      error: (err) => {
+        this.addingToCart = false;
+        this.addToCartError = err?.error?.message || 'Unable to add this item to your cart right now. Please try again.';
+      }
     });
   }
 

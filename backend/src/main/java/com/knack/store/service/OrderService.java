@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final CartService cartService;
     private final ProductRepository productRepository;
+    private final StockService stockService;
 
     @Transactional
     public OrderDTO placeOrder(String email, OrderDTO.PlaceOrderRequest request) {
@@ -35,6 +37,21 @@ public class OrderService {
 
         Cart cart = cartService.getOrCreateCart(email);
         if (cart.getEntries().isEmpty()) throw new RuntimeException("Cart is empty");
+
+        // Commit each line's inventory hold into a permanent deduction, product-id order avoids lock-order deadlocks.
+        // If a hold already expired, this re-validates availability and fails fast with a clear "sold out" message.
+        cart.getEntries().stream()
+                .sorted(Comparator.comparing(e -> e.getProduct().getId()))
+                .forEach(e -> {
+                    Product product = stockService.lockProduct(e.getProduct().getId());
+                    ProductVariant variant = e.getVariant() != null
+                            ? product.getVariants().stream()
+                                    .filter(v -> v.getId().equals(e.getVariant().getId()))
+                                    .findFirst().orElse(null)
+                            : null;
+                    boolean holdStillActive = e.getReservedUntil() != null && e.getReservedUntil().isAfter(LocalDateTime.now());
+                    stockService.commitReservation(product, variant, cart.getId(), e.getQuantity(), holdStillActive);
+                });
 
         Address delivery = toAddress(request.getDeliveryAddress());
 

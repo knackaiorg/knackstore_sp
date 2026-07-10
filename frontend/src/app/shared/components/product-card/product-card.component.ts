@@ -21,7 +21,7 @@ export class ProductCardComponent {
   ) {}
 
   get isLowStock(): boolean {
-    return isLowStock(this.product.stockQuantity, this.product.lowStockThreshold);
+    return isLowStock(this.product.availableQuantity, this.product.lowStockThreshold);
   }
 
   get isWishlisted(): boolean {

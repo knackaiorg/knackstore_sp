@@ -7,6 +7,8 @@
     <a routerLink="/products" class="btn btn-primary">Continue Shopping</a>
   </div>
 
+  <div *ngIf="updateError" class="alert alert-warning small py-2">{{ updateError }}</div>
+
   <div *ngIf="!loading && cart && cart.entries.length > 0" class="row g-4">
     <div class="col-lg-8">
       <div class="card shadow-sm">

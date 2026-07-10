@@ -16,6 +16,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class CartComponent implements OnInit {
   cart: Cart | null = null;
   loading = true;
+  updateError = '';
 
   constructor(
     private cartService: CartService, 
@@ -52,7 +53,14 @@ export class CartComponent implements OnInit {
    * Update item quantity
    */
   updateQty(entryId: number, qty: number) {
-    this.cartService.updateEntry(entryId, qty).subscribe(c => this.cart = c);
+    this.updateError = '';
+    this.cartService.updateEntry(entryId, qty).subscribe({
+      next: (c) => this.cart = c,
+      error: (err) => {
+        this.updateError = err?.error?.message || 'Unable to update quantity right now. Please try again.';
+        this.loadCart();
+      }
+    });
   }
 
   /**

@@ -15,7 +15,7 @@
     <h6 class="card-title">
       <a [routerLink]="['/products', product.id]" class="text-decoration-none text-dark">{{ product.name }}</a>
     </h6>
-    <span *ngIf="isLowStock" class="badge bg-warning text-dark align-self-start mb-1">Only {{ product.stockQuantity }} left in stock</span>
+    <span *ngIf="isLowStock" class="badge bg-warning text-dark align-self-start mb-1">Only {{ product.availableQuantity }} left in stock</span>
     <app-star-rating [rating]="product.averageRating" [count]="product.reviewCount"></app-star-rating>
     <div class="mt-auto pt-2">
       <span class="fw-bold text-primary fs-5">{{ product.basePrice | currency:'USD' }}</span>
