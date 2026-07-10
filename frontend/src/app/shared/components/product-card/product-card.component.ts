@@ -24,6 +24,10 @@ export class ProductCardComponent {
     return isLowStock(this.product.availableQuantity, this.product.lowStockThreshold);
   }
 
+  get isOutOfStock(): boolean {
+    return this.product.availableQuantity === 0;
+  }
+
   get isWishlisted(): boolean {
     return this.wishlistService.isWishlisted(this.product.id, undefined, true);
   }
