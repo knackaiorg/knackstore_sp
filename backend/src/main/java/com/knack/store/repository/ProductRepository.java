@@ -12,6 +12,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByFeaturedTrue();
     List<Product> findByCategoryCode(String categoryCode);
 
+    // get product list by SKU's
+    List<Product> findByCodeIn(List<String> codes);
+
     // Product suggestions should match product name only.
     @Query("""
            SELECT p FROM Product p

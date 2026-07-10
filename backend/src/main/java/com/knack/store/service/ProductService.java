@@ -50,6 +50,14 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    public List<ProductDTO> compareProducts(List<String> codes) {
+        if (codes == null || codes.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        return productRepository.findByCodeIn(codes)
+                .stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
     public ProductDTO toDTO(Product p) {
         return ProductDTO.builder()
                 .id(p.getId())
