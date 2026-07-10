@@ -31,9 +31,9 @@
               </div>
             </div>
             <div class="input-group" style="width:110px">
-              <button class="btn btn-outline-secondary btn-sm" (click)="updateQty(entry.entryId, entry.quantity - 1)">−</button>
+              <button class="btn btn-outline-secondary btn-sm" [disabled]="!entry.validForCheckout" (click)="updateQty(entry.entryId, entry.quantity - 1)">−</button>
               <input type="number" class="form-control form-control-sm text-center" [value]="entry.quantity" readonly>
-              <button class="btn btn-outline-secondary btn-sm" (click)="updateQty(entry.entryId, entry.quantity + 1)">+</button>
+              <button class="btn btn-outline-secondary btn-sm" [disabled]="!entry.validForCheckout" (click)="updateQty(entry.entryId, entry.quantity + 1)">+</button>
             </div>
             <div class="fw-bold" style="min-width:80px;text-align:right">₹{{ entry.lineTotal | number:'1.2-2' }}</div>
             <button class="btn btn-sm btn-outline-danger" (click)="removeEntry(entry.entryId)">✕</button>

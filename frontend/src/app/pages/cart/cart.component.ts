@@ -62,6 +62,9 @@ export class CartComponent implements OnInit, OnDestroy {
    * Update item quantity
    */
   updateQty(entryId: number, qty: number) {
+    const entry = this.cart?.entries.find(e => e.entryId === entryId);
+    if (entry && !entry.validForCheckout) return;
+
     this.updateError = '';
     this.cartService.updateEntry(entryId, qty).subscribe({
       next: (c) => this.cart = c,
