@@ -63,6 +63,7 @@ public class ProductService {
                 .averageRating(p.getAverageRating())
                 .reviewCount(p.getReviewCount())
                 .stockQuantity(p.getStockQuantity())
+                .lowStockThreshold(p.getLowStockThreshold())
                 .category(p.getCategory() != null ? ProductDTO.CategoryDTO.builder()
                         .id(p.getCategory().getId())
                         .code(p.getCategory().getCode())

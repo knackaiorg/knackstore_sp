@@ -1,5 +1,5 @@
 export const LOW_STOCK_THRESHOLD = 10;
 
-export function isLowStock(quantity: number): boolean {
-  return quantity > 0 && quantity <= LOW_STOCK_THRESHOLD;
+export function isLowStock(quantity: number, threshold: number = LOW_STOCK_THRESHOLD): boolean {
+  return quantity > 0 && quantity < threshold;
 }

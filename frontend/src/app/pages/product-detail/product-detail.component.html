@@ -42,6 +42,7 @@
       <div class="mb-3">
         <span *ngIf="currentStock > 0" class="badge bg-success">In Stock ({{ currentStock }})</span>
         <span *ngIf="currentStock === 0" class="badge bg-danger">Out of Stock</span>
+        <span *ngIf="isLowStock" class="badge bg-warning text-dark ms-1">Only {{ currentStock }} left in stock</span>
       </div>
 
       <!-- Quantity + Add to Cart -->

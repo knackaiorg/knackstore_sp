@@ -108,6 +108,7 @@ export interface Product {
   averageRating: number;
   reviewCount: number;
   stockQuantity: number;
+  lowStockThreshold: number;
   category: ProductCategory;
   variants: ProductVariant[];
 }

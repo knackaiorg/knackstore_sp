@@ -17,6 +17,7 @@ public class ProductDTO {
     private double averageRating;
     private int reviewCount;
     private int stockQuantity;
+    private int lowStockThreshold;
     private CategoryDTO category;
     private List<VariantDTO> variants;
 
@@ -36,6 +37,7 @@ public class ProductDTO {
         private Double averageRating;
         private int reviewCount;
         private int stockQuantity;
+        private int lowStockThreshold;
         private CategoryDTO category;
         private List<VariantDTO> variants;
 
@@ -97,6 +99,11 @@ public class ProductDTO {
             return this;
         }
 
+        public ProductDTOBuilder lowStockThreshold(int lowStockThreshold) {
+            this.lowStockThreshold = lowStockThreshold;
+            return this;
+        }
+
         public ProductDTOBuilder category(CategoryDTO category) {
             this.category = category;
             return this;
@@ -120,6 +127,7 @@ public class ProductDTO {
             dto.averageRating = this.averageRating;
             dto.reviewCount = this.reviewCount;
             dto.stockQuantity = this.stockQuantity;
+            dto.lowStockThreshold = this.lowStockThreshold;
             dto.category = this.category;
             dto.variants = this.variants;
             return dto;

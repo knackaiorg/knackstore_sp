@@ -9,6 +9,7 @@ import { ProductQuestionService } from '../../core/services/product-question.ser
 import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { StockNotificationService } from 'src/app/core/services/stock-notification.service';
+import { isLowStock } from '../../shared/constants/stock.constants';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit {
@@ -100,6 +101,10 @@ export class ProductDetailComponent implements OnInit {
 
   get inStock(): boolean {
     return this.currentStock > 0;
+  }
+
+  get isLowStock(): boolean {
+    return isLowStock(this.currentStock, this.product?.lowStockThreshold ?? 10);
   }
 
   handlePrimaryAction() {
