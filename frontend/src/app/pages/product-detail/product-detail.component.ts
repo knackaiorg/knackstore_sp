@@ -9,6 +9,7 @@ import { ProductQuestionService } from '../../core/services/product-question.ser
 import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { StockNotificationService } from 'src/app/core/services/stock-notification.service';
+import { RecommendationService } from '../../core/services/recommendation.service';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit {
@@ -39,6 +40,8 @@ export class ProductDetailComponent implements OnInit {
   reviewSuccessMessage = '';
   notifyMeMessage = '';
   notifyMeClicked = false;
+  recommendations: Product[] = [];
+  recommendationsLoading = false;
   constructor(
     private route: ActivatedRoute, private router: Router,
     private productService: ProductService,
@@ -48,7 +51,8 @@ export class ProductDetailComponent implements OnInit {
     private productQuestionService: ProductQuestionService,
     private recentlyViewedService: RecentlyViewedService,
     private wishlistService: WishlistService,
-    private stockNotificationService: StockNotificationService
+    private stockNotificationService: StockNotificationService,
+    private recommendationService: RecommendationService
   ) {}
 
   ngOnInit() {
@@ -65,6 +69,7 @@ export class ProductDetailComponent implements OnInit {
 
       this.loadReviews(productId);
       this.loadQuestions(productId);
+      this.loadRecommendations(productId);
     });
   }
   get currentStock(): number {
@@ -346,6 +351,20 @@ export class ProductDetailComponent implements OnInit {
       error: () => {
         this.questions = [];
         this.questionsLoading = false;
+      }
+    });
+  }
+
+  private loadRecommendations(productId: number): void {
+    this.recommendationsLoading = true;
+    this.recommendationService.getRecommendations(productId).subscribe({
+      next: (products) => {
+        this.recommendations = products;
+        this.recommendationsLoading = false;
+      },
+      error: () => {
+        this.recommendations = [];
+        this.recommendationsLoading = false;
       }
     });
   }
