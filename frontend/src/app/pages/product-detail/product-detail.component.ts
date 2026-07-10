@@ -10,7 +10,7 @@ import { ProductQuestionService } from '../../core/services/product-question.ser
 import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { StockNotificationService } from 'src/app/core/services/stock-notification.service';
-import { isLowStock } from '../../shared/constants/stock.constants';
+import { getStockLevel, StockLevel } from '../../shared/constants/stock.constants';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit, OnDestroy {
@@ -142,8 +142,12 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     return this.currentStock > 0;
   }
 
+  get stockLevel(): StockLevel {
+    return getStockLevel(this.currentStock);
+  }
+
   get isLowStock(): boolean {
-    return isLowStock(this.currentStock, this.product?.lowStockThreshold ?? 10);
+    return this.stockLevel === 'warning' || this.stockLevel === 'critical';
   }
 
   handlePrimaryAction() {

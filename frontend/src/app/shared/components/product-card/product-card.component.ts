@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { Product } from '../../../models';
 import { AuthService } from '../../../core/services/auth.service';
 import { WishlistService } from '../../../core/services/wishlist.service';
-import { isLowStock } from '../../constants/stock.constants';
+import { getStockLevel, StockLevel } from '../../constants/stock.constants';
 
 @Component({
   selector: 'app-product-card',
@@ -20,12 +20,16 @@ export class ProductCardComponent {
     private router: Router
   ) {}
 
+  get stockLevel(): StockLevel {
+    return getStockLevel(this.product.availableQuantity);
+  }
+
   get isLowStock(): boolean {
-    return isLowStock(this.product.availableQuantity, this.product.lowStockThreshold);
+    return this.stockLevel === 'warning' || this.stockLevel === 'critical';
   }
 
   get isOutOfStock(): boolean {
-    return this.product.availableQuantity === 0;
+    return this.stockLevel === 'out';
   }
 
   get isWishlisted(): boolean {
