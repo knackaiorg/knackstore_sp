@@ -30,7 +30,8 @@ import { ProductCarouselComponent } from './shared/components/product-carousel/p
 import { PromoCodeComponent } from './shared/components/promo-code/promo-code.component';
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
-import { AddressesComponent } from './pages/addresses/addresses.component';
+import { ComparisonComponent } from './pages/comparison/comparison.component';
+import { ChatWidgetComponent } from './shared/components/chat-widget/chat-widget.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,6 @@ import { AddressesComponent } from './pages/addresses/addresses.component';
     LoginComponent,
     RegisterComponent,
     ProfileComponent,
-    AddressesComponent,
     HeaderComponent,
     FooterComponent,
     StarRatingComponent,
@@ -55,7 +55,9 @@ import { AddressesComponent } from './pages/addresses/addresses.component';
     ProductCarouselComponent,
     PromoCodeComponent,
     WishlistComponent,
-    NotificationsComponent
+    NotificationsComponent,
+    ComparisonComponent,
+    ChatWidgetComponent
   ],
   imports: [
     BrowserModule,
@@ -63,7 +65,6 @@ import { AddressesComponent } from './pages/addresses/addresses.component';
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

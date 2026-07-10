@@ -12,123 +12,72 @@
         </div>
       </div>
     </div>
-    <div class="card shadow-sm mb-3" formGroupName="defaultAddress">
-      <div class="card-header fw-bold">Default Address</div>
-      <div class="card-body">
-        <div class="row g-3">
-          <div class="col-12"><label class="form-label">Address Line 1</label><input class="form-control" formControlName="line1"></div>
-          <div class="col-12"><label class="form-label">Address Line 2</label><input class="form-control" formControlName="line2"></div>
-          <div class="col-6"><label class="form-label">City</label><input class="form-control" formControlName="city"></div>
-          <div class="col-6"><label class="form-label">State</label><input class="form-control" formControlName="state"></div>
-          <div class="col-6"><label class="form-label">Postcode</label><input class="form-control" formControlName="postcode"></div>
-          <div class="col-6"><label class="form-label">Country</label><input class="form-control" formControlName="country"></div>
-        </div>
-      </div>
-    </div>
     <div *ngIf="success" class="alert alert-success py-2">{{ success }}</div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 mb-4">
       <button class="btn btn-primary" [disabled]="saving">
         <span *ngIf="saving" class="spinner-border spinner-border-sm me-2"></span>Save Changes
       </button>
-      <button type="button" class="btn btn-info" (click)="goToMyAddresses()">My Addresses</button>
       <a routerLink="/account/orders" class="btn btn-outline-secondary">My Orders</a>
     </div>
   </form>
 
-  <!-- Address Book Section -->
-  <!-- <div *ngIf="!loading" class="card shadow-sm mt-4">
+  <!-- Multi-Address Book -->
+  <div class="card shadow-sm mb-3" *ngIf="!loading">
     <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-      <span>Address Book</span>
-      <button class="btn btn-sm btn-primary" (click)="openAddressModal()">+ Add Address</button>
+      <span>My Addresses</span>
+      <button type="button" class="btn btn-sm btn-primary" (click)="startAddAddress()" *ngIf="!showAddressForm">+ Add Address</button>
     </div>
     <div class="card-body">
-      <div *ngIf="addresses.length === 0" class="text-muted text-center py-3">
-        No addresses saved yet. Click "Add Address" to create one.
-      </div>
-      <div *ngFor="let addr of addresses; let i = index" class="border-bottom pb-3 mb-3">
-        <div class="row">
-          <div class="col">
-            <div><strong>{{ addr.firstName }} {{ addr.lastName }}</strong></div>
-            <div class="text-muted small">{{ addr.line1 }}</div>
-            <div class="text-muted small" *ngIf="addr.line2">{{ addr.line2 }}</div>
-            <div class="text-muted small">{{ addr.city }}, {{ addr.state }} {{ addr.postcode }}</div>
-            <div class="text-muted small">{{ addr.country }}</div>
-            <div class="text-muted small" *ngIf="addr.phone">{{ addr.phone }}</div>
-          </div>
-          <div class="col-auto">
-            <button class="btn btn-sm btn-outline-primary me-2" (click)="editAddress(i)">Edit</button>
-            <button class="btn btn-sm btn-outline-danger" (click)="deleteAddress(i)">Delete</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> -->
+      <div *ngIf="addressesLoading" class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>
 
-  <!-- Address Modal -->
-  <!-- <div *ngIf="showAddressModal" class="modal d-block" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">{{ editingAddressIndex === -1 ? 'Add New Address' : 'Edit Address' }}</h5>
-          <button type="button" class="btn-close" (click)="closeAddressModal()"></button>
+      <div *ngIf="!addressesLoading && addresses.length === 0 && !showAddressForm" class="text-muted small">
+        No saved addresses yet. Add one so you don't have to retype it at checkout.
+      </div>
+
+      <div *ngFor="let addr of addresses" class="border rounded p-3 mb-2 d-flex justify-content-between align-items-start">
+        <div>
+          <span class="badge bg-primary me-2" *ngIf="addr.defaultAddress">Default</span>
+          <strong>{{ addr.firstName }} {{ addr.lastName }}</strong>
+          <div class="text-muted small">
+            {{ addr.line1 }}<span *ngIf="addr.line2">, {{ addr.line2 }}</span>,
+            {{ addr.city }}, {{ addr.state }} {{ addr.postcode }}, {{ addr.country }}
+          </div>
+          <div class="text-muted small">{{ addr.phone }}</div>
         </div>
-        <form [formGroup]="addressForm" (ngSubmit)="saveAddress()">
-          <div class="modal-body">
-            <div class="row g-3">
-              <div class="col-6">
-                <label class="form-label">First Name *</label>
-                <input class="form-control" formControlName="firstName" [class.is-invalid]="addressForm.get('firstName')?.invalid && addressForm.get('firstName')?.touched">
-                <div class="invalid-feedback d-block" *ngIf="addressForm.get('firstName')?.invalid && addressForm.get('firstName')?.touched">First Name is required</div>
-              </div>
-              <div class="col-6">
-                <label class="form-label">Last Name *</label>
-                <input class="form-control" formControlName="lastName" [class.is-invalid]="addressForm.get('lastName')?.invalid && addressForm.get('lastName')?.touched">
-                <div class="invalid-feedback d-block" *ngIf="addressForm.get('lastName')?.invalid && addressForm.get('lastName')?.touched">Last Name is required</div>
-              </div>
-              <div class="col-12">
-                <label class="form-label">Address Line 1 *</label>
-                <input class="form-control" formControlName="line1" [class.is-invalid]="addressForm.get('line1')?.invalid && addressForm.get('line1')?.touched">
-                <div class="invalid-feedback d-block" *ngIf="addressForm.get('line1')?.invalid && addressForm.get('line1')?.touched">Address Line 1 is required</div>
-              </div>
-              <div class="col-12">
-                <label class="form-label">Address Line 2</label>
-                <input class="form-control" formControlName="line2">
-              </div>
-              <div class="col-6">
-                <label class="form-label">City *</label>
-                <input class="form-control" formControlName="city" [class.is-invalid]="addressForm.get('city')?.invalid && addressForm.get('city')?.touched">
-                <div class="invalid-feedback d-block" *ngIf="addressForm.get('city')?.invalid && addressForm.get('city')?.touched">City is required</div>
-              </div>
-              <div class="col-6">
-                <label class="form-label">State *</label>
-                <input class="form-control" formControlName="state" [class.is-invalid]="addressForm.get('state')?.invalid && addressForm.get('state')?.touched">
-                <div class="invalid-feedback d-block" *ngIf="addressForm.get('state')?.invalid && addressForm.get('state')?.touched">State is required</div>
-              </div>
-              <div class="col-6">
-                <label class="form-label">Postcode *</label>
-                <input class="form-control" formControlName="postcode" [class.is-invalid]="addressForm.get('postcode')?.invalid && addressForm.get('postcode')?.touched">
-                <div class="invalid-feedback d-block" *ngIf="addressForm.get('postcode')?.invalid && addressForm.get('postcode')?.touched">Postcode is required</div>
-              </div>
-              <div class="col-6">
-                <label class="form-label">Country *</label>
-                <input class="form-control" formControlName="country" [class.is-invalid]="addressForm.get('country')?.invalid && addressForm.get('country')?.touched">
-                <div class="invalid-feedback d-block" *ngIf="addressForm.get('country')?.invalid && addressForm.get('country')?.touched">Country is required</div>
-              </div>
-              <div class="col-12">
-                <label class="form-label">Phone</label>
-                <input class="form-control" formControlName="phone">
-              </div>
+        <div class="d-flex flex-column gap-1 flex-shrink-0 ms-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="startEditAddress(addr)">Edit</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" *ngIf="!addr.defaultAddress" (click)="setDefaultAddress(addr)">Set as default</button>
+          <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteAddress(addr)">Delete</button>
+        </div>
+      </div>
+
+      <form *ngIf="showAddressForm" [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="border rounded p-3 mt-2">
+        <h6 class="fw-bold mb-3">{{ editingAddressId ? 'Edit address' : 'Add a new address' }}</h6>
+        <div class="row g-3">
+          <div class="col-6"><label class="form-label">First Name *</label><input class="form-control" formControlName="firstName"></div>
+          <div class="col-6"><label class="form-label">Last Name *</label><input class="form-control" formControlName="lastName"></div>
+          <div class="col-12"><label class="form-label">Address Line 1 *</label><input class="form-control" formControlName="line1"></div>
+          <div class="col-12"><label class="form-label">Address Line 2</label><input class="form-control" formControlName="line2"></div>
+          <div class="col-6"><label class="form-label">City *</label><input class="form-control" formControlName="city"></div>
+          <div class="col-6"><label class="form-label">State *</label><input class="form-control" formControlName="state"></div>
+          <div class="col-6"><label class="form-label">Postcode *</label><input class="form-control" formControlName="postcode"></div>
+          <div class="col-6"><label class="form-label">Country *</label><input class="form-control" formControlName="country"></div>
+          <div class="col-12"><label class="form-label">Phone *</label><input class="form-control" formControlName="phone"></div>
+          <div class="col-12">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" formControlName="makeDefault" id="makeDefaultCheck">
+              <label class="form-check-label" for="makeDefaultCheck">Make this my default address</label>
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeAddressModal()">Cancel</button>
-            <button type="submit" class="btn btn-primary" [disabled]="addressForm.invalid || saving">
-              <span *ngIf="saving" class="spinner-border spinner-border-sm me-2"></span>
-              {{ editingAddressIndex === -1 ? 'Add Address' : 'Update Address' }}
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+        <div *ngIf="addressError" class="alert alert-danger py-2 mt-3 mb-0">{{ addressError }}</div>
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-primary" [disabled]="addressSaving">
+            <span *ngIf="addressSaving" class="spinner-border spinner-border-sm me-2"></span>Save Address
+          </button>
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelAddressForm()">Cancel</button>
+        </div>
+      </form>
     </div>
-  </div> -->
+  </div>
 </div>

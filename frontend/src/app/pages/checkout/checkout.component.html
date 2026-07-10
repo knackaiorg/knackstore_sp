@@ -16,20 +16,64 @@
       <div *ngIf="step === 1" class="card shadow-sm">
         <div class="card-header fw-bold">Delivery Address</div>
         <div class="card-body">
-          <form [formGroup]="addressForm">
-            <div class="row g-3">
-              <div class="col-6"><label class="form-label">First Name *</label><input class="form-control" formControlName="firstName"><div *ngIf="f('firstName')?.invalid && f('firstName')?.touched" class="text-danger small">Required</div></div>
-              <div class="col-6"><label class="form-label">Last Name *</label><input class="form-control" formControlName="lastName"><div *ngIf="f('lastName')?.invalid && f('lastName')?.touched" class="text-danger small">Required</div></div>
-              <div class="col-12"><label class="form-label">Address Line 1 *</label><input class="form-control" formControlName="line1"><div *ngIf="f('line1')?.invalid && f('line1')?.touched" class="text-danger small">Required</div></div>
-              <div class="col-12"><label class="form-label">Address Line 2</label><input class="form-control" formControlName="line2"></div>
-              <div class="col-6"><label class="form-label">City *</label><input class="form-control" formControlName="city"></div>
-              <div class="col-6"><label class="form-label">State *</label><input class="form-control" formControlName="state"></div>
-              <div class="col-6"><label class="form-label">Postcode *</label><input class="form-control" formControlName="postcode"></div>
-              <div class="col-6"><label class="form-label">Country *</label><input class="form-control" formControlName="country"></div>
-              <div class="col-12"><label class="form-label">Phone *</label><input class="form-control" formControlName="phone"></div>
+
+          <div *ngIf="addressesLoading" class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div></div>
+
+          <div *ngIf="!addressesLoading">
+            <!-- Saved addresses, shown as a selectable list when any exist -->
+            <div *ngIf="savedAddresses.length > 0" class="mb-3">
+              <div *ngFor="let addr of savedAddresses"
+                   class="border rounded p-3 mb-2"
+                   [class.border-primary]="selectedAddressId === addr.id"
+                   style="cursor:pointer"
+                   (click)="selectSavedAddress(addr.id)">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="savedAddress"
+                         [checked]="selectedAddressId === addr.id" (change)="selectSavedAddress(addr.id)">
+                  <label class="form-check-label w-100">
+                    <span class="badge bg-primary me-2" *ngIf="addr.defaultAddress">Default</span>
+                    <strong>{{ addr.firstName }} {{ addr.lastName }}</strong>
+                    <div class="text-muted small">
+                      {{ addr.line1 }}<span *ngIf="addr.line2">, {{ addr.line2 }}</span>,
+                      {{ addr.city }}, {{ addr.state }} {{ addr.postcode }}, {{ addr.country }}
+                    </div>
+                    <div class="text-muted small">{{ addr.phone }}</div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Always available, even when saved addresses exist (e.g. shipping a gift elsewhere) -->
+              <div class="border rounded p-3 mb-2" [class.border-primary]="isAddingNewAddress" style="cursor:pointer" (click)="chooseAddNewAddress()">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="savedAddress" [checked]="isAddingNewAddress" (change)="chooseAddNewAddress()">
+                  <label class="form-check-label">+ Deliver to a new address</label>
+                </div>
+              </div>
             </div>
-          </form>
-          <button class="btn btn-primary mt-3 w-100" (click)="nextStep()">Continue to Payment →</button>
+
+            <!-- Blank form: shown directly when there are no saved addresses, or when "new address" is chosen -->
+            <form [formGroup]="addressForm" *ngIf="isAddingNewAddress">
+              <div class="row g-3">
+                <div class="col-6"><label class="form-label">First Name *</label><input class="form-control" formControlName="firstName"><div *ngIf="f('firstName')?.invalid && f('firstName')?.touched" class="text-danger small">Required</div></div>
+                <div class="col-6"><label class="form-label">Last Name *</label><input class="form-control" formControlName="lastName"><div *ngIf="f('lastName')?.invalid && f('lastName')?.touched" class="text-danger small">Required</div></div>
+                <div class="col-12"><label class="form-label">Address Line 1 *</label><input class="form-control" formControlName="line1"><div *ngIf="f('line1')?.invalid && f('line1')?.touched" class="text-danger small">Required</div></div>
+                <div class="col-12"><label class="form-label">Address Line 2</label><input class="form-control" formControlName="line2"></div>
+                <div class="col-6"><label class="form-label">City *</label><input class="form-control" formControlName="city"></div>
+                <div class="col-6"><label class="form-label">State *</label><input class="form-control" formControlName="state"></div>
+                <div class="col-6"><label class="form-label">Postcode *</label><input class="form-control" formControlName="postcode"></div>
+                <div class="col-6"><label class="form-label">Country *</label><input class="form-control" formControlName="country"></div>
+                <div class="col-12"><label class="form-label">Phone *</label><input class="form-control" formControlName="phone"></div>
+                <div class="col-12">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" [(ngModel)]="saveNewAddress" [ngModelOptions]="{standalone: true}" id="saveNewAddressCheck">
+                    <label class="form-check-label" for="saveNewAddressCheck">Save this address to my address book</label>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <button class="btn btn-primary mt-3 w-100" (click)="nextStep()">Continue to Payment →</button>
+          </div>
         </div>
       </div>
 
@@ -56,7 +100,7 @@
         <div class="card-header fw-bold">Review & Place Order</div>
         <div class="card-body">
           <h6 class="fw-bold">Delivery to:</h6>
-          <p class="text-muted">{{ addressForm.value.firstName }} {{ addressForm.value.lastName }}, {{ addressForm.value.line1 }}, {{ addressForm.value.city }}, {{ addressForm.value.state }} {{ addressForm.value.postcode }}</p>
+          <p class="text-muted">{{ buildDeliveryAddress().firstName }} {{ buildDeliveryAddress().lastName }}, {{ buildDeliveryAddress().line1 }}, {{ buildDeliveryAddress().city }}, {{ buildDeliveryAddress().state }} {{ buildDeliveryAddress().postcode }}</p>
           <h6 class="fw-bold">Payment:</h6>
           <p class="text-muted">{{ paymentMethod.replace('_', ' ') }}</p>
           <div class="d-flex gap-2">
