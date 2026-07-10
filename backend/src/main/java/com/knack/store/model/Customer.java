@@ -2,6 +2,7 @@ package com.knack.store.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.List;
 
 @Entity
 @Table(name = "customers")
@@ -32,13 +33,8 @@ public class Customer {
     @Builder.Default
     private UserRole role = UserRole.CUSTOMER;
 
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "firstName", column = @Column(name = "addr_first_name")),
-            @AttributeOverride(name = "lastName", column = @Column(name = "addr_last_name")),
-            @AttributeOverride(name = "phone", column = @Column(name = "addr_phone"))
-    })
-    private Address defaultAddress;
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Address> addresses;
 
     @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Cart cart;
