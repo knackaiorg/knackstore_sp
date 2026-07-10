@@ -140,9 +140,16 @@ public class CartService {
                         .unitPrice(e.getUnitPrice())
                         .lineTotal(e.getQuantity() * e.getUnitPrice())
                         .reservedUntil(e.getReservedUntil())
-                        .validForCheckout(e.isValidForCheckout())
+                        .validForCheckout(isValidForCheckout(e))
                         .build()).collect(Collectors.toList()))
                 .build();
+    }
+
+    // Computed live rather than trusting only the persisted flag, which is set by a
+    // once-a-minute background sweep and can lag well behind the actual hold expiry.
+    private boolean isValidForCheckout(CartEntry e) {
+        if (!e.isValidForCheckout()) return false;
+        return e.getReservedUntil() == null || e.getReservedUntil().isAfter(LocalDateTime.now());
     }
 
     private String buildVariantDescription(ProductVariant v) {
