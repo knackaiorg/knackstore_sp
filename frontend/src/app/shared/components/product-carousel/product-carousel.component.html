@@ -47,16 +47,5 @@
       </button>
     </div>
 
-    <!-- Indicators / Dots -->
-    <div class="carousel-indicators" role="tablist" aria-label="Carousel page indicators">
-      <button *ngFor="let dot of [].constructor(totalDots); let i = index"
-              class="carousel-dot"
-              [class.active]="getActiveDot() === i"
-              [attr.aria-label]="'Go to page ' + (i + 1)"
-              [attr.aria-selected]="getActiveDot() === i"
-              role="tab"
-              (click)="goToSlide(i)">
-      </button>
-    </div>
   </div>
 </section>

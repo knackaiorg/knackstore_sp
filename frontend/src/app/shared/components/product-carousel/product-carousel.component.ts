@@ -120,6 +120,9 @@ export class ProductCarouselComponent implements OnInit, AfterViewInit, OnDestro
       } else {
         this.prev();
       }
+    } else {
+      this.touchStartX = 0;
+      this.touchEndX = 0;
     }
   }
 

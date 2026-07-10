@@ -76,11 +76,41 @@
       </div>
     </div>
 
-    <div class="col-12 mt-3">
-      <app-recently-viewed-products [excludeProductId]="product.id"></app-recently-viewed-products>
+    <div class="col-12 mt-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+        <h4 class="fw-bold mb-0">More products to explore</h4>
+        <div class="section-toggle btn-group shadow-sm rounded" role="group" aria-label="Product suggestion tabs">
+          <button type="button" class="btn section-toggle-btn" [class.active]="activeSection === 'recommendations'" (click)="activeSection = 'recommendations'">
+            Product Recommendations
+          </button>
+          <button type="button" class="btn section-toggle-btn" [class.active]="activeSection === 'recently-viewed'" (click)="activeSection = 'recently-viewed'">
+            Recently Viewed
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="activeSection === 'recommendations'">
+        <div *ngIf="recommendationsLoading" class="text-center py-5">
+          <div class="spinner-border text-primary"></div>
+        </div>
+
+        <app-product-carousel
+          *ngIf="!recommendationsLoading && recommendedProducts.length"
+          [products]="recommendedProducts"
+          title="Recommended for you"
+          [showViewAll]="false"></app-product-carousel>
+
+        <div *ngIf="!recommendationsLoading && !recommendedProducts.length" class="text-muted py-3">
+          No recommendation results available right now.
+        </div>
+      </div>
+
+      <div *ngIf="activeSection === 'recently-viewed'">
+        <app-recently-viewed-products [excludeProductId]="product.id"></app-recently-viewed-products>
+      </div>
     </div>
 
-    <div class="col-12 mt-3">
+    <div class="col-12 mt-5">
       <hr>
       <div class="reviews-section">
         <h4 class="fw-bold mb-3">Customer Reviews</h4>
