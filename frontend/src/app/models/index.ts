@@ -220,6 +220,13 @@ export interface OrderEntry {
   totalPrice: number;
 }
 
+export interface DeliveryOption {
+  option: string;
+  deliveryTime: string;
+  cost: number;
+  isDefault: boolean;
+}
+
 export interface Order {
   id: number;
   orderCode: string;
@@ -231,6 +238,7 @@ export interface Order {
   paymentMethod: string;
   trackingNumber: string;
   placedDate: string;
+  deliveryDate?: string;
   deliveryAddress: Address;
   entries: OrderEntry[];
 }
@@ -239,6 +247,7 @@ export interface PlaceOrderRequest {
   deliveryAddress: Address;
   paymentMethod: string;
   orderStatus: string;
+  deliveryOption?: DeliveryOption;
 }
 
 // ---- Customer ----

@@ -17,14 +17,14 @@
             <div class="flex-grow-1">
               <h6 class="mb-0 fw-semibold">{{ entry.productName }}</h6>
               <small *ngIf="entry.variantDescription" class="text-muted">{{ entry.variantDescription }}</small>
-              <div class="fw-bold text-primary mt-1">₹{{ entry.unitPrice | number:'1.2-2' }}</div>
+              <div class="fw-bold text-primary mt-1">$ {{ entry.unitPrice | number:'1.2-2' }}</div>
             </div>
             <div class="input-group" style="width:110px">
               <button class="btn btn-outline-secondary btn-sm" (click)="updateQty(entry.entryId, entry.quantity - 1)">−</button>
               <input type="number" class="form-control form-control-sm text-center" [value]="entry.quantity" readonly>
               <button class="btn btn-outline-secondary btn-sm" (click)="updateQty(entry.entryId, entry.quantity + 1)">+</button>
             </div>
-            <div class="fw-bold" style="min-width:80px;text-align:right">₹{{ entry.lineTotal | number:'1.2-2' }}</div>
+            <div class="fw-bold" style="min-width:80px;text-align:right">$ {{ entry.lineTotal | number:'1.2-2' }}</div>
             <button class="btn btn-sm btn-outline-danger" (click)="removeEntry(entry.entryId)">✕</button>
           </div>
         </div>
@@ -38,7 +38,7 @@
           <!-- Subtotal -->
           <div class="d-flex justify-content-between mb-2">
             <span>Subtotal ({{ cart.totalItems }} items)</span>
-            <span>₹{{ cart.subtotal | number:'1.2-2' }}</span>
+            <span>$ {{ cart.subtotal | number:'1.2-2' }}</span>
           </div>
 
           <!-- Discount (if applied) -->
@@ -48,12 +48,12 @@
               <i class="bi bi-tag-fill me-1"></i>
               Discount ({{ cart.appliedPromoCode }})
             </span>
-            <span>-₹{{ cart.discountAmount | number:'1.2-2' }}</span>
+            <span>-$ {{ cart.discountAmount | number:'1.2-2' }}</span>
           </div>
 
           <!-- Shipping -->
           <div class="d-flex justify-content-between mb-2">
-            <span>Shipping</span>
+            <span>Delivery</span>
             <span class="text-success">Free</span>
           </div>
 
@@ -62,7 +62,7 @@
           <!-- Total -->
           <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
             <span>Total</span>
-            <span>₹{{ cart.totalPrice | number:'1.2-2' }}</span>
+            <span>$ {{ cart.totalPrice | number:'1.2-2' }}</span>
           </div>
 
           <!-- Checkout Button -->

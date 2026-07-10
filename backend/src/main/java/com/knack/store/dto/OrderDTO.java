@@ -2,6 +2,7 @@ package com.knack.store.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class OrderDTO {
     private String paymentMethod;
     private String trackingNumber;
     private LocalDateTime placedDate;
+    private LocalDate deliveryDate;
     private AddressDTO deliveryAddress;
     private List<OrderEntryDTO> entries;
 
@@ -38,5 +40,6 @@ public class OrderDTO {
         private AddressDTO deliveryAddress;
         private String paymentMethod;
         private String orderStatus;
+        private DeliveryOptionDTO deliveryOption;
     }
 }
