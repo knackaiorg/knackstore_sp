@@ -18,7 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StockService {
 
-    public static final int RESERVATION_HOLD_MINUTES = 15;
+    public static final int RESERVATION_HOLD_MINUTES = 1;
 
     private final ProductRepository productRepository;
     private final CartEntryRepository cartEntryRepository;
@@ -74,7 +74,10 @@ public class StockService {
     @Transactional
     public void releaseExpiredReservations() {
         List<CartEntry> expired = cartEntryRepository.findExpiredReservations(LocalDateTime.now());
-        expired.forEach(e -> e.setReservedUntil(null));
+        expired.forEach(e -> {
+            e.setReservedUntil(null);
+            e.setValidForCheckout(false);
+        });
         cartEntryRepository.saveAll(expired);
     }
 }

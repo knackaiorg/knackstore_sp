@@ -60,6 +60,9 @@
       </div>
       <div *ngIf="notifyMeClicked && notifyMeMessage && !inStock" class="small mb-3 color-red">{{ notifyMeMessage }}</div>
       <div *ngIf="addToCartError" class="alert alert-warning small py-2 mb-3">{{ addToCartError }}</div>
+      <div *ngIf="reservationCountdown" class="alert alert-info small py-2 mb-3">
+        ⏱ We're holding <strong>{{ reservedQuantity }} Qty </strong> in your cart — complete checkout within <strong>{{ reservationCountdown }}</strong> or it'll be released back to stock.
+      </div>
 
       <div class="mb-3">
         <button class="btn btn-outline-danger" [disabled]="togglingWishlist" (click)="toggleWishlist()">

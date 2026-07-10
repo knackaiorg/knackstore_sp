@@ -169,6 +169,8 @@ export interface CartEntry {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  reservedUntil: string | null;
+  validForCheckout: boolean;
 }
 
 export interface Cart {

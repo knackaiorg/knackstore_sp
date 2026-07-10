@@ -53,6 +53,7 @@ public class CartService {
         if (existing != null) {
             existing.setQuantity(newQuantity);
             existing.setReservedUntil(holdUntil);
+            existing.setValidForCheckout(true);
         } else {
             CartEntry entry = CartEntry.builder()
                     .cart(cart).product(product).variant(variant)
@@ -81,6 +82,7 @@ public class CartService {
             stockService.ensureAvailable(product, entry.getVariant(), cart.getId(), quantity);
             entry.setQuantity(quantity);
             entry.setReservedUntil(LocalDateTime.now().plusMinutes(StockService.RESERVATION_HOLD_MINUTES));
+            entry.setValidForCheckout(true);
         }
 
         // Clear promo code when cart is modified
@@ -137,6 +139,8 @@ public class CartService {
                         .quantity(e.getQuantity())
                         .unitPrice(e.getUnitPrice())
                         .lineTotal(e.getQuantity() * e.getUnitPrice())
+                        .reservedUntil(e.getReservedUntil())
+                        .validForCheckout(e.isValidForCheckout())
                         .build()).collect(Collectors.toList()))
                 .build();
     }

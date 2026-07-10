@@ -2,6 +2,7 @@ package com.knack.store.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -29,6 +30,8 @@ public class CartDTO {
         private int quantity;
         private Double unitPrice;
         private Double lineTotal;
+        private LocalDateTime reservedUntil;
+        private boolean validForCheckout;
     }
 
     @Data

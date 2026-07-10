@@ -35,4 +35,8 @@ public class CartEntry {
 
     // Expiry of this line item's inventory hold; null once released/expired.
     private LocalDateTime reservedUntil;
+
+    // Set false once a hold expires unrenewed; blocks checkout until the entry is removed and re-added.
+    @Builder.Default
+    private boolean validForCheckout = true;
 }

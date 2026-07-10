@@ -4,6 +4,7 @@ import com.knack.store.dto.AddressDTO;
 import com.knack.store.dto.CartDTO;
 import com.knack.store.dto.OrderDTO;
 import com.knack.store.dto.ReorderDTO;
+import com.knack.store.exception.InsufficientStockException;
 import com.knack.store.model.*;
 import com.knack.store.repository.CustomerRepository;
 import com.knack.store.repository.OrderRepository;
@@ -37,6 +38,11 @@ public class OrderService {
 
         Cart cart = cartService.getOrCreateCart(email);
         if (cart.getEntries().isEmpty()) throw new RuntimeException("Cart is empty");
+
+        if (cart.getEntries().stream().anyMatch(e -> !e.isValidForCheckout())) {
+            throw new InsufficientStockException(
+                    "Something has changed in your cart. Please remove and re-add the highlighted products before checking out.");
+        }
 
         // Commit each line's inventory hold into a permanent deduction, product-id order avoids lock-order deadlocks.
         // If a hold already expired, this re-validates availability and fails fast with a clear "sold out" message.
