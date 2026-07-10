@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,12 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+
+    @PostMapping
+    @Operation(summary = "Create a product", description = "Create a new product with optional variants and category assignment.")
+    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(request));
+    }
 
     @GetMapping
     @Operation(summary = "Search products", description = "Search and filter products by free text, category, brand, and price range. All filters are optional.")
