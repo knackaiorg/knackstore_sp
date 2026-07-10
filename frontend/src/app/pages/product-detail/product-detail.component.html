@@ -77,19 +77,9 @@
     </div>
 
     <div class="col-12 mt-4">
-      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-        <h4 class="fw-bold mb-0">More products to explore</h4>
-        <div class="section-toggle btn-group shadow-sm rounded" role="group" aria-label="Product suggestion tabs">
-          <button type="button" class="btn section-toggle-btn" [class.active]="activeSection === 'recommendations'" (click)="activeSection = 'recommendations'">
-            Product Recommendations
-          </button>
-          <button type="button" class="btn section-toggle-btn" [class.active]="activeSection === 'recently-viewed'" (click)="activeSection = 'recently-viewed'">
-            Recently Viewed
-          </button>
-        </div>
-      </div>
-
-      <div *ngIf="activeSection === 'recommendations'">
+      <!-- Product Recommendations Carousel -->
+      <div class="mb-5">
+        <!-- <h4 class="fw-bold mb-3">Product Recommendations</h4> -->
         <div *ngIf="recommendationsLoading" class="text-center py-5">
           <div class="spinner-border text-primary"></div>
         </div>
@@ -105,7 +95,9 @@
         </div>
       </div>
 
-      <div *ngIf="activeSection === 'recently-viewed'">
+      <!-- Recently Viewed Carousel -->
+      <div>
+        <!-- <h4 class="fw-bold mb-3">Recently Viewed</h4> -->
         <app-recently-viewed-products [excludeProductId]="product.id"></app-recently-viewed-products>
       </div>
     </div>

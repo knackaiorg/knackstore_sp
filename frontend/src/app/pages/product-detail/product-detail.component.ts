@@ -26,7 +26,6 @@ export class ProductDetailComponent implements OnInit {
   questions: ProductQuestion[] = [];
   recommendedProducts: Product[] = [];
   recommendationsLoading = false;
-  activeSection: 'recommendations' | 'recently-viewed' = 'recommendations';
   questionsLoading = true;
   questionText = '';
   questionError = '';
@@ -43,8 +42,6 @@ export class ProductDetailComponent implements OnInit {
   reviewSuccessMessage = '';
   notifyMeMessage = '';
   notifyMeClicked = false;
-  recommendations: Product[] = [];
-  recommendationsLoading = false;
   constructor(
     private route: ActivatedRoute, private router: Router,
     private productService: ProductService,
@@ -69,7 +66,6 @@ export class ProductDetailComponent implements OnInit {
         this.notifyMeMessage = '';
         this.loading = false;
         this.recentlyViewedService.addProduct(product);
-        this.loadRecommendations(product);
       });
 
       this.loadReviews(productId);
@@ -77,40 +73,7 @@ export class ProductDetailComponent implements OnInit {
       this.loadRecommendations(productId);
     });
   }
-  private loadRecommendations(product: Product): void {
-    this.recommendationsLoading = true;
-    this.recommendedProducts = [];
-
-    setTimeout(() => {
-      const mockApiResponse: Product[] = Array.from({ length: 5 }, (_, index) => this.createMockRecommendation(product, index));
-      this.recommendedProducts = mockApiResponse.filter(p => p.id !== product.id);
-      this.recommendationsLoading = false;
-    }, 500);
-  }
-
-  private createMockRecommendation(product: Product, index: number): Product {
-    const suffix = ['Pro', 'Lite', 'Max', 'Ultra', 'Plus'][index % 5];
-    const recommendedName = `${product.name.split(' ')[0] || product.brand} ${suffix}`;
-    const basePrice = Math.round((product.basePrice + (index + 1) * 45) * 100) / 100;
-
-    return {
-      id: 1000 + index + 1,
-      code: `${product.code}-${index + 1}`,
-      name: recommendedName,
-      description: `A ${product.category?.name || 'premium'} pick inspired by ${product.name}.`,
-      brand: product.brand,
-      basePrice,
-      imageUrl: product.imageUrl,
-      featured: index % 2 === 0,
-      averageRating: Number((4.2 + (index % 3) * 0.2).toFixed(1)),
-      reviewCount: 120 + index * 15,
-      stockQuantity: 8 + index,
-      category: product.category,
-      variants: [
-        { id: 2000 + index, sku: `${product.code}-${index + 1}-base`, color: 'Default', storage: '', price: basePrice, stock: 8 + index }
-      ]
-    };
-  }
+  
 
   get currentStock(): number {
     // if (environment.forceOutOfStockForTesting) return 0;
@@ -399,11 +362,11 @@ export class ProductDetailComponent implements OnInit {
     this.recommendationsLoading = true;
     this.recommendationService.getRecommendations(productId).subscribe({
       next: (products) => {
-        this.recommendations = products;
+        this.recommendedProducts = products.filter(p => p.id !== productId);
         this.recommendationsLoading = false;
       },
       error: () => {
-        this.recommendations = [];
+        this.recommendedProducts = [];
         this.recommendationsLoading = false;
       }
     });
