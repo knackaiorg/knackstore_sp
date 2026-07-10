@@ -78,7 +78,7 @@
 
     <div class="col-12 mt-4">
       <!-- Product Recommendations Carousel -->
-      <div class="mb-5">
+      <div class="mb-0">
         <!-- <h4 class="fw-bold mb-3">Product Recommendations</h4> -->
         <div *ngIf="recommendationsLoading" class="text-center py-5">
           <div class="spinner-border text-primary"></div>
@@ -87,11 +87,12 @@
         <app-product-carousel
           *ngIf="!recommendationsLoading && recommendedProducts.length"
           [products]="recommendedProducts"
-          title="Recommended for you"
+          title="Frequently Bought Together"
           [showViewAll]="false"></app-product-carousel>
 
-        <div *ngIf="!recommendationsLoading && !recommendedProducts.length" class="text-muted py-3">
-          No recommendation results available right now.
+        <div *ngIf="!recommendationsLoading && !recommendedProducts.length">
+          <h4 class="fw-bold mb-3">Frequently Bought Together</h4>
+          <p class="text-muted">No recommendations available yet for this product.</p>
         </div>
       </div>
 

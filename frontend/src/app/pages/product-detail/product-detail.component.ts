@@ -60,7 +60,6 @@ export class ProductDetailComponent implements OnInit {
       const productId = +p['id'];
       this.productService.getProductById(productId).subscribe(product => {
         this.product = product;
-        this.recommendedProducts = [];
         if (product.variants?.length) this.selectedVariant = product.variants[0];
         this.notifyMeClicked = false;
         this.notifyMeMessage = '';
@@ -360,12 +359,14 @@ export class ProductDetailComponent implements OnInit {
 
   private loadRecommendations(productId: number): void {
     this.recommendationsLoading = true;
+    this.recommendedProducts = [];
     this.recommendationService.getRecommendations(productId).subscribe({
       next: (products) => {
         this.recommendedProducts = products.filter(p => p.id !== productId);
         this.recommendationsLoading = false;
       },
-      error: () => {
+      error: (err) => {
+        console.error('Failed to load recommendations:', err);
         this.recommendedProducts = [];
         this.recommendationsLoading = false;
       }
