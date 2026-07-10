@@ -16,6 +16,16 @@
       <a [routerLink]="['/products', product.id]" class="text-decoration-none text-dark">{{ product.name }}</a>
     </h6>
     <app-star-rating [rating]="product.averageRating" [count]="product.reviewCount"></app-star-rating>
+    <div *ngIf="showCompare" class="form-check mt-2 compare-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [checked]="compareChecked"
+        [disabled]="compareDisabled && !compareChecked"
+        (click)="$event.stopPropagation()"
+        (change)="onCompareChange($event)">
+      <label class="form-check-label small">Compare Product</label>
+    </div>
     <div class="mt-auto pt-2">
       <span class="fw-bold text-primary fs-5">{{ product.basePrice | currency:'USD' }}</span>
       <a [routerLink]="['/products', product.id]" class="btn btn-sm btn-outline-primary d-block mt-2">View Details</a>

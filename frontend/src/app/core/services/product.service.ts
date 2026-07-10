@@ -39,4 +39,8 @@ export class ProductService {
   getProductsByCategory(code: string): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/products/category/${code}`);
   }
+
+  getProductsForComparison(skus: string[]): Observable<Product[]> {
+    return this.http.post<Product[]>(`${this.apiUrl}/products/features/compare`, { skus });
+  }
 }
