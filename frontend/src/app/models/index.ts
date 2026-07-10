@@ -39,6 +39,7 @@ export interface RegisterRequest {
 
 // ---- Address ----
 export interface Address {
+  id?: number;
   firstName: string;
   lastName: string;
   line1: string;

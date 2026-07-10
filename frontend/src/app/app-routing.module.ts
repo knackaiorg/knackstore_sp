@@ -15,6 +15,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { AddressesComponent } from './pages/addresses/addresses.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -30,6 +31,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'account/notifications', component: NotificationsComponent, canActivate: [authGuard] },
+  { path: 'account/profile/myaddresses', component: AddressesComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];
 
