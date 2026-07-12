@@ -49,6 +49,9 @@ public class Product {
 
     private int stockQuantity;
 
+    @Builder.Default
+    private int lowStockThreshold = 10;
+
     public Long getId() {
         return id;
     }
@@ -151,5 +154,13 @@ public class Product {
 
     public void setStockQuantity(int stockQuantity) {
         this.stockQuantity = stockQuantity;
+    }
+
+    public int getLowStockThreshold() {
+        return lowStockThreshold;
+    }
+
+    public void setLowStockThreshold(int lowStockThreshold) {
+        this.lowStockThreshold = lowStockThreshold;
     }
 }

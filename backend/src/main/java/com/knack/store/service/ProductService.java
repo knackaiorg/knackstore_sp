@@ -16,6 +16,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final StockService stockService;
 
     public List<ProductDTO> searchProducts(String search, String categoryCode, String brand, Double minPrice, Double maxPrice) {
         return productRepository.searchProducts(search, categoryCode, brand, minPrice, maxPrice)
@@ -63,6 +64,8 @@ public class ProductService {
                 .averageRating(p.getAverageRating())
                 .reviewCount(p.getReviewCount())
                 .stockQuantity(p.getStockQuantity())
+                .availableQuantity(stockService.availableQuantity(p.getId(), null, p.getStockQuantity()))
+                .lowStockThreshold(p.getLowStockThreshold())
                 .category(p.getCategory() != null ? ProductDTO.CategoryDTO.builder()
                         .id(p.getCategory().getId())
                         .code(p.getCategory().getCode())
@@ -76,6 +79,7 @@ public class ProductService {
                         .storage(v.getStorage())
                         .price(v.getPrice())
                         .stock(v.getStock())
+                        .availableStock(stockService.availableQuantity(p.getId(), v.getId(), v.getStock()))
                         .build()).collect(Collectors.toList()))
                 .build();
     }

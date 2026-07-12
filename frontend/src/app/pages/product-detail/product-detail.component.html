@@ -40,8 +40,10 @@
 
       <!-- Stock Status -->
       <div class="mb-3">
-        <span *ngIf="currentStock > 0" class="badge bg-success">In Stock ({{ currentStock }})</span>
-        <span *ngIf="currentStock === 0" class="badge bg-danger">Out of Stock</span>
+        <span *ngIf="stockLevel === 'none'" class="badge bg-success">In Stock ({{ currentStock }})</span>
+        <span *ngIf="stockLevel === 'out'" class="badge bg-danger">Out of Stock</span>
+        <span *ngIf="stockLevel === 'warning'" class="badge bg-warning text-dark">Only {{ currentStock }} left in stock</span>
+        <span *ngIf="stockLevel === 'critical'" class="badge bg-danger">Only {{ currentStock }} left in stock</span>
       </div>
 
       <!-- Quantity + Add to Cart -->
@@ -58,6 +60,10 @@
         </button>
       </div>
       <div *ngIf="notifyMeClicked && notifyMeMessage && !inStock" class="small mb-3 color-red">{{ notifyMeMessage }}</div>
+      <div *ngIf="addToCartError" class="alert alert-warning small py-2 mb-3">{{ addToCartError }}</div>
+      <div *ngIf="reservationCountdown" class="alert alert-info small py-2 mb-3">
+        ⏱ We're holding <strong>{{ reservedQuantity }} Qty </strong> in your cart — complete checkout within <strong>{{ reservationCountdown }}</strong> or it'll be released back to stock.
+      </div>
 
       <div class="mb-3">
         <button class="btn btn-outline-danger" [disabled]="togglingWishlist" (click)="toggleWishlist()">
