@@ -10,7 +10,7 @@ import { ProductQuestionService } from '../../core/services/product-question.ser
 import { RecentlyViewedService } from '../../core/services/recently-viewed.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { StockNotificationService } from 'src/app/core/services/stock-notification.service';
-import { getStockLevel, StockLevel } from '../../shared/constants/stock.constants';
+import { RecommendationService } from '../../core/services/recommendation.service';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit, OnDestroy {
@@ -25,6 +25,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   reviews: ProductReview[] = [];
   reviewsLoading = true;
   questions: ProductQuestion[] = [];
+  recommendedProducts: Product[] = [];
+  recommendationsLoading = false;
   questionsLoading = true;
   questionText = '';
   questionError = '';
@@ -56,7 +58,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     private productQuestionService: ProductQuestionService,
     private recentlyViewedService: RecentlyViewedService,
     private wishlistService: WishlistService,
-    private stockNotificationService: StockNotificationService
+    private stockNotificationService: StockNotificationService,
+    private recommendationService: RecommendationService
   ) {}
 
   ngOnInit() {
@@ -73,6 +76,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
       this.loadReviews(productId);
       this.loadQuestions(productId);
+      this.loadRecommendations(productId);
     });
 
     this.cartSub = this.cartService.cart$.subscribe(cart => this.latestCart = cart);
@@ -106,6 +110,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.reservationCountdown = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     this.reservedQuantity = entry!.quantity;
   }
+  
 
   get currentStock(): number {
     // if (environment.forceOutOfStockForTesting) return 0;
@@ -398,6 +403,22 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       error: () => {
         this.questions = [];
         this.questionsLoading = false;
+      }
+    });
+  }
+
+  private loadRecommendations(productId: number): void {
+    this.recommendationsLoading = true;
+    this.recommendedProducts = [];
+    this.recommendationService.getRecommendations(productId).subscribe({
+      next: (products) => {
+        this.recommendedProducts = products.filter(p => p.id !== productId);
+        this.recommendationsLoading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load recommendations:', err);
+        this.recommendedProducts = [];
+        this.recommendationsLoading = false;
       }
     });
   }
