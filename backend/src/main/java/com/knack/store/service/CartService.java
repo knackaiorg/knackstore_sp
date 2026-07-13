@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,7 +16,7 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final CustomerRepository customerRepository;
-    private final ProductRepository productRepository;
+    private final StockService stockService;
 
     public CartDTO getCart(String email) {
         Cart cart = getOrCreateCart(email);
@@ -25,8 +26,8 @@ public class CartService {
     @Transactional
     public CartDTO addEntry(String email, CartDTO.AddEntryRequest request) {
         Cart cart = getOrCreateCart(email);
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+        // Locks the product row so this reservation check is serialized against any concurrent request for it.
+        Product product = stockService.lockProduct(request.getProductId());
 
         ProductVariant variant = null;
         double unitPrice = product.getBasePrice();
@@ -45,12 +46,18 @@ public class CartService {
                         (finalVariant == null ? e.getVariant() == null : finalVariant.getId().equals(e.getVariant() != null ? e.getVariant().getId() : null)))
                 .findFirst().orElse(null);
 
+        int newQuantity = (existing != null ? existing.getQuantity() : 0) + request.getQuantity();
+        stockService.ensureAvailable(product, variant, cart.getId(), newQuantity);
+        LocalDateTime holdUntil = LocalDateTime.now().plusMinutes(StockService.RESERVATION_HOLD_MINUTES);
+
         if (existing != null) {
-            existing.setQuantity(existing.getQuantity() + request.getQuantity());
+            existing.setQuantity(newQuantity);
+            existing.setReservedUntil(holdUntil);
+            existing.setValidForCheckout(true);
         } else {
             CartEntry entry = CartEntry.builder()
                     .cart(cart).product(product).variant(variant)
-                    .quantity(request.getQuantity()).unitPrice(unitPrice).build();
+                    .quantity(request.getQuantity()).unitPrice(unitPrice).reservedUntil(holdUntil).build();
             cart.getEntries().add(entry);
         }
 
@@ -71,7 +78,11 @@ public class CartService {
         if (quantity <= 0) {
             cart.getEntries().remove(entry);
         } else {
+            Product product = stockService.lockProduct(entry.getProduct().getId());
+            stockService.ensureAvailable(product, entry.getVariant(), cart.getId(), quantity);
             entry.setQuantity(quantity);
+            entry.setReservedUntil(LocalDateTime.now().plusMinutes(StockService.RESERVATION_HOLD_MINUTES));
+            entry.setValidForCheckout(true);
         }
 
         // Clear promo code when cart is modified
@@ -128,8 +139,17 @@ public class CartService {
                         .quantity(e.getQuantity())
                         .unitPrice(e.getUnitPrice())
                         .lineTotal(e.getQuantity() * e.getUnitPrice())
+                        .reservedUntil(e.getReservedUntil())
+                        .validForCheckout(isValidForCheckout(e))
                         .build()).collect(Collectors.toList()))
                 .build();
+    }
+
+    // Computed live rather than trusting only the persisted flag, which is set by a
+    // once-a-minute background sweep and can lag well behind the actual hold expiry.
+    private boolean isValidForCheckout(CartEntry e) {
+        if (!e.isValidForCheckout()) return false;
+        return e.getReservedUntil() == null || e.getReservedUntil().isAfter(LocalDateTime.now());
     }
 
     private String buildVariantDescription(ProductVariant v) {

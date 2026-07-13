@@ -1,12 +1,16 @@
 package com.knack.store.service;
 
 import com.knack.store.dto.ProductDTO;
+import com.knack.store.model.Category;
 import com.knack.store.model.Product;
+import com.knack.store.model.ProductVariant;
 import com.knack.store.repository.CategoryRepository;
 import com.knack.store.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +20,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final StockService stockService;
 
     public List<ProductDTO> searchProducts(String search, String categoryCode, String brand, Double minPrice, Double maxPrice) {
         return productRepository.searchProducts(search, categoryCode, brand, minPrice, maxPrice)
@@ -40,6 +45,47 @@ public class ProductService {
 
     public List<ProductDTO> getProductsByCategory(String categoryCode) {
         return productRepository.findByCategoryCode(categoryCode).stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ProductDTO createProduct(ProductDTO request) {
+        // Check for duplicate code
+        if (request.getCode() != null && productRepository.findByCode(request.getCode()).isPresent()) {
+            throw new RuntimeException("Product with code '" + request.getCode() + "' already exists");
+        }
+
+        Product product = new Product();
+        product.setCode(request.getCode());
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setBrand(request.getBrand());
+        product.setBasePrice(request.getBasePrice());
+        product.setImageUrl(request.getImageUrl());
+        product.setFeatured(request.isFeatured());
+        product.setStockQuantity(request.getStockQuantity());
+
+        if (request.getCategory() != null && request.getCategory().getCode() != null) {
+            Category category = categoryRepository.findByCode(request.getCategory().getCode())
+                    .orElseThrow(() -> new RuntimeException("Category not found: " + request.getCategory().getCode()));
+            product.setCategory(category);
+        }
+
+        product.setVariants(new ArrayList<>());
+        if (request.getVariants() != null) {
+            for (ProductDTO.VariantDTO vr : request.getVariants()) {
+                ProductVariant variant = new ProductVariant();
+                variant.setSku(vr.getSku());
+                variant.setColor(vr.getColor());
+                variant.setStorage(vr.getStorage());
+                variant.setPrice(vr.getPrice());
+                variant.setStock(vr.getStock());
+                variant.setProduct(product);
+                product.getVariants().add(variant);
+            }
+        }
+
+        Product saved = productRepository.save(product);
+        return toDTO(saved);
     }
 
     public List<String> getAllBrands() {
@@ -71,6 +117,8 @@ public class ProductService {
                 .averageRating(p.getAverageRating())
                 .reviewCount(p.getReviewCount())
                 .stockQuantity(p.getStockQuantity())
+                .availableQuantity(stockService.availableQuantity(p.getId(), null, p.getStockQuantity()))
+                .lowStockThreshold(p.getLowStockThreshold())
                 .category(p.getCategory() != null ? ProductDTO.CategoryDTO.builder()
                         .id(p.getCategory().getId())
                         .code(p.getCategory().getCode())
@@ -84,6 +132,7 @@ public class ProductService {
                         .storage(v.getStorage())
                         .price(v.getPrice())
                         .stock(v.getStock())
+                        .availableStock(stockService.availableQuantity(p.getId(), v.getId(), v.getStock()))
                         .build()).collect(Collectors.toList()))
                 .build();
     }
