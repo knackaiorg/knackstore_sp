@@ -61,9 +61,9 @@ public class DataInitializer implements CommandLineRunner {
             .featured(true).stockQuantity(150).averageRating(5).reviewCount(320).category(phones).build();
         productRepository.save(iphone);
         saveVariants(iphone,
-            ProductVariant.builder().sku("PHONE-001-BLK-128").color("Midnight Black").storage("128GB").price(999.99).stock(50).product(iphone).build(),
-            ProductVariant.builder().sku("PHONE-001-SLV-256").color("Silver").storage("256GB").price(1099.99).stock(40).product(iphone).build(),
-            ProductVariant.builder().sku("PHONE-001-GLD-512").color("Gold").storage("512GB").price(1299.99).stock(30).product(iphone).build()
+            ProductVariant.builder().sku("PHONE-001-BLK-128").color("Midnight Black").storage("128GB").price(999.99).stock(11).product(iphone).build(),
+            ProductVariant.builder().sku("PHONE-001-SLV-256").color("Silver").storage("256GB").price(1099.99).stock(0).product(iphone).build(),
+            ProductVariant.builder().sku("PHONE-001-GLD-512").color("Gold").storage("512GB").price(1299.99).stock(4).product(iphone).build()
         );
 
         Product galaxy = Product.builder()
@@ -117,7 +117,7 @@ public class DataInitializer implements CommandLineRunner {
             .code("CAM-001").name("VisionPro A7 IV").brand("SonyVision")
             .description("Full-frame mirrorless camera with 33MP sensor, real-time tracking, 10fps continuous shooting, and 4K 60p video.")
             .basePrice(2499.99).imageUrl("https://picsum.photos/seed/camera-001/800/600")
-            .featured(true).stockQuantity(30).averageRating(5).reviewCount(290).category(cameras).build();
+            .featured(true).stockQuantity(30).lowStockThreshold(35).averageRating(5).reviewCount(290).category(cameras).build();
         productRepository.save(sonyCamera);
 
         // --- Headphones ---

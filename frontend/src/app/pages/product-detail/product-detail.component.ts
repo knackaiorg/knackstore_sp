@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Product, ProductQuestion, ProductReview, ProductVariant } from '../../models';
+import { Subscription, interval } from 'rxjs';
+import { Cart, Product, ProductQuestion, ProductReview, ProductVariant } from '../../models';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -12,7 +13,7 @@ import { StockNotificationService } from 'src/app/core/services/stock-notificati
 import { RecommendationService } from '../../core/services/recommendation.service';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent implements OnInit, OnDestroy {
   product: Product | null = null;
   selectedVariant: ProductVariant | null = null;
   quantity = 1;
@@ -42,6 +43,12 @@ export class ProductDetailComponent implements OnInit {
   reviewSuccessMessage = '';
   notifyMeMessage = '';
   notifyMeClicked = false;
+  addToCartError = '';
+  reservationCountdown = '';
+  reservedQuantity = 0;
+  private latestCart: Cart | null = null;
+  private cartSub?: Subscription;
+  private countdownSub?: Subscription;
   constructor(
     private route: ActivatedRoute, private router: Router,
     private productService: ProductService,
@@ -71,12 +78,43 @@ export class ProductDetailComponent implements OnInit {
       this.loadQuestions(productId);
       this.loadRecommendations(productId);
     });
+
+    this.cartSub = this.cartService.cart$.subscribe(cart => this.latestCart = cart);
+    if (this.authService.isLoggedIn) {
+      this.cartService.loadCart().subscribe();
+    }
+    this.countdownSub = interval(1000).subscribe(() => this.updateReservationCountdown());
+  }
+
+  ngOnDestroy(): void {
+    this.cartSub?.unsubscribe();
+    this.countdownSub?.unsubscribe();
+  }
+
+  private updateReservationCountdown(): void {
+    const entry = this.latestCart?.entries.find(e =>
+      e.productId === this.product?.id &&
+      (this.selectedVariant ? e.variantId === this.selectedVariant.id : !e.variantId)
+    );
+
+    const msRemaining = entry?.reservedUntil ? new Date(entry.reservedUntil).getTime() - Date.now() : 0;
+    if (msRemaining <= 0) {
+      this.reservationCountdown = '';
+      this.reservedQuantity = 0;
+      return;
+    }
+
+    const totalSeconds = Math.floor(msRemaining / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    this.reservationCountdown = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    this.reservedQuantity = entry!.quantity;
   }
   
 
   get currentStock(): number {
     // if (environment.forceOutOfStockForTesting) return 0;
-    return this.selectedVariant?.stock ?? this.product?.stockQuantity ?? 0;
+    return this.selectedVariant?.availableStock ?? this.product?.availableQuantity ?? 0;
   }
   get isAuthenticated(): boolean {
     return this.authService.isLoggedIn;
@@ -107,6 +145,14 @@ export class ProductDetailComponent implements OnInit {
 
   get inStock(): boolean {
     return this.currentStock > 0;
+  }
+
+  get stockLevel(): StockLevel {
+    return getStockLevel(this.currentStock);
+  }
+
+  get isLowStock(): boolean {
+    return this.stockLevel === 'warning' || this.stockLevel === 'critical';
   }
 
   handlePrimaryAction() {
@@ -182,6 +228,7 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
     this.addingToCart = true;
+    this.addToCartError = '';
     this.cartService.addEntry({
       productId: this.product.id,
       variantId: this.selectedVariant?.id,
@@ -192,7 +239,10 @@ export class ProductDetailComponent implements OnInit {
         this.successMessage = 'Added to cart!';
         setTimeout(() => this.successMessage = '', 3000);
       },
-      error: () => this.addingToCart = false
+      error: (err) => {
+        this.addingToCart = false;
+        this.addToCartError = err?.error?.message || 'Unable to add this item to your cart right now. Please try again in sometime.';
+      }
     });
   }
 

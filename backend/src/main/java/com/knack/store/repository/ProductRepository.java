@@ -1,7 +1,9 @@
 package com.knack.store.repository;
 
 import com.knack.store.model.Product;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
@@ -11,6 +13,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByCode(String code);
     List<Product> findByFeaturedTrue();
     List<Product> findByCategoryCode(String categoryCode);
+
+    // Pessimistic write lock serializes concurrent stock reservation/commit attempts for the same product.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Product p WHERE p.id = :id")
+    Optional<Product> findByIdForUpdate(@Param("id") Long id);
 
     // Product suggestions should match product name only.
     @Query("""

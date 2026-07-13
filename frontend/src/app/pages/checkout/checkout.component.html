@@ -59,6 +59,7 @@
           <p class="text-muted">{{ addressForm.value.firstName }} {{ addressForm.value.lastName }}, {{ addressForm.value.line1 }}, {{ addressForm.value.city }}, {{ addressForm.value.state }} {{ addressForm.value.postcode }}</p>
           <h6 class="fw-bold">Payment:</h6>
           <p class="text-muted">{{ paymentMethod.replace('_', ' ') }}</p>
+          <div *ngIf="orderError" class="alert alert-warning small py-2">{{ orderError }}</div>
           <div class="d-flex gap-2">
             <button class="btn btn-outline-secondary" (click)="step = 2">← Back</button>
             <button class="btn btn-warning flex-grow-1 fw-bold" (click)="placeOrder()" [disabled]="placing">
