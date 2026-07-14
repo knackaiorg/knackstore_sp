@@ -14,6 +14,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByFeaturedTrue();
     List<Product> findByCategoryCode(String categoryCode);
 
+    // get product list by SKU's
+    List<Product> findByCodeIn(List<String> codes);
     // Pessimistic write lock serializes concurrent stock reservation/commit attempts for the same product.
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Product p WHERE p.id = :id")

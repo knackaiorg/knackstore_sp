@@ -1,5 +1,6 @@
 package com.knack.store.controller;
 
+import com.knack.store.dto.CompareRequestDTO;
 import com.knack.store.dto.ProductDTO;
 import com.knack.store.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,4 +68,12 @@ public class ProductController {
     public ResponseEntity<List<ProductDTO>> getByCategory(@PathVariable String categoryCode) {
         return ResponseEntity.ok(productService.getProductsByCategory(categoryCode));
     }
+
+    @PostMapping("/features/compare")
+    @Operation(summary = "Compare products by SKUs", description = "Fetch a list of full product details matching the provided list of unique SKUs.")
+    @CrossOrigin(origins = "*") // Crucial to prevent CORS blocks during your hackathon frontend integration
+    public ResponseEntity<List<ProductDTO>> compareProducts(@RequestBody CompareRequestDTO request) {
+        return ResponseEntity.ok(productService.compareProducts(request.getSkus()));
+    }
+
 }
