@@ -1,0 +1,56 @@
+.compare-tray {
+	position: sticky;
+	bottom: 1rem;
+	background: #ffffff;
+	border: 1px solid #e9ecef;
+	border-radius: 0.75rem;
+	padding: 1rem;
+	z-index: 10;
+}
+
+.compare-pill {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	background: #f8f9fa;
+	border: 1px solid #e9ecef;
+	border-radius: 999px;
+	padding: 0.35rem 0.75rem 0.35rem 0.35rem;
+	max-width: 100%;
+}
+
+.compare-pill img {
+	width: 36px;
+	height: 36px;
+	object-fit: cover;
+	border-radius: 999px;
+	border: 1px solid #dee2e6;
+}
+
+.compare-pill-content {
+	min-width: 0;
+}
+
+.compare-pill-content span {
+	display: inline-block;
+	max-width: 170px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.compare-modal-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+	z-index: 1040;
+}
+
+.compare-modal {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: min(92vw, 460px);
+	z-index: 1050;
+}

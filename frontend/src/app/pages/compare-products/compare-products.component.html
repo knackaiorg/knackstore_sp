@@ -1,0 +1,139 @@
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h3 class="mb-1 fw-bold">Product Comparison</h3>
+      <p class="text-muted mb-0">Compare selected products side by side.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" (click)="backToProducts()">Back to Products</button>
+      <button class="btn btn-outline-danger" [disabled]="comparedProducts.length === 0" (click)="onCancelClick()">Cancel</button>
+      <button class="btn btn-primary" [disabled]="comparedProducts.length === 0" (click)="exportComparisonPdf()">Export Comparison Details</button>
+    </div>
+  </div>
+
+  <div *ngIf="comparedProducts.length > 0" class="card shadow-sm border-0 facet-card mb-3">
+    <div class="card-body py-3">
+      <div class="d-flex flex-wrap align-items-center gap-3">
+        <span class="small text-muted fw-semibold">Facets</span>
+        <div class="d-flex flex-wrap gap-2">
+          <button
+            *ngFor="let facet of facets"
+            class="btn btn-sm"
+            [ngClass]="isFacetActive(facet.key) ? 'btn-primary' : 'btn-outline-secondary'"
+            (click)="toggleFacetSelection(facet.key)">
+            {{ facet.label }}
+          </button>
+        </div>
+        <div class="vr d-none d-md-block"></div>
+        <div class="form-check m-0">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="diff-only"
+            [(ngModel)]="showDifferencesOnly">
+          <label class="form-check-label small" for="diff-only">Show differences only</label>
+        </div>
+        <button class="btn btn-sm btn-outline-dark" (click)="resetFilters()">Reset Filters</button>
+        <span class="small text-muted">{{ selectedFacetSummary }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="card shadow-sm border-0 mb-3">
+    <div class="card-body text-center py-4">
+      <div class="spinner-border text-primary" role="status" aria-label="Loading"></div>
+      <p class="text-muted mt-3 mb-0">Loading comparison details...</p>
+    </div>
+  </div>
+
+  <div *ngIf="loadError" class="alert alert-danger" role="alert">
+    {{ loadError }}
+  </div>
+
+  <div *ngIf="!loading && !loadError && comparedProducts.length === 0" class="card shadow-sm border-0 empty-state">
+    <div class="card-body text-center py-5">
+      <h5 class="mb-2">No products selected for comparison</h5>
+      <p class="text-muted mb-3">Please select 2 to 5 products from the listing page.</p>
+      <button class="btn btn-primary" (click)="backToProducts()">Go to Product Listing</button>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && comparedProducts.length > 0" class="card shadow-sm border-0 compare-card">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle mb-0 compare-table">
+          <thead class="table-light">
+            <tr>
+              <th class="attribute-col">Attribute</th>
+              <th *ngFor="let product of comparedProducts" class="product-col">
+                <div class="d-flex flex-column align-items-start gap-2">
+                  <img [src]="product.imageUrl" [alt]="product.name" class="compare-image" onerror="this.onerror=null;this.src='assets/image-placeholder.svg'">
+                  <span class="fw-semibold">{{ product.name }}</span>
+                  <small class="text-muted">{{ product.brand }}</small>
+                  <button class="btn btn-link btn-sm text-danger p-0" (click)="onRemoveClick(product.id)">Remove</button>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let attribute of visibleAttributes">
+              <th>{{ attribute.label }}</th>
+              <td *ngFor="let product of comparedProducts" class="description-cell">{{ getAttributeValue(attribute, product) }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="visibleAttributes.length === 0 && !showInsightsSection" class="text-center text-muted py-4">
+          No attributes match the selected facets. Try enabling more facets.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && comparedProducts.length > 0 && showInsightsSection" class="card shadow-sm border-0 compare-card mt-3">
+    <div class="card-header bg-light fw-bold">Pros and Cons</div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div *ngFor="let product of comparedProducts" class="col-12 col-md-6 col-xl-4">
+          <div class="insights-item">
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <img [src]="product.imageUrl" [alt]="product.name" class="insights-image" onerror="this.onerror=null;this.src='assets/image-placeholder.svg'">
+              <div>
+                <p class="mb-0 fw-semibold small">{{ product.name }}</p>
+                <small class="text-muted">{{ product.brand }}</small>
+              </div>
+            </div>
+
+            <div class="insights-block pros-block mb-2">
+              <h6 class="mb-2">Pros</h6>
+              <ul class="mb-0">
+                <li *ngFor="let pro of getProsItems(product)">{{ pro }}</li>
+              </ul>
+            </div>
+
+            <div class="insights-block cons-block">
+              <h6 class="mb-2">Cons</h6>
+              <ul class="mb-0">
+                <li *ngFor="let con of getConsItems(product)">{{ con }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isConfirmModalOpen" class="compare-modal-backdrop" (click)="closeConfirmModal()"></div>
+  <div *ngIf="isConfirmModalOpen" class="compare-modal" role="dialog" aria-modal="true" aria-labelledby="compare-modal-title">
+    <div class="card shadow border-0">
+      <div class="card-body p-4">
+        <h5 id="compare-modal-title" class="mb-2">{{ confirmTitle }}</h5>
+        <p class="text-muted mb-4">{{ confirmMessage }}</p>
+        <div class="d-flex justify-content-end gap-2">
+          <button class="btn btn-outline-secondary" (click)="closeConfirmModal()">No</button>
+          <button class="btn btn-danger" (click)="confirmModalAction()">Yes, Continue</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

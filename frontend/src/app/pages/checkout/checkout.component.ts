@@ -13,6 +13,7 @@ export class CheckoutComponent implements OnInit {
   paymentMethod = 'CREDIT_CARD';
   step = 1;
   placing = false;
+  orderError = '';
 
   deliveryOptions: DeliveryOption[] = [];
   selectedDeliveryOption!: DeliveryOption;
@@ -63,6 +64,7 @@ export class CheckoutComponent implements OnInit {
 
   placeOrder() {
     this.placing = true;
+    this.orderError = '';
     this.orderService.placeOrder({
       deliveryAddress: this.addressForm.value,
       paymentMethod: this.paymentMethod,
@@ -70,7 +72,13 @@ export class CheckoutComponent implements OnInit {
       deliveryOption: this.selectedDeliveryOption
     }).subscribe({
       next: order => this.router.navigate(['/order-confirmation', order.orderCode]),
-      error: () => this.placing = false
+      error: (err) => {
+        this.placing = false;
+        this.orderError = err?.error?.message || 'Unable to place your order right now. Please try again.';
+        if (err?.status === 409) {
+          this.cartService.loadCart().subscribe(c => this.cart = c);
+        }
+      }
     });
   }
 

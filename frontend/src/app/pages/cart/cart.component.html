@@ -7,22 +7,33 @@
     <a routerLink="/products" class="btn btn-primary">Continue Shopping</a>
   </div>
 
+  <div *ngIf="updateError" class="alert alert-warning small py-2">{{ updateError }}</div>
+
+  <div *ngIf="!loading && cart && hasInvalidEntries" class="alert alert-warning">
+    <strong>Uh oh!</strong> Something has changed in your cart. Please remove &amp; try adding the highlighted products again.
+  </div>
+
   <div *ngIf="!loading && cart && cart.entries.length > 0" class="row g-4">
     <div class="col-lg-8">
       <div class="card shadow-sm">
         <div class="card-body p-0">
           <div *ngFor="let entry of cart.entries; let last = last"
-               class="d-flex align-items-center p-3 gap-3" [class.border-bottom]="!last">
+               class="d-flex align-items-center p-3 gap-3"
+               [class.border-bottom]="!last"
+               [class.cart-entry-invalid]="!entry.validForCheckout">
             <img [src]="entry.productImageUrl" [alt]="entry.productName" class="rounded" style="width:80px;height:80px;object-fit:cover" onerror="this.onerror=null;">
             <div class="flex-grow-1">
               <h6 class="mb-0 fw-semibold">{{ entry.productName }}</h6>
               <small *ngIf="entry.variantDescription" class="text-muted">{{ entry.variantDescription }}</small>
-              <div class="fw-bold text-primary mt-1">$ {{ entry.unitPrice | number:'1.2-2' }}</div>
+              <div class="fw-bold text-primary mt-1">₹{{ entry.unitPrice | number:'1.2-2' }}</div>
+              <div *ngIf="!entry.validForCheckout" class="badge bg-danger mt-1">
+                ⚠
+              </div>
             </div>
             <div class="input-group" style="width:110px">
-              <button class="btn btn-outline-secondary btn-sm" (click)="updateQty(entry.entryId, entry.quantity - 1)">−</button>
+              <button class="btn btn-outline-secondary btn-sm" [disabled]="!entry.validForCheckout" (click)="updateQty(entry.entryId, entry.quantity - 1)">−</button>
               <input type="number" class="form-control form-control-sm text-center" [value]="entry.quantity" readonly>
-              <button class="btn btn-outline-secondary btn-sm" (click)="updateQty(entry.entryId, entry.quantity + 1)">+</button>
+              <button class="btn btn-outline-secondary btn-sm" [disabled]="!entry.validForCheckout" (click)="updateQty(entry.entryId, entry.quantity + 1)">+</button>
             </div>
             <div class="fw-bold" style="min-width:80px;text-align:right">$ {{ entry.lineTotal | number:'1.2-2' }}</div>
             <button class="btn btn-sm btn-outline-danger" (click)="removeEntry(entry.entryId)">✕</button>
@@ -66,7 +77,7 @@
           </div>
 
           <!-- Checkout Button -->
-          <button class="btn btn-warning w-100 fw-bold mb-2" (click)="checkout()">
+          <button class="btn btn-warning w-100 fw-bold mb-2" (click)="checkout()" [disabled]="hasInvalidEntries">
             Proceed to Checkout →
           </button>
           <a routerLink="/products" class="btn btn-outline-secondary w-100">
@@ -78,7 +89,7 @@
       <!-- Promo Code Component -->
       <div class="card shadow-sm">
         <div class="card-body">
-          <app-promo-code 
+          <app-promo-code
             [appliedPromoCode]="cart.appliedPromoCode"
             [discountAmount]="cart.discountAmount"
             (promoCodeChanged)="onPromoCodeChanged()">
@@ -88,3 +99,7 @@
     </div>
   </div>
 </div>
+
+<style>
+.cart-entry-invalid { background-color: rgba(220, 53, 69, 0.06); border-left: 4px solid #dc3545; }
+</style>
