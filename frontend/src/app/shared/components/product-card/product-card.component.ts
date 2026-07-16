@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { Product } from '../../../models';
 import { AuthService } from '../../../core/services/auth.service';
 import { WishlistService } from '../../../core/services/wishlist.service';
+import { getStockLevel, StockLevel } from '../../constants/stock.constants';
 
 @Component({
   selector: 'app-product-card',
@@ -11,6 +12,10 @@ import { WishlistService } from '../../../core/services/wishlist.service';
 })
 export class ProductCardComponent {
   @Input() product!: Product;
+  @Input() showCompare = false;
+  @Input() compareChecked = false;
+  @Input() compareDisabled = false;
+  @Output() compareToggled = new EventEmitter<boolean>();
   toggling = false;
 
   constructor(
@@ -18,6 +23,18 @@ export class ProductCardComponent {
     private wishlistService: WishlistService,
     private router: Router
   ) {}
+
+  get stockLevel(): StockLevel {
+    return getStockLevel(this.product.availableQuantity);
+  }
+
+  get isLowStock(): boolean {
+    return this.stockLevel === 'warning' || this.stockLevel === 'critical';
+  }
+
+  get isOutOfStock(): boolean {
+    return this.stockLevel === 'out';
+  }
 
   get isWishlisted(): boolean {
     return this.wishlistService.isWishlisted(this.product.id, undefined, true);
@@ -44,5 +61,10 @@ export class ProductCardComponent {
         this.toggling = false;
       }
     });
+  }
+
+  onCompareChange(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.compareToggled.emit(target.checked);
   }
 }

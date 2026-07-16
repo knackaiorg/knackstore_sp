@@ -3,6 +3,8 @@ package com.knack.store.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "cart_entries")
 @Data
@@ -30,4 +32,11 @@ public class CartEntry {
     private int quantity;
 
     private Double unitPrice;
+
+    // Expiry of this line item's inventory hold; null once released/expired.
+    private LocalDateTime reservedUntil;
+
+    // Set false once a hold expires unrenewed; blocks checkout until the entry is removed and re-added.
+    @Builder.Default
+    private boolean validForCheckout = true;
 }

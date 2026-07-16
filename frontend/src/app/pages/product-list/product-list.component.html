@@ -50,7 +50,55 @@
       </div>
       <div class="row g-4">
         <div *ngFor="let product of products" class="col-sm-6 col-lg-4">
-          <app-product-card [product]="product"></app-product-card>
+          <app-product-card
+            [product]="product"
+            [showCompare]="true"
+            [compareChecked]="isCompared(product.id)"
+            [compareDisabled]="isCompareDisabledForProduct(product)"
+            (compareToggled)="onCompareToggle(product, $event)">
+          </app-product-card>
+        </div>
+      </div>
+
+      <div *ngIf="selectedForCompare.length > 0" class="compare-tray shadow-sm mt-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+          <div>
+            <h6 class="mb-1 fw-bold">Compare Products</h6>
+            <p class="mb-0 small text-muted">
+              {{ selectedForCompare.length }} selected (choose {{ minCompare }} to {{ maxCompare }})
+            </p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm" (click)="onStickyCancelClick()">Cancel</button>
+            <button class="btn btn-primary btn-sm" [disabled]="!canCompare" (click)="onStickyCompareClick()">Compare</button>
+          </div>
+        </div>
+
+        <div *ngIf="compareErrorMessage" class="alert alert-warning py-2 px-3 mb-3 small">{{ compareErrorMessage }}</div>
+
+        <div class="d-flex flex-wrap gap-2">
+          <div *ngFor="let selected of selectedForCompare" class="compare-pill">
+            <img [src]="selected.imageUrl" [alt]="selected.name" onerror="this.onerror=null;this.src='assets/image-placeholder.svg'">
+            <div class="compare-pill-content">
+              <small class="text-muted d-block">{{ selected.brand }}</small>
+              <span class="small fw-semibold">{{ selected.name }}</span>
+            </div>
+            <button class="btn btn-sm btn-link text-danger p-0" (click)="onCompareToggle(selected, false)" title="Remove">×</button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="isStickyActionModalOpen" class="compare-modal-backdrop" (click)="closeStickyActionModal()"></div>
+      <div *ngIf="isStickyActionModalOpen" class="compare-modal" role="dialog" aria-modal="true" aria-labelledby="sticky-action-title">
+        <div class="card shadow border-0">
+          <div class="card-body p-4">
+            <h5 id="sticky-action-title" class="mb-2">{{ stickyActionTitle }}</h5>
+            <p class="text-muted mb-4">{{ stickyActionMessage }}</p>
+            <div class="d-flex justify-content-end gap-2">
+              <button class="btn btn-outline-secondary" (click)="closeStickyActionModal()">No</button>
+              <button class="btn btn-primary" (click)="confirmStickyAction()">Yes, Continue</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

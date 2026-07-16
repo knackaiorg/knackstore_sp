@@ -100,6 +100,7 @@ export interface ProductVariant {
   storage: string;
   price: number;
   stock: number;
+  availableStock: number;
 }
 
 export interface ProductCategory {
@@ -121,6 +122,8 @@ export interface Product {
   averageRating: number;
   reviewCount: number;
   stockQuantity: number;
+  availableQuantity: number;
+  lowStockThreshold: number;
   category: ProductCategory;
   variants: ProductVariant[];
   keySpec?: string;
@@ -200,6 +203,8 @@ export interface CartEntry {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  reservedUntil: string | null;
+  validForCheckout: boolean;
 }
 
 export interface Cart {
