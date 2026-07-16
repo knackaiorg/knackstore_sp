@@ -5,6 +5,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { HomeComponent } from './pages/home/home.component';
 import { ProductListComponent } from './pages/product-list/product-list.component';
 import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
+import { CompareProductsComponent } from './pages/compare-products/compare-products.component';
 import { CartComponent } from './pages/cart/cart.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { OrderConfirmationComponent } from './pages/order-confirmation/order-confirmation.component';
@@ -19,6 +20,7 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'products', component: ProductListComponent },
+  { path: 'compare/products', component: CompareProductsComponent },
   { path: 'products/:id', component: ProductDetailComponent },
   { path: 'cart', component: CartComponent },
   { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard] },

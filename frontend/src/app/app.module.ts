@@ -11,6 +11,7 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { HomeComponent } from './pages/home/home.component';
 import { ProductListComponent } from './pages/product-list/product-list.component';
 import { ProductDetailComponent } from './pages/product-detail/product-detail.component';
+import { CompareProductsComponent } from './pages/compare-products/compare-products.component';
 import { CartComponent } from './pages/cart/cart.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { OrderConfirmationComponent } from './pages/order-confirmation/order-confirmation.component';
@@ -37,6 +38,7 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
     HomeComponent,
     ProductListComponent,
     ProductDetailComponent,
+    CompareProductsComponent,
     CartComponent,
     CheckoutComponent,
     OrderConfirmationComponent,
