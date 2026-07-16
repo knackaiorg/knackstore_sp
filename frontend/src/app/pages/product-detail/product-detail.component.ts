@@ -11,6 +11,7 @@ import { RecentlyViewedService } from '../../core/services/recently-viewed.servi
 import { WishlistService } from '../../core/services/wishlist.service';
 import { StockNotificationService } from 'src/app/core/services/stock-notification.service';
 import { RecommendationService } from '../../core/services/recommendation.service';
+import { getStockLevel, StockLevel } from '../../shared/constants/stock.constants';
 
 @Component({ selector: 'app-product-detail', templateUrl: './product-detail.component.html', styleUrls: ['./product-detail.component.css'] })
 export class ProductDetailComponent implements OnInit, OnDestroy {

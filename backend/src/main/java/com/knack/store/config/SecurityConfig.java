@@ -43,6 +43,7 @@ public class SecurityConfig {
 						.requestMatchers("/api/search/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/orders/delivery-options").permitAll()
                         .requestMatchers("/api/notify_me").permitAll()
                         .requestMatchers("/api/fetch_all_notifications").permitAll()
                         .requestMatchers("/api/delete_notification").permitAll()

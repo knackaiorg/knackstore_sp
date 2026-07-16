@@ -5,9 +5,11 @@
   <div class="d-flex align-items-center mb-4">
     <div class="step-badge" [class.active]="step >= 1">1. Delivery</div>
     <div class="step-line"></div>
-    <div class="step-badge" [class.active]="step >= 2">2. Payment</div>
+    <div class="step-badge" [class.active]="step >= 2">2. Delivery Options</div>
     <div class="step-line"></div>
-    <div class="step-badge" [class.active]="step >= 3">3. Confirm</div>
+    <div class="step-badge" [class.active]="step >= 3">3. Payment</div>
+    <div class="step-line"></div>
+    <div class="step-badge" [class.active]="step >= 4">4. Confirm</div>
   </div>
 
   <div class="row g-4">
@@ -29,39 +31,66 @@
               <div class="col-12"><label class="form-label">Phone *</label><input class="form-control" formControlName="phone"></div>
             </div>
           </form>
-          <button class="btn btn-primary mt-3 w-100" (click)="nextStep()">Continue to Payment →</button>
+          <button class="btn btn-primary mt-3 w-100" (click)="nextStep()">Continue to Delivery Options →</button>
         </div>
       </div>
 
-      <!-- Step 2: Payment -->
+      <!-- Step 2: Delivery Options -->
       <div *ngIf="step === 2" class="card shadow-sm">
+        <div class="card-header fw-bold">Delivery Options</div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div *ngFor="let option of deliveryOptions; let i = index" class="col-12">
+              <label class="card h-100 p-3" [class.border-primary]="selectedDeliveryOption === option" [class.bg-light]="selectedDeliveryOption === option" style="cursor:pointer;">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" [id]="option.option + i" name="deliveryOption" [value]="option" [(ngModel)]="selectedDeliveryOption" [ngModelOptions]="{standalone: true}">
+                  <label class="form-check-label fw-semibold" [for]="option.option + i">{{ option.option }}</label>
+                </div>
+                <p class="mb-1 text-muted">{{ option.deliveryTime }}</p>
+                <p class="mb-0 fw-bold">{{ option.cost === 0 ? 'Free' : '$ ' + option.cost }}</p>
+                <p *ngIf="option.option === '2-Day Delivery'" class="text-success fw-bold">(delivery fee will waived if the order value is equal to or greater than $200)</p>
+              </label>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-outline-secondary" (click)="step = 1">← Back</button>
+            <button class="btn btn-primary flex-grow-1" (click)="nextStep()">Continue to Payment →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Payment -->
+      <div *ngIf="step === 3" class="card shadow-sm">
         <div class="card-header fw-bold">Payment Method</div>
         <div class="card-body">
           <div *ngFor="let method of ['CREDIT_CARD','DEBIT_CARD','NET_BANKING','UPI','CASH_ON_DELIVERY']" class="form-check mb-3">
-            <input class="form-check-input" type="radio" [value]="method" [(ngModel)]="paymentMethod" [id]="method">
+            <input class="form-check-input" type="radio" [value]="method" [(ngModel)]="paymentMethod" [id]="method" name="paymentMethod">
             <label class="form-check-label" [for]="method">{{ method.replace('_', ' ') }}</label>
           </div>
           <div class="alert alert-info small mt-3">
             <strong>Note:</strong> This is a demo app. No real payment will be processed.
           </div>
           <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary" (click)="step = 1">← Back</button>
-            <button class="btn btn-primary flex-grow-1" (click)="step = 3">Review Order →</button>
+            <button class="btn btn-outline-secondary" (click)="step = 2">← Back</button>
+            <button class="btn btn-primary flex-grow-1" (click)="step = 4">Review Order →</button>
           </div>
         </div>
       </div>
 
-      <!-- Step 3: Confirm -->
-      <div *ngIf="step === 3" class="card shadow-sm">
+      <!-- Step 4: Confirm -->
+      <div *ngIf="step === 4" class="card shadow-sm">
         <div class="card-header fw-bold">Review & Place Order</div>
         <div class="card-body">
           <h6 class="fw-bold">Delivery to:</h6>
           <p class="text-muted">{{ addressForm.value.firstName }} {{ addressForm.value.lastName }}, {{ addressForm.value.line1 }}, {{ addressForm.value.city }}, {{ addressForm.value.state }} {{ addressForm.value.postcode }}</p>
+          <h6 class="fw-bold">Delivery Option:</h6>
+          <p class="text-muted">{{ selectedDeliveryOption.option }} · {{ selectedDeliveryOption.deliveryTime }}</p>
           <h6 class="fw-bold">Payment:</h6>
           <p class="text-muted">{{ paymentMethod.replace('_', ' ') }}</p>
           <div *ngIf="orderError" class="alert alert-warning small py-2">{{ orderError }}</div>
           <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary" (click)="step = 2">← Back</button>
+            <button class="btn btn-outline-secondary" (click)="step = 3">← Back</button>
             <button class="btn btn-warning flex-grow-1 fw-bold" (click)="placeOrder()" [disabled]="placing">
               <span *ngIf="placing" class="spinner-border spinner-border-sm me-2"></span>
               Place Order
@@ -79,14 +108,14 @@
           <!-- Items -->
           <div *ngFor="let e of cart.entries" class="d-flex justify-content-between mb-2 small">
             <span>{{ e.productName }} × {{ e.quantity }}</span>
-            <span>₹{{ e.lineTotal | number:'1.2-2' }}</span>
+            <span>$ {{ e.lineTotal | number:'1.2-2' }}</span>
           </div>
           <hr>
           
           <!-- Subtotal -->
           <div class="d-flex justify-content-between mb-2">
             <span>Subtotal ({{ cart.totalItems }} items)</span>
-            <span>₹{{ cart.subtotal | number:'1.2-2' }}</span>
+            <span>$ {{ cart.subtotal | number:'1.2-2' }}</span>
           </div>
 
           <!-- Discount (if applied) -->
@@ -96,13 +125,13 @@
               <i class="bi bi-tag-fill me-1"></i>
               Discount ({{ cart.appliedPromoCode }})
             </span>
-            <span>-₹{{ cart.discountAmount | number:'1.2-2' }}</span>
+            <span>-$ {{ cart.discountAmount | number:'1.2-2' }}</span>
           </div>
 
           <!-- Shipping -->
           <div class="d-flex justify-content-between mb-2">
-            <span>Shipping</span>
-            <span class="text-success">Free</span>
+            <span>Delivery</span>
+            <span [ngClass]="{ 'text-success': shippingCost === 0, 'text-muted': shippingCost !== 0 }">{{ shippingCost === 0 ? 'Free' : '$ ' + (shippingCost | number:'1.2-2') }}</span>
           </div>
 
           <hr>
@@ -110,7 +139,7 @@
           <!-- Total -->
           <div class="d-flex justify-content-between fw-bold fs-5">
             <span>Total</span>
-            <span>₹{{ cart.totalPrice | number:'1.2-2' }}</span>
+            <span>$ {{ orderTotal | number:'1.2-2' }}</span>
           </div>
 
           <!-- Applied Promo Code Badge (if any) -->
