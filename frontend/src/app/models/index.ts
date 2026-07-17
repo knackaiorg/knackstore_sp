@@ -49,6 +49,19 @@ export interface Address {
   country: string;
   phone: string;
 }
+
+// Multi-Address Book: a saved entry in a customer's "My Addresses" list.
+// Deliberately separate from Address above -- that plain shape is also used
+// for an Order's frozen deliveryAddress snapshot and the checkout form, which
+// have neither an id nor a default flag.
+export interface SavedAddress extends Address {
+  id: number;
+  defaultAddress: boolean;
+}
+
+export interface SaveAddressRequest extends Address {
+  makeDefault?: boolean;
+}
 // ---- Notifications ----
 export interface StockNotificationItem {
   id: number;
@@ -113,6 +126,7 @@ export interface Product {
   lowStockThreshold: number;
   category: ProductCategory;
   variants: ProductVariant[];
+  keySpec?: string;
 }
 
 export interface SubmitProductReviewRequest {
@@ -127,6 +141,19 @@ export interface ProductReview {
   comment?: string;
   reviewerName: string;
   createdAt: string;
+  helpfulCount?: number;
+}
+
+// Backend returns reviews wrapped with aggregate stats, not a bare array.
+export interface ProductReviewListResponse {
+  reviews: ProductReview[];
+  totalCount: number;
+  averageRating: number;
+  ratingBreakdown?: Record<number, number>;
+}
+
+export interface ReviewEligibility {
+  alreadyReviewed: boolean;
 }
 
 export interface ProductQuestion {
@@ -154,6 +181,13 @@ export interface SubmitProductQuestionRequest {
 
 export interface SubmitProductAnswerRequest {
   answer: string;
+}
+
+// ---- Product Comparison ----
+export interface ComparisonResponse {
+  products: Product[];
+  notFoundIds: number[];
+  maxCompareItems: number;
 }
 
 // ---- Cart ----
@@ -207,6 +241,7 @@ export interface Wishlist {
   id: number;
   totalItems: number;
   entries: WishlistEntry[];
+  stockAlertEnrolled?: boolean;
 }
 
 export interface ToggleWishlistEntryRequest {
@@ -232,6 +267,7 @@ export interface DeliveryOption {
   isDefault: boolean;
 }
 
+
 export interface Order {
   id: number;
   orderCode: string;
@@ -246,6 +282,14 @@ export interface Order {
   deliveryDate?: string;
   deliveryAddress: Address;
   entries: OrderEntry[];
+}
+
+export interface ReorderResponse {
+  success: boolean;
+  message: string;
+  updatedCart: Cart;
+  itemsAdded: number;
+  itemsUnavailable: number;
 }
 
 export interface PlaceOrderRequest {
