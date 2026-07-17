@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Cart } from '../../models';
+import { Cart, DeliveryOption } from '../../models';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { CustomerService } from '../../core/services/customer.service';
@@ -13,6 +13,10 @@ export class CheckoutComponent implements OnInit {
   paymentMethod = 'CREDIT_CARD';
   step = 1;
   placing = false;
+  orderError = '';
+
+  deliveryOptions: DeliveryOption[] = [];
+  selectedDeliveryOption!: DeliveryOption;
 
   constructor(
     private fb: FormBuilder, private cartService: CartService,
@@ -22,6 +26,10 @@ export class CheckoutComponent implements OnInit {
 
   ngOnInit() {
     this.cartService.loadCart().subscribe(c => this.cart = c);
+    this.orderService.getDeliveryOptions().subscribe(options => {
+      this.deliveryOptions = options;
+      this.selectedDeliveryOption = options.find(o => o.isDefault) || options[0];
+    });
     this.addressForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
@@ -42,18 +50,51 @@ export class CheckoutComponent implements OnInit {
     });
   }
 
-  nextStep() { if (this.addressForm.valid) this.step = 2; else this.addressForm.markAllAsTouched(); }
+  nextStep() {
+    if (this.step === 1) {
+      if (this.addressForm.valid) {
+        this.step = 2;
+      } else {
+        this.addressForm.markAllAsTouched();
+      }
+    } else if (this.step === 2) {
+      this.step = 3;
+    }
+  }
 
   placeOrder() {
     this.placing = true;
+    this.orderError = '';
     this.orderService.placeOrder({
       deliveryAddress: this.addressForm.value,
       paymentMethod: this.paymentMethod,
-      orderStatus: 'PENDING'
+      orderStatus: 'PENDING',
+      deliveryOption: this.selectedDeliveryOption
     }).subscribe({
       next: order => this.router.navigate(['/order-confirmation', order.orderCode]),
-      error: () => this.placing = false
+      error: (err) => {
+        this.placing = false;
+        this.orderError = err?.error?.message || 'Unable to place your order right now. Please try again.';
+        if (err?.status === 409) {
+          this.cartService.loadCart().subscribe(c => this.cart = c);
+        }
+      }
     });
+  }
+
+  get shippingCost(): number {
+    if (!this.selectedDeliveryOption) return 0;
+    
+    // Free 2-Day Delivery if subtotal >= $200
+    if (this.cart && this.cart.subtotal >= 200 && this.selectedDeliveryOption.option === '2-Day Delivery') {
+      return 0;
+    }
+    
+    return this.selectedDeliveryOption.cost ?? 0;
+  }
+
+  get orderTotal(): number {
+    return (this.cart?.totalPrice ?? 0) + this.shippingCost;
   }
 
   f(name: string) { return this.addressForm.get(name); }

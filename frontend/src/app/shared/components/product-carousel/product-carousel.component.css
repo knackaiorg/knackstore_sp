@@ -2,6 +2,10 @@
 .carousel-wrapper {
   position: relative;
   outline: none;
+  touch-action: pan-y;
+  -webkit-user-drag: none;
+  user-select: none;
+  overscroll-behavior: contain;
 }
 
 .carousel-wrapper:focus-visible {
@@ -14,6 +18,7 @@
 .carousel-track-container {
   overflow: hidden;
   border-radius: 8px;
+  margin-bottom: 1rem;
 }
 
 .carousel-track {
@@ -30,6 +35,41 @@
 
 .carousel-item-inner {
   height: 100%;
+}
+
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0.5rem;
+  padding: 0;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #c7d2fe;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.carousel-dot:hover {
+  background: #93c5fd;
+  transform: scale(1.05);
+}
+
+.carousel-dot.active {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+.carousel-dot:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.25);
+  outline-offset: 2px;
 }
 
 /* ===== Navigation Arrows ===== */

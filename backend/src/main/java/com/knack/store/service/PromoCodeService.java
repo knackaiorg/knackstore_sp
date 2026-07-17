@@ -45,9 +45,9 @@ public class PromoCodeService {
         // Check minimum order amount
         if (promoCode.getMinimumOrderAmount() != null && cartSubtotal < promoCode.getMinimumOrderAmount()) {
             return PromoCodeDTO.ApplyResponse.builder()
-                    .success(false)
-                    .message(String.format("This code requires a minimum cart value of ₹%.2f", promoCode.getMinimumOrderAmount()))
-                    .build();
+                .success(false)
+                .message(String.format("This code requires a minimum cart value of ₹%.2f", promoCode.getMinimumOrderAmount()))
+                .build();
         }
 
         // Calculate discount

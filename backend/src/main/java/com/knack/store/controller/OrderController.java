@@ -2,6 +2,7 @@ package com.knack.store.controller;
 
 import com.knack.store.dto.OrderDTO;
 import com.knack.store.dto.ReorderDTO;
+import com.knack.store.dto.DeliveryOptionDTO;
 import com.knack.store.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,5 +53,11 @@ public class OrderController {
         ReorderDTO.ReorderRequest request = new ReorderDTO.ReorderRequest();
         request.setOrderCode(orderCode);
         return ResponseEntity.ok(orderService.reorder(user.getUsername(), request));
+    }
+
+    @GetMapping("/delivery-options")
+    @Operation(summary = "Get delivery options", description = "Returns all available delivery options for checkout.")
+    public ResponseEntity<List<DeliveryOptionDTO>> getDeliveryOptions() {
+        return ResponseEntity.ok(orderService.getDeliveryOptions());
     }
 }

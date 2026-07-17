@@ -3,6 +3,7 @@ package com.knack.store.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,8 @@ public class Order {
     private Double discountAmount;
 
     private Double totalPrice;
+
+    private LocalDate deliveryDate;
 
     private String paymentMethod;
 

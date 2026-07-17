@@ -21,3 +21,12 @@
   border-color: #dc3545;
   background: #fff5f6;
 }
+
+.compare-check .form-check-input {
+  cursor: pointer;
+}
+
+.compare-check .form-check-label {
+  cursor: pointer;
+  user-select: none;
+}

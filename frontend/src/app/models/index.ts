@@ -87,6 +87,7 @@ export interface ProductVariant {
   storage: string;
   price: number;
   stock: number;
+  availableStock: number;
 }
 
 export interface ProductCategory {
@@ -108,6 +109,8 @@ export interface Product {
   averageRating: number;
   reviewCount: number;
   stockQuantity: number;
+  availableQuantity: number;
+  lowStockThreshold: number;
   category: ProductCategory;
   variants: ProductVariant[];
 }
@@ -166,6 +169,8 @@ export interface CartEntry {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  reservedUntil: string | null;
+  validForCheckout: boolean;
 }
 
 export interface Cart {
@@ -220,6 +225,13 @@ export interface OrderEntry {
   totalPrice: number;
 }
 
+export interface DeliveryOption {
+  option: string;
+  deliveryTime: string;
+  cost: number;
+  isDefault: boolean;
+}
+
 export interface Order {
   id: number;
   orderCode: string;
@@ -231,6 +243,7 @@ export interface Order {
   paymentMethod: string;
   trackingNumber: string;
   placedDate: string;
+  deliveryDate?: string;
   deliveryAddress: Address;
   entries: OrderEntry[];
 }
@@ -239,6 +252,7 @@ export interface PlaceOrderRequest {
   deliveryAddress: Address;
   paymentMethod: string;
   orderStatus: string;
+  deliveryOption?: DeliveryOption;
 }
 
 // ---- Customer ----

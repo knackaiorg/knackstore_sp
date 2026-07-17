@@ -4,6 +4,8 @@ import com.knack.store.dto.AddressDTO;
 import com.knack.store.dto.CartDTO;
 import com.knack.store.dto.OrderDTO;
 import com.knack.store.dto.ReorderDTO;
+import com.knack.store.dto.DeliveryOptionDTO;
+import com.knack.store.exception.InsufficientStockException;
 import com.knack.store.model.*;
 import com.knack.store.repository.CustomerRepository;
 import com.knack.store.repository.OrderRepository;
@@ -13,7 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,6 +31,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final CartService cartService;
     private final ProductRepository productRepository;
+    private final StockService stockService;
 
     @Transactional
     public OrderDTO placeOrder(String email, OrderDTO.PlaceOrderRequest request) {
@@ -35,6 +40,26 @@ public class OrderService {
 
         Cart cart = cartService.getOrCreateCart(email);
         if (cart.getEntries().isEmpty()) throw new RuntimeException("Cart is empty");
+
+        if (cart.getEntries().stream().anyMatch(e -> !e.isValidForCheckout())) {
+            throw new InsufficientStockException(
+                    "Something has changed in your cart. Please remove and re-add the highlighted products before checking out.");
+        }
+
+        // Commit each line's inventory hold into a permanent deduction, product-id order avoids lock-order deadlocks.
+        // If a hold already expired, this re-validates availability and fails fast with a clear "sold out" message.
+        cart.getEntries().stream()
+                .sorted(Comparator.comparing(e -> e.getProduct().getId()))
+                .forEach(e -> {
+                    Product product = stockService.lockProduct(e.getProduct().getId());
+                    ProductVariant variant = e.getVariant() != null
+                            ? product.getVariants().stream()
+                                    .filter(v -> v.getId().equals(e.getVariant().getId()))
+                                    .findFirst().orElse(null)
+                            : null;
+                    boolean holdStillActive = e.getReservedUntil() != null && e.getReservedUntil().isAfter(LocalDateTime.now());
+                    stockService.commitReservation(product, variant, cart.getId(), e.getQuantity(), holdStillActive);
+                });
 
         Address delivery = toAddress(request.getDeliveryAddress());
 
@@ -48,6 +73,21 @@ public class OrderService {
                 .totalPrice(e.getQuantity() * e.getUnitPrice())
                 .build()).collect(Collectors.toList());
 
+        double deliveryCost = 0.0;
+        DeliveryOptionDTO selectedDeliveryOption = request.getDeliveryOption();
+        if (selectedDeliveryOption != null && selectedDeliveryOption.getCost() != null) {
+            deliveryCost = selectedDeliveryOption.getCost();
+        }
+
+        // Free 2-Day Delivery if subtotal >= $200
+        if (cart.getSubtotal() != null && cart.getSubtotal() >= 200.0 && 
+            selectedDeliveryOption != null && "2-Day Delivery".equals(selectedDeliveryOption.getOption())) {
+            deliveryCost = 0.0;
+        }
+
+        LocalDateTime placedDate = LocalDateTime.now();
+        LocalDate expectedDeliveryDate = calculateDeliveryDate(placedDate, selectedDeliveryOption);
+
         Order order = Order.builder()
                 .orderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
                 .customer(customer)
@@ -58,10 +98,11 @@ public class OrderService {
                 .subtotal(cart.getSubtotal())
                 .appliedPromoCode(cart.getAppliedPromoCode())
                 .discountAmount(cart.getDiscountAmount() != null ? cart.getDiscountAmount() : 0.0)
-                .totalPrice(cart.getTotalPrice())
+                .totalPrice(cart.getTotalPrice() + deliveryCost)
+                .deliveryDate(expectedDeliveryDate)
                 .paymentMethod(request.getPaymentMethod())
                 .trackingNumber("TRK-" + UUID.randomUUID().toString().substring(0, 10).toUpperCase())
-                .placedDate(LocalDateTime.now())
+                .placedDate(placedDate)
                 .lastModifiedDate(LocalDateTime.now())
                 .build();
 
@@ -187,6 +228,88 @@ public class OrderService {
         }
     }
 
+    public List<DeliveryOptionDTO> getDeliveryOptions() {
+        return List.of(
+            DeliveryOptionDTO.builder()
+                    .option("Standard Delivery")
+                    .deliveryTime("7–8 days")
+                    .cost(0.0)
+                    .isDefault(true)
+                    .build(),
+            DeliveryOptionDTO.builder()
+                    .option("2-Day Delivery")
+                    .deliveryTime("2 Business Days")
+                    .cost(20.0)
+                    .isDefault(false)
+                    .build(),
+            DeliveryOptionDTO.builder()
+                    .option("Next-Day Delivery")
+                    .deliveryTime("Next Business Day")
+                    .cost(50.0)
+                    .isDefault(false)
+                    .build()
+        );
+    }
+
+    private LocalDate calculateDeliveryDate(LocalDateTime placedDateTime, DeliveryOptionDTO option) {
+        LocalDate placedDate = placedDateTime.toLocalDate();
+        if (option == null || option.getDeliveryTime() == null) {
+            return addBusinessDays(placedDate, 7);
+        }
+        String deliveryTime = option.getDeliveryTime().toLowerCase();
+        // Normalize different dash characters (en-dash, em-dash) to simple hyphen
+        deliveryTime = deliveryTime.replace('\u2013', '-').replace('\u2014', '-');
+        if (deliveryTime.contains("next business day") || deliveryTime.contains("next-day") || deliveryTime.contains("next day")) {
+            // If ordered after 3pm, deliver next-next business day
+            int cutoffHour = 15; // 3pm
+            int businessDaysToAdd = (placedDateTime.getHour() >= cutoffHour) ? 2 : 1;
+            return addBusinessDays(placedDate, businessDaysToAdd);
+        }
+
+        if (deliveryTime.contains("business days")) {
+            // e.g., "2 Business Days" -> add that many business days
+            String digits = deliveryTime.replaceAll("[^0-9]", "");
+            int n = 2;
+            try { n = Integer.parseInt(digits); } catch (Exception e) { n = 2; }
+            return addBusinessDays(placedDate, n);
+        }
+
+        if (deliveryTime.matches(".*\\d+.*days.*")) {
+            // Use the upper bound if a range is provided (handles en-dash/– or hyphen), otherwise use that many days.
+            String digits = deliveryTime.replaceAll("[^0-9\\-]", "");
+            if (digits.contains("-")) {
+                String[] parts = digits.split("-");
+                try {
+                    int upper = Integer.parseInt(parts[1]);
+                    return addBusinessDays(placedDate, upper);
+                } catch (NumberFormatException e) {
+                    return addBusinessDays(placedDate, 7);
+                }
+            }
+            try {
+                int days = Integer.parseInt(digits);
+                return addBusinessDays(placedDate, days);
+            } catch (NumberFormatException e) {
+                return addBusinessDays(placedDate, 7);
+            }
+        }
+
+        return addBusinessDays(placedDate, 7);
+    }
+
+    private LocalDate addBusinessDays(LocalDate startDate, int businessDays) {
+        LocalDate date = startDate;
+        int added = 0;
+        while (added < businessDays) {
+            date = date.plusDays(1);
+            int dow = date.getDayOfWeek().getValue();
+            if (dow >= 1 && dow <= 5) { // Mon-Fri
+                added++;
+            }
+        }
+        return date;
+    }
+
     public OrderDTO toDTO(Order o) {
         return OrderDTO.builder()
                 .id(o.getId())
@@ -199,6 +322,7 @@ public class OrderService {
                 .paymentMethod(o.getPaymentMethod())
                 .trackingNumber(o.getTrackingNumber())
                 .placedDate(o.getPlacedDate())
+                .deliveryDate(o.getDeliveryDate())
                 .deliveryAddress(o.getDeliveryAddress() != null ? toAddressDTO(o.getDeliveryAddress()) : null)
                 .entries(o.getEntries().stream().map(e -> OrderDTO.OrderEntryDTO.builder()
                         .productCode(e.getProductCode())
