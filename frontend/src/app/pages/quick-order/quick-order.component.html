@@ -1,5 +1,5 @@
 <div class="quick-order-container">
-  <h1>Quick Order Tool</h1>
+  <h1>Quick Order</h1>
 
   <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
     <input type="file" (change)="onFileUpload($event)" accept=".csv" class="form-control" style="max-width: 360px;" />
@@ -14,7 +14,6 @@
     <button class="btn btn-success" (click)="addToCart()" [disabled]="isAddingToCart">
       {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
     </button>
-    <span class="text-muted small align-self-center ms-1">Rows: {{ tableData.length }}/100</span>
   </div>
 
   <div *ngIf="successMessage" class="alert alert-success py-2" role="alert">{{ successMessage }}</div>
