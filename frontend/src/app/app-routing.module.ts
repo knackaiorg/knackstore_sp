@@ -16,6 +16,8 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { SavedCartsComponent } from './pages/saved-carts/saved-carts.component';
+import { SavedCartDetailComponent } from './pages/saved-cart-detail/saved-cart-detail.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -29,6 +31,8 @@ const routes: Routes = [
   { path: 'account/orders', component: OrderHistoryComponent, canActivate: [authGuard] },
   { path: 'account/orders/:orderCode', component: OrderDetailComponent, canActivate: [authGuard] },
   { path: 'account/profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'account/saved-carts', component: SavedCartsComponent, canActivate: [authGuard] },
+  { path: 'account/saved-carts/:savedCartId', component: SavedCartDetailComponent, canActivate: [authGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'account/notifications', component: NotificationsComponent, canActivate: [authGuard] },

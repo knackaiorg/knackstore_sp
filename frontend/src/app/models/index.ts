@@ -223,6 +223,54 @@ export interface AddEntryRequest {
   quantity: number;
 }
 
+// ---- Saved Carts ----
+export interface SavedCartSummary {
+  id: number;
+  cartNumber: string;
+  cartName: string;
+  skuCount: number;
+  totalPrice: number;
+  savedAt: string;
+}
+
+export interface SavedCartEntryDetail {
+  entryId: number;
+  productId: number;
+  productCode: string;
+  productName: string;
+  productImageUrl: string;
+  variantId: number | null;
+  variantSku: string | null;
+  variantDescription: string | null;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export interface SavedCartDetail {
+  id: number;
+  cartNumber: string;
+  cartName: string;
+  skuCount: number;
+  totalPrice: number;
+  savedAt: string;
+  entries: SavedCartEntryDetail[];
+}
+
+export interface SaveCartRequest {
+  cartName: string;
+  targetSavedCartId?: number;
+}
+
+export interface AddSavedCartToCartResponse {
+  success: boolean;
+  message: string;
+  itemsAdded: number;
+  itemsUnavailable: number;
+  unavailableItems: string[];
+  updatedCart: Cart;
+}
+
 // ---- Wishlist ----
 export interface WishlistEntry {
   entryId: number;
