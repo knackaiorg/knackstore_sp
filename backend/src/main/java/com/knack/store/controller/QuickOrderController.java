@@ -1,13 +1,18 @@
 package com.knack.store.controller;
 
+import com.knack.store.dto.QuickOrderCsvUploadResponse;
+import com.knack.store.service.QuickOrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,9 +21,40 @@ import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/quick-order")
-public class QuickOrderTemplateController {
+@RequiredArgsConstructor
+@Tag(name = "Quick Order", description = "Bulk/Quick order via CSV upload")
+public class QuickOrderController {
+
+    private final QuickOrderService quickOrderService;
+
+    @PostMapping(value = "/upload-csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload CSV for quick order",
+            description = "Accepts a two-column CSV (SKU, Quantity). Parses and returns a staging list of valid items and errors.")
+    public ResponseEntity<QuickOrderCsvUploadResponse> uploadCsv(
+            @RequestParam("file") MultipartFile file) {
+
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        String filename = file.getOriginalFilename();
+        if (filename == null || !filename.toLowerCase().endsWith(".csv")) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        QuickOrderCsvUploadResponse response = quickOrderService.processCsvUpload(file);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/staging/{sessionId}")
+    @Operation(summary = "Get staging list", description = "Retrieve the staging list for a given upload session.")
+    public ResponseEntity<QuickOrderCsvUploadResponse> getStagingList(
+            @PathVariable String sessionId) {
+        return ResponseEntity.ok(quickOrderService.getStagingList(sessionId));
+    }
 
     @GetMapping("/download-template")
+    @Operation(summary = "Download CSV template", description = "Download a sample CSV template for quick order.")
     public ResponseEntity<byte[]> downloadTemplate() {
         try {
             Resource resource = new ClassPathResource("files/QuickOrder_Template.csv");
