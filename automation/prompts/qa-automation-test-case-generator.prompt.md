@@ -24,8 +24,8 @@ Analyze the provided **User Story / Requirements Input** and deliver a comprehen
 
 ### 2. Technical Context & Constraints (Optional)
 
-- **Application Type**: [e.g., Web UI, Mobile, REST API, Hybrid]
-- **Known Automation Blockers**: [e.g., CAPTCHA, 3rd Party Payment Gateways, OTP/2FA, Dynamic Canvas Elements]
+- **Application Type**: E Commerce Web Application
+- **Technology Stack**: Node.js Angular Frontend, Java Spring Boot Backend
 
 ---
 
