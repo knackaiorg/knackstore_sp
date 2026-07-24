@@ -52,6 +52,21 @@ export interface AddAllToCartResponse {
   }>;
 }
 
+export interface QuickOrderSearchResult {
+  productId: number;
+  skuCode: string;
+  productName: string;
+  brand: string;
+  imageUrl: string;
+  price: number;
+  availableStock: number;
+  inStock: boolean;
+}
+
+export interface QuickOrderSearchResponse {
+  results: QuickOrderSearchResult[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class QuickOrderService {
   private apiUrl = environment.apiUrl;
@@ -70,5 +85,11 @@ export class QuickOrderService {
 
   addAllToCart(sessionId: string): Observable<AddAllToCartResponse> {
     return this.http.post<AddAllToCartResponse>(`${this.apiUrl}/quick-order/add-all-to-cart/${encodeURIComponent(sessionId)}`, {});
+  }
+
+  searchProducts(query: string): Observable<QuickOrderSearchResponse> {
+    return this.http.get<QuickOrderSearchResponse>(`${this.apiUrl}/quick-order/search`, {
+      params: { q: query }
+    });
   }
 }

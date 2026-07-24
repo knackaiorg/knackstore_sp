@@ -11,3 +11,12 @@
 .quick-order-container input[type="file"] {
   margin-bottom: 12px;
 }
+
+.search-result-panel {
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(100% + 2px);
+  max-height: 220px;
+  overflow-y: auto;
+}

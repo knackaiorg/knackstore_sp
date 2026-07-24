@@ -8,28 +8,74 @@
     </button>
   </div>
 
-  <div class="d-flex gap-2 mb-3" *ngIf="tableData.length">
+  <div class="d-flex gap-2 mb-3">
     <button class="btn btn-outline-secondary" (click)="resetTable()">Reset</button>
+    <button class="btn btn-outline-primary" (click)="addRow()" [disabled]="!canAddRow">Add Row</button>
     <button class="btn btn-success" (click)="addToCart()" [disabled]="isAddingToCart">
       {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
     </button>
+    <span class="text-muted small align-self-center ms-1">Rows: {{ tableData.length }}/100</span>
   </div>
 
   <div *ngIf="successMessage" class="alert alert-success py-2" role="alert">{{ successMessage }}</div>
   <div *ngIf="errorMessage" class="alert alert-danger py-2" role="alert">{{ errorMessage }}</div>
+  <div *ngIf="uploadErrors.length" class="alert alert-warning py-2" role="alert">
+    <div class="fw-semibold mb-1">Row-level validation details:</div>
+    <ul class="mb-0 ps-3">
+      <li *ngFor="let item of uploadErrors">
+        <strong>{{ item.skuCode || ('Row ' + item.rowNumber) }}:</strong> {{ item.message }}
+      </li>
+    </ul>
+  </div>
 
-  <table class="table table-striped mt-3" *ngIf="tableData.length">
+  <table class="table table-striped mt-3">
     <thead>
       <tr>
         <th>SKU</th>
-        <th>Quantity</th>
+        <th style="width: 140px;">Quantity</th>
         <th class="text-center" style="width: 90px;">Action</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let row of tableData; let i = index">
-        <td>{{ row.sku }}</td>
-        <td>{{ row.quantity }}</td>
+      <tr *ngFor="let row of tableData; let i = index; trackBy: trackByIndex">
+        <td class="position-relative">
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="row.sku"
+            (input)="onSkuInput(i)"
+            (blur)="clearSearchResults(i)"
+            [attr.list]="'sku-options-' + i"
+            placeholder="Enter SKU" />
+          <datalist [id]="'sku-options-' + i">
+            <option *ngFor="let result of row.searchResults" [value]="result.skuCode">
+              {{ result.productName }} (Stock: {{ result.availableStock }})
+            </option>
+          </datalist>
+
+          <div *ngIf="row.searchResults.length" class="list-group position-absolute search-result-panel">
+            <button
+              type="button"
+              class="list-group-item list-group-item-action"
+              *ngFor="let result of row.searchResults"
+              (mousedown)="useSearchResult(i, result)">
+              <div class="d-flex justify-content-between">
+                <span>{{ result.skuCode }} — {{ result.productName }}</span>
+                <span [class.text-danger]="!result.inStock">{{ result.inStock ? 'In stock' : 'Out of stock' }}</span>
+              </div>
+            </button>
+          </div>
+        </td>
+        <td>
+          <input
+            type="number"
+            class="form-control"
+            min="1"
+            step="1"
+            [(ngModel)]="row.quantity"
+            (ngModelChange)="onQuantityInput(i)"
+            placeholder="Qty" />
+        </td>
         <td class="text-center">
           <button
             type="button"
