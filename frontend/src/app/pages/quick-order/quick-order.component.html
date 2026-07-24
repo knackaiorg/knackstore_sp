@@ -1,0 +1,22 @@
+<div class="quick-order-container">
+  <h1>Quick Order Tool</h1>
+
+  <input type="file" (change)="onFileUpload($event)" accept=".csv" />
+
+  <table class="table table-striped mt-3" *ngIf="tableData.length">
+    <thead>
+      <tr>
+        <th>SKU</th>
+        <th>Quantity</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of tableData">
+        <td>{{ row.sku }}</td>
+        <td>{{ row.quantity }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button class="btn btn-primary mt-3" (click)="downloadCsv()">Download CSV</button>
+</div>
