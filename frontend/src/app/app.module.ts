@@ -31,6 +31,7 @@ import { ProductCarouselComponent } from './shared/components/product-carousel/p
 import { PromoCodeComponent } from './shared/components/promo-code/promo-code.component';
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
+import { SavedCartsComponent } from './pages/saved-carts/saved-carts.component';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
     ProductCarouselComponent,
     PromoCodeComponent,
     WishlistComponent,
-    NotificationsComponent
+    NotificationsComponent,
+    SavedCartsComponent
   ],
   imports: [
     BrowserModule,

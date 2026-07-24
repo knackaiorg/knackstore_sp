@@ -223,6 +223,31 @@ export interface AddEntryRequest {
   quantity: number;
 }
 
+// ---- Saved Carts ----
+export interface SavedCartEntry {
+  entryId: number;
+  productId: number;
+  productCode: string;
+  productName: string;
+  productImageUrl: string;
+  variantId: number | null;
+  variantSku: string | null;
+  variantDescription: string | null;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export interface SavedCart {
+  id: number;
+  cartNumber: string;
+  skuCount: number;
+  totalPrice: number;
+  createdAt: string;
+  message?: string;
+  entries: SavedCartEntry[];
+}
+
 // ---- Wishlist ----
 export interface WishlistEntry {
   entryId: number;
