@@ -301,10 +301,27 @@ export interface PlaceOrderRequest {
 
 // ---- Customer ----
 export interface Customer {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  defaultAddress: Address;
+	id: number;
+	email: string;
+	firstName: string;
+	lastName: string;
+	phone: string;
+	defaultAddress: Address;
+}
+
+// ---- Return Request ----
+export interface ReturnRequest {
+	id: number;
+	orderCode: string;
+	status: string;
+	subtotal: number;
+	appliedPromoCode: string | null;
+	discountAmount: number;
+	totalPrice: number;
+	paymentMethod: string;
+	trackingNumber: string;
+	placedDate: string;
+	deliveryDate?: string;
+	deliveryAddress: Address;
+	entries: OrderEntry[];
 }
