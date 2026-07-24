@@ -1,0 +1,13 @@
+.quick-order-container {
+  max-width: 900px;
+  margin: 80px auto 24px;
+  padding: 16px;
+}
+
+.quick-order-container h1 {
+  margin-bottom: 16px;
+}
+
+.quick-order-container input[type="file"] {
+  margin-bottom: 12px;
+}

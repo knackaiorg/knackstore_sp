@@ -1,22 +1,46 @@
 <div class="quick-order-container">
   <h1>Quick Order Tool</h1>
 
-  <input type="file" (change)="onFileUpload($event)" accept=".csv" />
+  <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+    <input type="file" (change)="onFileUpload($event)" accept=".csv" class="form-control" style="max-width: 360px;" />
+    <button class="btn btn-outline-primary" (click)="downloadCsv()" [disabled]="isDownloadingTemplate">
+      {{ isDownloadingTemplate ? 'Downloading...' : 'Download CSV Template' }}
+    </button>
+  </div>
+
+  <div class="d-flex gap-2 mb-3" *ngIf="tableData.length">
+    <button class="btn btn-outline-secondary" (click)="resetTable()">Reset</button>
+    <button class="btn btn-success" (click)="addToCart()" [disabled]="isAddingToCart">
+      {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success py-2" role="alert">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger py-2" role="alert">{{ errorMessage }}</div>
 
   <table class="table table-striped mt-3" *ngIf="tableData.length">
     <thead>
       <tr>
         <th>SKU</th>
         <th>Quantity</th>
+        <th class="text-center" style="width: 90px;">Action</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let row of tableData">
+      <tr *ngFor="let row of tableData; let i = index">
         <td>{{ row.sku }}</td>
         <td>{{ row.quantity }}</td>
+        <td class="text-center">
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-danger"
+            (click)="removeRow(i)"
+            aria-label="Delete row"
+            title="Delete row">
+            🗑️
+          </button>
+        </td>
       </tr>
     </tbody>
   </table>
-
-  <button class="btn btn-primary mt-3" (click)="downloadCsv()">Download CSV</button>
 </div>
