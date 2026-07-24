@@ -2,6 +2,7 @@ package com.knack.store.service;
 
 import com.knack.store.dto.AddAllToCartResponse;
 import com.knack.store.dto.QuickOrderCsvUploadResponse;
+import com.knack.store.dto.QuickOrderSearchResponse;
 import com.knack.store.model.*;
 import com.knack.store.repository.CartRepository;
 import com.knack.store.repository.CustomerRepository;
@@ -286,5 +287,28 @@ public class QuickOrderService {
                 .addedItems(addedItems)
                 .failedItems(failedItems)
                 .build();
+    }
+
+    public QuickOrderSearchResponse searchProducts(String query) {
+        if (query == null || query.trim().length() < 2) {
+            return QuickOrderSearchResponse.builder().results(List.of()).build();
+        }
+
+        List<Product> products = productRepository.findTop10ByNameOrCodeContainingIgnoreCase(query.trim());
+
+        List<QuickOrderSearchResponse.ProductResult> results = products.stream()
+                .map(p -> QuickOrderSearchResponse.ProductResult.builder()
+                        .productId(p.getId())
+                        .skuCode(p.getCode())
+                        .productName(p.getName())
+                        .brand(p.getBrand())
+                        .imageUrl(p.getImageUrl())
+                        .price(p.getBasePrice())
+                        .availableStock(p.getStockQuantity())
+                        .inStock(p.getStockQuantity() > 0)
+                        .build())
+                .toList();
+
+        return QuickOrderSearchResponse.builder().results(results).build();
     }
 }

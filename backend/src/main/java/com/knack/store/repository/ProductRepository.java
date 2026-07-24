@@ -30,6 +30,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findTop10ByNameContainingIgnoreCase(@Param("query") String query);
 
     @Query("""
+           SELECT p FROM Product p
+           WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%'))
+              OR LOWER(p.code) LIKE LOWER(CONCAT('%', :query, '%'))
+           ORDER BY p.name ASC
+           """)
+    List<Product> findTop10ByNameOrCodeContainingIgnoreCase(@Param("query") String query);
+
+    @Query("""
            SELECT DISTINCT p.brand
            FROM Product p
            WHERE LOWER(p.brand) LIKE LOWER(CONCAT('%', :query, '%'))

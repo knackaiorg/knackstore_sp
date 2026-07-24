@@ -2,6 +2,7 @@ package com.knack.store.controller;
 
 import com.knack.store.dto.AddAllToCartResponse;
 import com.knack.store.dto.QuickOrderCsvUploadResponse;
+import com.knack.store.dto.QuickOrderSearchResponse;
 import com.knack.store.service.QuickOrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -65,6 +66,13 @@ public class QuickOrderController {
             @PathVariable String sessionId) {
         AddAllToCartResponse response = quickOrderService.addAllToCart(sessionId, user.getUsername());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search products for quick order",
+            description = "Auto-complete search by product name or SKU. Returns stock status so out-of-stock items can be blocked from selection.")
+    public ResponseEntity<QuickOrderSearchResponse> searchProducts(@RequestParam("q") String query) {
+        return ResponseEntity.ok(quickOrderService.searchProducts(query));
     }
 
     @GetMapping("/download-template")
