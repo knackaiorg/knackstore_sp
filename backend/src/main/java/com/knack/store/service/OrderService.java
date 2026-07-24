@@ -93,8 +93,7 @@ public class OrderService {
                 .customer(customer)
                 .entries(entries)
                 .deliveryAddress(delivery)
-                .status(request.getOrderStatus())
-                .status("PLACED")
+                .status("PENDING")
                 .subtotal(cart.getSubtotal())
                 .appliedPromoCode(cart.getAppliedPromoCode())
                 .discountAmount(cart.getDiscountAmount() != null ? cart.getDiscountAmount() : 0.0)
@@ -124,6 +123,32 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
         if (!order.getCustomer().getEmail().equals(email)) throw new RuntimeException("Access denied");
         return toDTO(order);
+    }
+
+    @Transactional
+    public OrderDTO cancelOrder(String email, String orderCode, String reason) {
+        Order order = orderRepository.findByOrderCode(orderCode)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+        if (!order.getCustomer().getEmail().equals(email)) {
+            throw new RuntimeException("Access denied");
+        }
+
+        if (reason == null || reason.trim().isEmpty()) {
+            throw new IllegalArgumentException("Cancellation reason is required");
+        }
+
+        String currentStatus = order.getStatus();
+        if (!"PENDING".equalsIgnoreCase(currentStatus) && !"CONFIRMED".equalsIgnoreCase(currentStatus)) {
+            throw new IllegalStateException(
+                    "Order cannot be cancelled. Only orders with status PENDING or CONFIRMED can be cancelled. Current status: " + currentStatus);
+        }
+
+        order.setStatus("CANCELLED");
+        order.setCancellationReason(reason.trim());
+        order.setLastModifiedDate(LocalDateTime.now());
+        Order saved = orderRepository.save(order);
+        log.info("Order {} cancelled by {}. Reason: {}", orderCode, email, reason);
+        return toDTO(saved);
     }
 
     /**
@@ -323,6 +348,8 @@ public class OrderService {
                 .trackingNumber(o.getTrackingNumber())
                 .placedDate(o.getPlacedDate())
                 .deliveryDate(o.getDeliveryDate())
+                .cancellationReason(o.getCancellationReason())
+                .lastModifiedDate(o.getLastModifiedDate())
                 .deliveryAddress(o.getDeliveryAddress() != null ? toAddressDTO(o.getDeliveryAddress()) : null)
                 .entries(o.getEntries().stream().map(e -> OrderDTO.OrderEntryDTO.builder()
                         .productCode(e.getProductCode())
