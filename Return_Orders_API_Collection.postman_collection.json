@@ -1,0 +1,509 @@
+{
+  "info": {
+    "_postman_id": "return-orders-api-collection",
+    "name": "Return Orders API Collection",
+    "description": "Comprehensive API collection for Return Orders management - includes customer and admin endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Customer Endpoints",
+      "item": [
+        {
+          "name": "Create Return Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200 || pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('returnCode', jsonData.returnCode);",
+                  "    pm.test('Return order created successfully', function () {",
+                  "        pm.expect(jsonData.success).to.be.true;",
+                  "        pm.expect(jsonData.returnCode).to.exist;",
+                  "        pm.expect(jsonData.estimatedRefund).to.be.a('number');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderCode\": \"ORD-001\",\n  \"returnType\": \"FULL\",\n  \"returnReason\": \"DEFECT_PRODUCT\",\n  \"returnTrackingNumber\": \"TRACK-123456\",\n  \"returnEntries\": [\n    {\n      \"orderEntryId\": 1,\n      \"quantityToReturn\": 1,\n      \"itemCondition\": \"UNOPENED\",\n      \"notes\": \"Product arrived with defects\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/create?email={{customerEmail}}",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "create"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{customerEmail}}"
+                }
+              ]
+            },
+            "description": "Create a return request for an order. Customer can return the full order or selected items if eligible.\n\nReturn Reasons:\n- DEFECT_PRODUCT: Product is defective (auto-completes without admin approval)\n- NOT_AS_DESCRIBED: Item not as described in listing\n- CHANGED_MIND: Customer changed their mind\n- NO_LONGER_NEEDED: No longer needed\n- WRONG_ITEM_RECEIVED: Received wrong item\n- DAMAGED_IN_SHIPPING: Item damaged during shipping\n- OTHER: Other reason\n\nReturn Type: FULL or PARTIAL\nItem Condition: UNOPENED, OPENED, USED, DAMAGED, OTHER"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Return Orders",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully retrieved return orders', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/my-returns?email={{customerEmail}}",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "my-returns"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{customerEmail}}"
+                }
+              ]
+            },
+            "description": "Get all return orders for the current customer"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Return Order Details",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully retrieved return order details', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.returnCode).to.exist;",
+                  "    pm.expect(jsonData.status).to.exist;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/{{returnCode}}?email={{customerEmail}}",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "{{returnCode}}"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{customerEmail}}"
+                }
+              ]
+            },
+            "description": "Get details of a specific return order. Use the returnCode from the create response or from the my-returns list."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Return Orders for Specific Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully retrieved return orders for order', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/order/{{orderCode}}?email={{customerEmail}}",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "order",
+                "{{orderCode}}"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{customerEmail}}"
+                }
+              ]
+            },
+            "description": "Get all return orders for a specific order code"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Endpoints - Return Processing",
+      "item": [
+        {
+          "name": "Process Return (Approve/Reject)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Return processed successfully', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.be.oneOf(['APPROVED', 'REJECTED', 'COMPLETED']);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"adminNotes\": \"Return approved after inspection\",\n  \"refundAmount\": 99.99\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/{{returnCode}}/process",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "{{returnCode}}",
+                "process"
+              ]
+            },
+            "description": "Process a return order (approve or reject) - ADMIN ENDPOINT\n\nSpecial Logic for DEFECT_PRODUCT:\n- If return reason is \"DEFECT_PRODUCT\" and status is \"APPROVED\"\n- Status automatically changes to \"COMPLETED\" (no admin approval needed)\n- Items automatically marked as received\n- Ready for immediate refund processing\n\nStatus Options: APPROVED, REJECTED"
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Items Received",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Items marked as received', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.itemsReceived).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemsReceived\": true,\n  \"notes\": \"Items received and inspected - in good condition\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/{{returnCode}}/mark-received",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "{{returnCode}}",
+                "mark-received"
+              ]
+            },
+            "description": "Mark returned items as received - ADMIN ENDPOINT"
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Return",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Return completed successfully', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.equal('COMPLETED');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/{{returnCode}}/complete",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "{{returnCode}}",
+                "complete"
+              ]
+            },
+            "description": "Complete a return and mark ready for refund processing - ADMIN ENDPOINT"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Endpoints - Refund Management",
+      "item": [
+        {
+          "name": "Get Refund-Eligible Returns",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully retrieved refund-eligible returns', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/admin/refund-eligible",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "admin",
+                "refund-eligible"
+              ]
+            },
+            "description": "Get all return orders eligible for refund processing - ADMIN ENDPOINT\n\nFetches all return orders that are:\n- Status = COMPLETED\n- Items received = true\n- Not already REFUNDED"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Refunded Returns",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Successfully retrieved refunded returns', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(Array.isArray(jsonData)).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/admin/refunded",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "admin",
+                "refunded"
+              ]
+            },
+            "description": "Get all refunded return orders - ADMIN ENDPOINT"
+          },
+          "response": []
+        },
+        {
+          "name": "Process Refunds for All Eligible Returns",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Refunds processed successfully', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/admin/process-refunds",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "admin",
+                "process-refunds"
+              ]
+            },
+            "description": "Process refunds for all eligible return orders - ADMIN ENDPOINT\n\nThis endpoint:\n1. Finds all COMPLETED returns with items received\n2. Updates their status to REFUNDED\n3. Records processing timestamps\n4. Returns summary of processed refunds"
+          },
+          "response": []
+        },
+        {
+          "name": "Process Refund for Specific Return",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Refund processed successfully for specific return', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.equal('REFUNDED');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/return-orders/{{returnCode}}/process-refund",
+              "protocol": "http",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "return-orders",
+                "{{returnCode}}",
+                "process-refund"
+              ]
+            },
+            "description": "Process refund for a specific return order - ADMIN ENDPOINT"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "customerEmail",
+      "value": "customer@example.com",
+      "type": "string"
+    },
+    {
+      "key": "orderCode",
+      "value": "ORD-001",
+      "type": "string"
+    },
+    {
+      "key": "returnCode",
+      "value": "RET-001",
+      "type": "string"
+    }
+  ]
+}
+

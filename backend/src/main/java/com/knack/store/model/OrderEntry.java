@@ -26,4 +26,5 @@ public class OrderEntry {
     private int quantity;
     private Double unitPrice;
     private Double totalPrice;
+    private Boolean eligibleForReturn;
 }

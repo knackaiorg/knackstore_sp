@@ -34,7 +34,7 @@ public class Order {
     @Embedded
     private Address deliveryAddress;
 
-    private String status; // PLACED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+    private String status; // PLACED, PROCESSING, SHIPPED, DELIVERED, CANCELLED, ReturnRequested
 
     private Double subtotal;
 
@@ -53,4 +53,8 @@ public class Order {
     private LocalDateTime placedDate;
 
     private LocalDateTime lastModifiedDate;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<ReturnOrder> returnOrders = new ArrayList<>();
 }

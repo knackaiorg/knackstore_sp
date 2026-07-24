@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/products/**").permitAll()
                         .requestMatchers("/api/recommendations/**").permitAll()
-						.requestMatchers("/api/search/**").permitAll()
+					.requestMatchers("/api/search/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/orders/delivery-options").permitAll()
@@ -51,6 +51,10 @@ public class SecurityConfig {
                         .requestMatchers("/notify_me").permitAll()
                         .requestMatchers("/fetch_all_notifications").permitAll()
                         .requestMatchers("/delete_notification").permitAll()
+                        // Admin API endpoints - no authorization required
+                        .requestMatchers("/api/return-orders/admin/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/return-orders/*").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/return-orders/*/process-refund").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",

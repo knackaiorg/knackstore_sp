@@ -22,6 +22,7 @@ public class OrderDTO {
     private LocalDate deliveryDate;
     private AddressDTO deliveryAddress;
     private List<OrderEntryDTO> entries;
+    private Boolean eligibleForReturn;
 
     @Data
     @Builder
@@ -33,6 +34,7 @@ public class OrderDTO {
         private int quantity;
         private Double unitPrice;
         private Double totalPrice;
+        private Boolean eligibleForReturn;
     }
 
     @Data
