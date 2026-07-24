@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/notify_me").permitAll()
                         .requestMatchers("/api/fetch_all_notifications").permitAll()
                         .requestMatchers("/api/delete_notification").permitAll()
+                        .requestMatchers("/api/quick-order/**").permitAll()
                         // also permit the endpoints without the /api prefix (controller was moved to root)
                         .requestMatchers("/notify_me").permitAll()
                         .requestMatchers("/fetch_all_notifications").permitAll()
