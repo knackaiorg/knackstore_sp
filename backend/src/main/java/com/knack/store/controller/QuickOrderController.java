@@ -1,5 +1,6 @@
 package com.knack.store.controller;
 
+import com.knack.store.dto.AddAllToCartResponse;
 import com.knack.store.dto.QuickOrderCsvUploadResponse;
 import com.knack.store.service.QuickOrderService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,6 +54,17 @@ public class QuickOrderController {
     public ResponseEntity<QuickOrderCsvUploadResponse> getStagingList(
             @PathVariable String sessionId) {
         return ResponseEntity.ok(quickOrderService.getStagingList(sessionId));
+    }
+
+    @PostMapping("/add-all-to-cart/{sessionId}")
+    @Operation(summary = "Add all staging items to cart",
+            description = "Re-verifies stock for all staging items and adds valid ones to the customer's cart. " +
+                    "Items that went out of stock remain in the staging list with an error message.")
+    public ResponseEntity<AddAllToCartResponse> addAllToCart(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable String sessionId) {
+        AddAllToCartResponse response = quickOrderService.addAllToCart(sessionId, user.getUsername());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/download-template")

@@ -1,8 +1,10 @@
 package com.knack.store.service;
 
+import com.knack.store.dto.AddAllToCartResponse;
 import com.knack.store.dto.QuickOrderCsvUploadResponse;
-import com.knack.store.model.Product;
-import com.knack.store.model.QuickOrderEntry;
+import com.knack.store.model.*;
+import com.knack.store.repository.CartRepository;
+import com.knack.store.repository.CustomerRepository;
 import com.knack.store.repository.ProductRepository;
 import com.knack.store.repository.QuickOrderEntryRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +27,9 @@ public class QuickOrderService {
 
     private final ProductRepository productRepository;
     private final QuickOrderEntryRepository quickOrderEntryRepository;
+    private final CartRepository cartRepository;
+    private final CustomerRepository customerRepository;
+    private final StockService stockService;
 
     @Transactional
     public QuickOrderCsvUploadResponse processCsvUpload(MultipartFile file) {
@@ -163,6 +169,122 @@ public class QuickOrderService {
                 .errorCount(0)
                 .stagingItems(items)
                 .errors(List.of())
+                .build();
+    }
+
+    @Transactional
+    public AddAllToCartResponse addAllToCart(String sessionId, String customerEmail) {
+        List<QuickOrderEntry> stagingEntries = quickOrderEntryRepository.findBySessionId(sessionId);
+        if (stagingEntries.isEmpty()) {
+            throw new RuntimeException("No staging entries found for session: " + sessionId);
+        }
+
+        Customer customer = customerRepository.findByEmail(customerEmail)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        Cart cart = cartRepository.findByCustomerId(customer.getId())
+                .orElseGet(() -> {
+                    Cart c = Cart.builder().customer(customer).build();
+                    return cartRepository.save(c);
+                });
+
+        List<AddAllToCartResponse.AddedItem> addedItems = new ArrayList<>();
+        List<AddAllToCartResponse.FailedItem> failedItems = new ArrayList<>();
+        List<QuickOrderEntry> toRemoveFromStaging = new ArrayList<>();
+
+        for (QuickOrderEntry stagingEntry : stagingEntries) {
+            Optional<Product> productOpt = productRepository.findByCode(stagingEntry.getSkuCode());
+
+            if (productOpt.isEmpty()) {
+                failedItems.add(AddAllToCartResponse.FailedItem.builder()
+                        .entryId(stagingEntry.getId())
+                        .skuCode(stagingEntry.getSkuCode())
+                        .productName(stagingEntry.getProductName())
+                        .quantity(stagingEntry.getQuantity())
+                        .reason("NOT_FOUND")
+                        .message("SKU " + stagingEntry.getSkuCode() + " cannot be added because it was not found.")
+                        .build());
+                continue;
+            }
+
+            Product product = productOpt.get();
+
+            // Re-verify stock availability
+            if (product.getStockQuantity() <= 0) {
+                stagingEntry.setValid(false);
+                stagingEntry.setErrorMessage("Out of stock");
+                failedItems.add(AddAllToCartResponse.FailedItem.builder()
+                        .entryId(stagingEntry.getId())
+                        .skuCode(stagingEntry.getSkuCode())
+                        .productName(product.getName())
+                        .quantity(stagingEntry.getQuantity())
+                        .reason("OUT_OF_STOCK")
+                        .message("SKU " + stagingEntry.getSkuCode() + " (" + product.getName() + ") cannot be added because it is out of stock.")
+                        .build());
+                continue;
+            }
+
+            // Check if same product already exists in cart — merge quantities
+            CartEntry existingCartEntry = cart.getEntries().stream()
+                    .filter(e -> e.getProduct().getId().equals(product.getId()) && e.getVariant() == null)
+                    .findFirst().orElse(null);
+
+            boolean merged = false;
+            LocalDateTime holdUntil = LocalDateTime.now().plusMinutes(StockService.RESERVATION_HOLD_MINUTES);
+
+            if (existingCartEntry != null) {
+                int newQty = existingCartEntry.getQuantity() + stagingEntry.getQuantity();
+                existingCartEntry.setQuantity(newQty);
+                existingCartEntry.setReservedUntil(holdUntil);
+                existingCartEntry.setValidForCheckout(true);
+                merged = true;
+            } else {
+                CartEntry newEntry = CartEntry.builder()
+                        .cart(cart)
+                        .product(product)
+                        .variant(null)
+                        .quantity(stagingEntry.getQuantity())
+                        .unitPrice(product.getBasePrice())
+                        .reservedUntil(holdUntil)
+                        .build();
+                cart.getEntries().add(newEntry);
+            }
+
+            addedItems.add(AddAllToCartResponse.AddedItem.builder()
+                    .entryId(stagingEntry.getId())
+                    .skuCode(stagingEntry.getSkuCode())
+                    .productName(product.getName())
+                    .quantity(stagingEntry.getQuantity())
+                    .unitPrice(product.getBasePrice())
+                    .mergedWithExisting(merged)
+                    .build());
+
+            toRemoveFromStaging.add(stagingEntry);
+        }
+
+        // Save the updated cart
+        if (!addedItems.isEmpty()) {
+            // Clear promo code when cart is modified
+            if (cart.getAppliedPromoCode() != null) {
+                cart.setAppliedPromoCode(null);
+                cart.setDiscountAmount(0.0);
+            }
+            cartRepository.save(cart);
+        }
+
+        // Remove successfully added entries from staging; keep failed ones
+        quickOrderEntryRepository.deleteAll(toRemoveFromStaging);
+
+        // Update failed entries in staging
+        stagingEntries.stream()
+                .filter(e -> !e.isValid())
+                .forEach(quickOrderEntryRepository::save);
+
+        return AddAllToCartResponse.builder()
+                .totalItems(stagingEntries.size())
+                .addedCount(addedItems.size())
+                .failedCount(failedItems.size())
+                .addedItems(addedItems)
+                .failedItems(failedItems)
                 .build();
     }
 }
