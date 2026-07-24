@@ -8,6 +8,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,7 @@ public class DataInitializer implements CommandLineRunner {
     private final CustomerRepository customerRepository;
     private final CartRepository cartRepository;
     private final PromoCodeRepository promoCodeRepository;
+    private final OrderRepository orderRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -30,6 +32,7 @@ public class DataInitializer implements CommandLineRunner {
         seedProducts();
         seedDemoCustomer();
         seedPromoCodes();
+        seedOrders();
         log.info("Electronics Store data initialised successfully.");
     }
 
@@ -259,5 +262,140 @@ public class DataInitializer implements CommandLineRunner {
 
         promoCodeRepository.saveAll(promoCodes);
         log.info("Seeded {} promo codes", promoCodes.size());
+    }
+
+    private void seedOrders() {
+        if (orderRepository.count() > 0) return;
+
+        Customer demo = customerRepository.findByEmail("demo@knack.com").orElse(null);
+        if (demo == null) return;
+
+        Address deliveryAddress = Address.builder()
+                .firstName("Demo").lastName("User")
+                .line1("123 Tech Park").line2("Block A")
+                .city("Hyderabad").state("Telangana")
+                .postcode("500081").country("India")
+                .phone("+91 9000000000")
+                .build();
+
+        // Order 1 - PENDING
+        Order order1 = Order.builder()
+                .orderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                .customer(demo)
+                .deliveryAddress(deliveryAddress)
+                .status("PENDING")
+                .subtotal(1349.98)
+                .totalPrice(1349.98)
+                .discountAmount(0.0)
+                .paymentMethod("Credit Card")
+                .trackingNumber("TRK-" + UUID.randomUUID().toString().substring(0, 10).toUpperCase())
+                .placedDate(LocalDateTime.now().minusDays(1))
+                .lastModifiedDate(LocalDateTime.now().minusDays(1))
+                .deliveryDate(LocalDate.now().plusDays(7))
+                .build();
+        OrderEntry entry1a = OrderEntry.builder()
+                .productCode("PHONE-001").productName("AlphaPhone Pro 15")
+                .variantSku("PHONE-001-BLK-128").variantDescription("Midnight Black / 128GB")
+                .quantity(1).unitPrice(999.99).totalPrice(999.99).order(order1).build();
+        OrderEntry entry1b = OrderEntry.builder()
+                .productCode("HEAD-001").productName("SoundMax WH-1000XM6")
+                .variantSku("HEAD-001-BLK").variantDescription("Midnight Black")
+                .quantity(1).unitPrice(349.99).totalPrice(349.99).order(order1).build();
+        order1.setEntries(List.of(entry1a, entry1b));
+        orderRepository.save(order1);
+
+        // Order 2 - CONFIRMED
+        Order order2 = Order.builder()
+                .orderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                .customer(demo)
+                .deliveryAddress(deliveryAddress)
+                .status("CONFIRMED")
+                .subtotal(1999.99)
+                .appliedPromoCode("WELCOME10")
+                .discountAmount(200.0)
+                .totalPrice(1799.99)
+                .paymentMethod("Debit Card")
+                .trackingNumber("TRK-" + UUID.randomUUID().toString().substring(0, 10).toUpperCase())
+                .placedDate(LocalDateTime.now().minusDays(3))
+                .lastModifiedDate(LocalDateTime.now().minusDays(2))
+                .deliveryDate(LocalDate.now().plusDays(5))
+                .build();
+        OrderEntry entry2a = OrderEntry.builder()
+                .productCode("LAPTOP-001").productName("UltraBook Pro 14")
+                .variantSku("LAPTOP-001-SPC-18-512").variantDescription("Space Black / 18GB RAM / 512GB SSD")
+                .quantity(1).unitPrice(1999.99).totalPrice(1999.99).order(order2).build();
+        order2.setEntries(List.of(entry2a));
+        orderRepository.save(order2);
+
+        // Order 3 - SHIPPED
+        Order order3 = Order.builder()
+                .orderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                .customer(demo)
+                .deliveryAddress(deliveryAddress)
+                .status("SHIPPED")
+                .subtotal(899.99)
+                .totalPrice(899.99)
+                .discountAmount(0.0)
+                .paymentMethod("UPI")
+                .trackingNumber("TRK-" + UUID.randomUUID().toString().substring(0, 10).toUpperCase())
+                .placedDate(LocalDateTime.now().minusDays(5))
+                .lastModifiedDate(LocalDateTime.now().minusDays(2))
+                .deliveryDate(LocalDate.now().plusDays(2))
+                .build();
+        OrderEntry entry3a = OrderEntry.builder()
+                .productCode("PHONE-002").productName("GalaxyEdge S25")
+                .variantSku("PHONE-002-PHN-256").variantDescription("Phantom Black / 256GB")
+                .quantity(1).unitPrice(899.99).totalPrice(899.99).order(order3).build();
+        order3.setEntries(List.of(entry3a));
+        orderRepository.save(order3);
+
+        // Order 4 - OUT_FOR_DELIVERY
+        Order order4 = Order.builder()
+                .orderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                .customer(demo)
+                .deliveryAddress(deliveryAddress)
+                .status("Out for Delivery")
+                .subtotal(2499.99)
+                .totalPrice(2499.99)
+                .discountAmount(0.0)
+                .paymentMethod("Credit Card")
+                .trackingNumber("TRK-" + UUID.randomUUID().toString().substring(0, 10).toUpperCase())
+                .placedDate(LocalDateTime.now().minusDays(7))
+                .lastModifiedDate(LocalDateTime.now())
+                .deliveryDate(LocalDate.now())
+                .build();
+        OrderEntry entry4a = OrderEntry.builder()
+                .productCode("CAM-001").productName("VisionPro A7 IV")
+                .quantity(1).unitPrice(2499.99).totalPrice(2499.99).order(order4).build();
+        order4.setEntries(List.of(entry4a));
+        orderRepository.save(order4);
+
+        // Order 5 - DELIVERED
+        Order order5 = Order.builder()
+                .orderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                .customer(demo)
+                .deliveryAddress(deliveryAddress)
+                .status("DELIVERED")
+                .subtotal(1349.98)
+                .appliedPromoCode("SAVE20")
+                .discountAmount(270.0)
+                .totalPrice(1079.98)
+                .paymentMethod("Net Banking")
+                .trackingNumber("TRK-" + UUID.randomUUID().toString().substring(0, 10).toUpperCase())
+                .placedDate(LocalDateTime.now().minusDays(14))
+                .lastModifiedDate(LocalDateTime.now().minusDays(7))
+                .deliveryDate(LocalDate.now().minusDays(7))
+                .build();
+        OrderEntry entry5a = OrderEntry.builder()
+                .productCode("TAB-001").productName("SlateBook Pro 12.9")
+                .variantSku("TAB-001-SPC-128").variantDescription("Space Grey / 128GB")
+                .quantity(1).unitPrice(1099.99).totalPrice(1099.99).order(order5).build();
+        OrderEntry entry5b = OrderEntry.builder()
+                .productCode("HEAD-002").productName("AirBuds Pro 2")
+                .quantity(1).unitPrice(249.99).totalPrice(249.99).order(order5).build();
+        order5.setEntries(List.of(entry5a, entry5b));
+        orderRepository.save(order5);
+
+        log.info("Seeded 5 demo orders with statuses: PENDING, CONFIRMED, SHIPPED, OUT_FOR_DELIVERY, DELIVERED");
     }
 }
