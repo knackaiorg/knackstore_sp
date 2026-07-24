@@ -53,8 +53,10 @@ public class QuickOrderService {
                     errors.add(QuickOrderCsvUploadResponse.ErrorItem.builder()
                             .rowNumber(rowNumber)
                             .skuCode(line)
+                            .productName(null)
                             .quantity(0)
-                            .reason("Invalid format: expected SKU,Quantity")
+                            .reason("INVALID_FORMAT")
+                            .message("SKU " + line + " cannot be added because the row format is invalid. Expected: SKU,Quantity")
                             .build());
                     continue;
                 }
@@ -67,30 +69,38 @@ public class QuickOrderService {
                     quantity = Integer.parseInt(qtyStr);
                     if (quantity <= 0) {
                         errors.add(QuickOrderCsvUploadResponse.ErrorItem.builder()
-                                .rowNumber(rowNumber).skuCode(sku).quantity(quantity)
-                                .reason("Quantity must be greater than 0").build());
+                                .rowNumber(rowNumber).skuCode(sku).productName(null).quantity(quantity)
+                                .reason("INVALID_QUANTITY")
+                                .message("SKU " + sku + " cannot be added because the quantity must be greater than 0.")
+                                .build());
                         continue;
                     }
                 } catch (NumberFormatException e) {
                     errors.add(QuickOrderCsvUploadResponse.ErrorItem.builder()
-                            .rowNumber(rowNumber).skuCode(sku).quantity(0)
-                            .reason("Invalid quantity: " + qtyStr).build());
+                            .rowNumber(rowNumber).skuCode(sku).productName(null).quantity(0)
+                            .reason("INVALID_QUANTITY")
+                            .message("SKU " + sku + " cannot be added because the quantity '" + qtyStr + "' is not a valid number.")
+                            .build());
                     continue;
                 }
 
                 Optional<Product> productOpt = productRepository.findByCode(sku);
                 if (productOpt.isEmpty()) {
                     errors.add(QuickOrderCsvUploadResponse.ErrorItem.builder()
-                            .rowNumber(rowNumber).skuCode(sku).quantity(quantity)
-                            .reason("Product not found").build());
+                            .rowNumber(rowNumber).skuCode(sku).productName(null).quantity(quantity)
+                            .reason("NOT_FOUND")
+                            .message("SKU " + sku + " cannot be added because it was not found.")
+                            .build());
                     continue;
                 }
 
                 Product product = productOpt.get();
                 if (product.getStockQuantity() <= 0) {
                     errors.add(QuickOrderCsvUploadResponse.ErrorItem.builder()
-                            .rowNumber(rowNumber).skuCode(sku).quantity(quantity)
-                            .reason("Out of stock").build());
+                            .rowNumber(rowNumber).skuCode(sku).productName(product.getName()).quantity(quantity)
+                            .reason("OUT_OF_STOCK")
+                            .message("SKU " + sku + " (" + product.getName() + ") cannot be added because it is out of stock.")
+                            .build());
                     continue;
                 }
 

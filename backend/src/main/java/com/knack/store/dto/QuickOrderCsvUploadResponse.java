@@ -40,7 +40,9 @@ public class QuickOrderCsvUploadResponse {
     public static class ErrorItem {
         private int rowNumber;
         private String skuCode;
+        private String productName;
         private int quantity;
         private String reason;
+        private String message;
     }
 }
