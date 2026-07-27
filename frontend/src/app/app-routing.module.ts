@@ -16,14 +16,19 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
+
+import { QuickOrderComponent } from './pages/quick-order/quick-order.component';
+
 import { SavedCartsComponent } from './pages/saved-carts/saved-carts.component';
 import { SavedCartDetailComponent } from './pages/saved-cart-detail/saved-cart-detail.component';
+
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'products', component: ProductListComponent },
   { path: 'compare/products', component: CompareProductsComponent },
   { path: 'products/:id', component: ProductDetailComponent },
+  { path: 'quick-order', component: QuickOrderComponent, canActivate: [authGuard] },
   { path: 'cart', component: CartComponent },
   { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },

@@ -31,9 +31,13 @@ import { ProductCarouselComponent } from './shared/components/product-carousel/p
 import { PromoCodeComponent } from './shared/components/promo-code/promo-code.component';
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
+
+import { QuickOrderComponent } from './pages/quick-order/quick-order.component';
+
 import { SavedCartsComponent } from './pages/saved-carts/saved-carts.component';
 import { SavedCartDetailComponent } from './pages/saved-cart-detail/saved-cart-detail.component';
 import { ToastComponent } from './shared/components/toast/toast.component';
+
 
 @NgModule({
   declarations: [
@@ -59,9 +63,13 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     PromoCodeComponent,
     WishlistComponent,
     NotificationsComponent,
+
+    QuickOrderComponent
+
     SavedCartsComponent,
     SavedCartDetailComponent
     ToastComponent
+
   ],
   imports: [
     BrowserModule,
