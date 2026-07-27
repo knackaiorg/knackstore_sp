@@ -301,6 +301,7 @@ export interface ToggleWishlistEntryRequest {
 export interface OrderEntry {
   productCode: string;
   productName: string;
+  productImageUrl?: string;
   variantSku: string;
   variantDescription: string;
   quantity: number;
@@ -328,8 +329,14 @@ export interface Order {
   trackingNumber: string;
   placedDate: string;
   deliveryDate?: string;
+  cancellationReason?: string;
+  lastModifiedDate?: string;
   deliveryAddress: Address;
   entries: OrderEntry[];
+}
+
+export interface CancelOrderRequest {
+  reason: string;
 }
 
 export interface ReorderResponse {

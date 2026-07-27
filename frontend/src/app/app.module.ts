@@ -33,6 +33,7 @@ import { WishlistComponent } from './pages/wishlist/wishlist.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { SavedCartsComponent } from './pages/saved-carts/saved-carts.component';
 import { SavedCartDetailComponent } from './pages/saved-cart-detail/saved-cart-detail.component';
+import { ToastComponent } from './shared/components/toast/toast.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,7 @@ import { SavedCartDetailComponent } from './pages/saved-cart-detail/saved-cart-d
     NotificationsComponent,
     SavedCartsComponent,
     SavedCartDetailComponent
+    ToastComponent
   ],
   imports: [
     BrowserModule,
