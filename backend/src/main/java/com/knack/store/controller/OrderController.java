@@ -42,6 +42,14 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrderByCode(user.getUsername(), orderCode));
     }
 
+    @PostMapping("/{orderCode}/cancel")
+    @Operation(summary = "Cancel order", description = "Cancel an order and record the cancellation reason.")
+    public ResponseEntity<OrderDTO> cancelOrder(@AuthenticationPrincipal UserDetails user,
+                                                 @PathVariable String orderCode,
+                                                 @RequestBody OrderDTO.CancelOrderRequest request) {
+        return ResponseEntity.ok(orderService.cancelOrder(user.getUsername(), orderCode, request.getReason()));
+    }
+
     @PostMapping("/{orderCode}/reorder")
     @Operation(
         summary = "Reorder",
