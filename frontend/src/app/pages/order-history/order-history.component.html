@@ -1,74 +1,344 @@
 <div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold mb-0">My Orders</h2>
+  <h2 class="fw-bold mb-4">My Orders & Returns</h2>
 
-    <div class="d-flex align-items-center gap-2">
-      <label for="statusFilter" class="text-muted small mb-0">Filter by status:</label>
-      <select
-        id="statusFilter"
-        class="form-select form-select-sm"
-        style="width: auto;"
-        [(ngModel)]="selectedStatus"
-        (ngModelChange)="onStatusFilterChange()"
+  <!-- Tab Navigation -->
+  <ul class="nav nav-tabs mb-4" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'orders'"
+        (click)="onTabChange('orders')"
+        type="button"
       >
-        <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
-      </select>
-    </div>
-  </div>
+        <i class="bi bi-box-seam me-2"></i>Orders
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'returns'"
+        (click)="onTabChange('returns')"
+        type="button"
+      >
+        <i class="bi bi-arrow-counterclockwise me-2"></i>Returned Orders
+      </button>
+    </li>
+  </ul>
 
   <div *ngIf="loading" class="text-center py-5"><div class="spinner-border text-primary"></div></div>
 
-  <div *ngIf="!loading && orders.length === 0" class="text-center py-5">
-    <p class="text-muted fs-5">You haven't placed any orders yet.</p>
-    <a routerLink="/products" class="btn btn-primary">Start Shopping</a>
-  </div>
+  <!-- ORDERS TAB -->
+  <div *ngIf="activeTab === 'orders' && !loading">
+    <div *ngIf="orders.length === 0" class="text-center py-5">
+      <p class="text-muted fs-5">You haven't placed any orders yet.</p>
+      <a routerLink="/products" class="btn btn-primary">Start Shopping</a>
+    </div>
 
-  <div *ngIf="!loading && orders.length > 0 && filteredOrders.length === 0" class="text-center py-5">
-    <p class="text-muted fs-5">No orders found with status "{{ selectedStatus }}".</p>
-  </div>
+    <div *ngIf="orders.length > 0 && filteredOrders.length === 0" class="text-center py-5">
+      <p class="text-muted fs-5">No orders found with status "{{ selectedStatus }}".</p>
+    </div>
 
-  <!-- Header row -->
-  <div *ngIf="!loading && filteredOrders.length > 0" class="row fw-bold px-3 mb-2 text-muted">
-    <div class="col-md-2">Order Reference Number</div>
-    <div class="col-md-2">Order Date</div>
-    <div class="col-md-2">Order Total</div>
-    <div class="col-md-2">Order Status</div>
-    <div class="col-md-2">Item Summary</div>
-    <div class="col-md-1"></div>
-    <div class="col-md-1 text-end">Action</div>
-  </div>
+    <div *ngIf="orders.length > 0" class="mb-3 d-flex justify-content-end">
+      <div class="d-flex align-items-center gap-2">
+        <label for="statusFilter" class="text-muted small mb-0">Filter by status:</label>
+        <select
+          id="statusFilter"
+          class="form-select form-select-sm"
+          style="width: auto;"
+          [(ngModel)]="selectedStatus"
+          (ngModelChange)="onStatusFilterChange()"
+        >
+          <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+    </div>
 
-  <!-- Order rows -->
-  <div *ngFor="let order of filteredOrders" class="card shadow-sm mb-3">
-    <div class="card-body">
-      <div class="row align-items-center">
-        <div class="col-md-2">{{ order.orderCode }}</div>
-        <div class="col-md-2">{{ order.placedDate | date:'dd MMM yyyy' }}</div>
-        <div class="col-md-2">$ {{ order.totalPrice | number:'1.2-2' }}</div>
-        <div class="col-md-3"><small class="text-muted">Order Code</small><div class="fw-bold">{{ order.orderCode }}</div></div>
-        <div class="col-md-2"><small class="text-muted">Date</small><div>{{ order.placedDate | date:'dd MMM yyyy' }}</div></div>
-        <div class="col-md-2"><small class="text-muted">Items</small><div>{{ order.entries.length }}</div></div>
-        <div class="col-md-2">
-          <small class="text-muted">Total</small>
-          <div class="fw-bold text-primary">$ {{ order.totalPrice | number:'1.2-2' }}</div>
-          <small *ngIf="order.appliedPromoCode" class="text-success">
-            <i class="bi bi-tag-fill"></i> {{ order.appliedPromoCode }}
-          </small>
+    <!-- Header row -->
+    <div *ngIf="filteredOrders.length > 0" class="row fw-bold px-3 mb-2 text-muted border-bottom pb-2">
+      <div class="col-md-2">Order Reference Number</div>
+      <div class="col-md-2">Order Date</div>
+      <div class="col-md-2">Order Total</div>
+      <div class="col-md-2">Order Status</div>
+      <div class="col-md-4 text-end">Action</div>
+    </div>
+
+    <!-- Order rows -->
+    <div *ngFor="let order of filteredOrders" class="mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-2">{{ order.orderCode }}</div>
+            <div class="col-md-2">{{ order.placedDate | date:'dd MMM yyyy' }}</div>
+            <div class="col-md-2">$ {{ order.totalPrice | number:'1.2-2' }}</div>
+            <div class="col-md-2">
+              <span [class]="getStatusClass(order.status)">
+                {{ order.status }}
+              </span>
+            </div>
+            <div class="col-md-4 text-end gap-2">
+              <button
+                type="button"
+                class="btn-view-details me-2"
+                (click)="viewDetails(order.orderCode)"
+              >
+                <i class="bi bi-eye me-1"></i>View Details
+              </button>
+              <button
+                *ngIf="order.status !== 'RETURN_REQUESTED'"
+                type="button"
+                class="btn-return"
+                (click)="openReturnModal(order)"
+              >
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Return
+              </button>
+              <span *ngIf="order.status === 'RETURN_REQUESTED'" class="badge bg-warning text-dark">Return Requested</span>
+            </div>
+          </div>
         </div>
-        <div class="col-md-2"><span class="badge" [class]="getStatusClass(order.status)">{{ order.status }}</span></div>
-        <div class="col-md-2">{{ getItemSummary(order) }}</div>
-        <div class="col-md-1 text-end">
-  <button
-    type="button"
-    class="btn btn-sm btn-outline-primary"
-    [disabled]="reorderingId === order.orderCode"
-    (click)="onReorder(order)"
-  >
-    {{ reorderingId === order.orderCode ? '...' : 'ReOrder' }}
-  </button>
-</div>
-        <div class="col-md-1 text-end"><a [routerLink]="['/account/orders', order.orderCode]" class="btn btn-sm btn-outline-primary">View</a></div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- RETURN ORDERS TAB -->
+  <div *ngIf="activeTab === 'returns' && !loading">
+    <div *ngIf="returnOrders.length === 0" class="text-center py-5">
+      <p class="text-muted fs-5">You haven't initiated any returns yet.</p>
+      <a [routerLink]="['/', { tab: 'orders' }]" (click)="onTabChange('orders')" class="btn btn-primary">View Orders</a>
+    </div>
+
+    <div *ngIf="returnOrders.length > 0 && filteredReturnOrders.length === 0" class="text-center py-5">
+      <p class="text-muted fs-5">No return orders found with status "{{ selectedReturnStatus }}".</p>
+    </div>
+
+    <div *ngIf="returnOrders.length > 0" class="mb-3 d-flex justify-content-end">
+      <div class="d-flex align-items-center gap-2">
+        <label for="statusFilter" class="text-muted small mb-0">Filter by status:</label>
+        <select
+          id="statusFilter"
+          class="form-select form-select-sm"
+          style="width: auto;"
+          [(ngModel)]="selectedReturnStatus"
+          (ngModelChange)="onReturnStatusFilterChange()"
+        >
+          <option *ngFor="let status of returnStatusOptions" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Header row -->
+    <div *ngIf="filteredReturnOrders.length > 0" class="row fw-bold px-3 mb-2 text-muted border-bottom pb-2">
+      <div class="col-md-2">Return Reference Number</div>
+      <div class="col-md-2">Requested Date</div>
+      <div class="col-md-2">Refund Amount</div>
+      <div class="col-md-2">Status</div>
+      <div class="col-md-4 text-end">Action</div>
+    </div>
+
+    <!-- Return Order rows -->
+    <div *ngFor="let returnOrder of filteredReturnOrders" class="mb-3">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-md-2">{{ returnOrder.returnCode }}</div>
+            <div class="col-md-2">{{ returnOrder.requestedDate | date:'dd MMM yyyy' }}</div>
+            <div class="col-md-2">$ {{ returnOrder.refundAmount | number:'1.2-2' }}</div>
+            <div class="col-md-2">
+              <span [class]="getReturnStatusClass(returnOrder.status)">
+                {{ returnOrder.status }}
+              </span>
+            </div>
+            <div class="col-md-4 text-end">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary"
+                (click)="toggleReturnOrderDetails(returnOrder.returnCode)"
+              >
+                {{ isReturnOrderExpanded(returnOrder.returnCode) ? 'Hide Details' : 'View Details' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Expandable Details Section -->
+          <div *ngIf="isReturnOrderExpanded(returnOrder.returnCode)" class="mt-4 pt-3 border-top">
+            <h6 class="fw-bold mb-3">Return Items</h6>
+            
+            <!-- Items Table Header -->
+            <div class="row fw-bold px-3 mb-2 text-muted" style="font-size: 0.9rem;">
+              <div class="col-md-1">Item No</div>
+              <div class="col-md-4">Product Details</div>
+              <div class="col-md-2">Unit Price</div>
+              <div class="col-md-1">Qty</div>
+              <div class="col-md-1">Returned</div>
+              <div class="col-md-1">Condition</div>
+              <div class="col-md-2 text-end">Refund</div>
+            </div>
+
+            <!-- Items Table Rows -->
+            <div *ngFor="let item of returnOrder.returnEntries; let i = index" class="row px-3 py-2 border-bottom align-items-center">
+              <div class="col-md-1">
+                <span class="text-muted">{{ i + 1 }}</span>
+              </div>
+              <div class="col-md-4">
+                <div class="fw-bold">{{ item.productName }}</div>
+                <small class="text-muted">Code: {{ item.productCode }}</small>
+              </div>
+              <div class="col-md-2">
+                <span class="text-muted">$ {{ item.unitPrice | number:'1.2-2' }}</span>
+              </div>
+              <div class="col-md-1">
+                <span class="text-muted">{{ item.quantity }}</span>
+              </div>
+              <div class="col-md-1">
+                <span class="text-muted">{{ item.quantityReturned }}</span>
+              </div>
+              <div class="col-md-1">
+                <span [class]="getItemConditionClass(item.itemCondition)">
+                  {{ item.itemCondition }}
+                </span>
+              </div>
+              <div class="col-md-2 text-end">
+                <span class="fw-bold">$ {{ item.refundAmount | number:'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- Summary Row -->
+            <div class="row px-3 py-3 fw-bold text-end">
+              <div class="col-md-6"></div>
+              <div class="col-md-6">
+                <div class="mb-2">
+                  <span class="text-muted">Return Reason: </span>
+                  <span class="badge bg-secondary">{{ returnOrder.returnReason }}</span>
+                </div>
+                <div class="text-primary" style="font-size: 1.1rem;">
+                  <span class="text-dark">Total Refund Amount: </span>
+                  $ {{ returnOrder.refundAmount | number:'1.2-2' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RETURN MODAL -->
+  <div class="modal" [class.show]="returnModalOrder !== null" [style.display]="returnModalOrder !== null ? 'block' : 'none'">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">
+            <i class="bi bi-arrow-counterclockwise me-2"></i>Return Items - Order {{ returnModalOrder?.orderCode }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeReturnModal()"></button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+          <!-- Help Text -->
+          <div class="alert alert-info alert-sm mb-3" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Select products you want to return</strong> and provide a reason for each.
+          </div>
+
+          <!-- Items Table -->
+          <div *ngIf="returnModalOrder && returnModalOrder.entries.length > 0" class="table-responsive">
+            <!-- Table Header -->
+            <div class="row fw-bold px-3 mb-2 text-muted" style="font-size: 0.9rem;">
+              <div class="col-md-1 text-center">Select</div>
+              <div class="col-md-1">Item</div>
+              <div class="col-md-3">Product Name</div>
+              <div class="col-md-1">Qty</div>
+              <div class="col-md-2 text-end">Price</div>
+              <div class="col-md-3 text-end">Return Reason</div>
+            </div>
+
+            <!-- Table Rows -->
+            <div *ngFor="let item of returnModalOrder.entries; let i = index" class="row px-3 py-3 border-bottom align-items-center">
+              <!-- Checkbox -->
+              <div class="col-md-1 text-center">
+                <input
+                  type="checkbox"
+                  class="form-check-input return-checkbox"
+                  [checked]="isReturnItemSelectedInModal(i)"
+                  (change)="toggleReturnItemInModal(i)"
+                />
+              </div>
+
+              <!-- Item Number -->
+              <div class="col-md-1">
+                <span class="text-muted">{{ i + 1 }}</span>
+              </div>
+
+              <!-- Product Details -->
+              <div class="col-md-3">
+                <div class="fw-bold">{{ item.productName }}</div>
+                <small class="text-muted">{{ item.variantDescription }}</small>
+              </div>
+
+              <!-- Quantity -->
+              <div class="col-md-1">
+                <span class="text-muted">{{ item.quantity }}</span>
+              </div>
+
+              <!-- Price -->
+              <div class="col-md-2 text-end">
+                <span class="fw-bold">$ {{ item.totalPrice | number:'1.2-2' }}</span>
+              </div>
+
+              <!-- Return Reason Dropdown -->
+              <div class="col-md-3">
+                <select
+                  class="form-select form-select-sm"
+                  [value]="getReturnReasonInModal(i)"
+                  (change)="setReturnReasonInModal(i, $any($event.target).value)"
+                  [disabled]="!isReturnItemSelectedInModal(i)"
+                >
+                  <option value="">-- Select Reason --</option>
+                  <option *ngFor="let reason of returnReasonOptions" [value]="reason">
+                    {{ reason }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- No Items Message -->
+          <div *ngIf="returnModalOrder && returnModalOrder.entries.length === 0" class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            This order has no items available for return.
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="returnModalError" class="alert alert-danger mb-0" role="alert" style="margin: 1rem; margin-bottom: 0;">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          <strong>Error:</strong> {{ returnModalError }}
+        </div>
+
+        <!-- Success Message -->
+        <div *ngIf="returnModalSuccess" class="alert alert-success mb-0" role="alert" style="margin: 1rem; margin-bottom: 0;">
+          <i class="bi bi-check-circle me-2"></i>
+          <strong>Success:</strong> {{ returnModalSuccess }}
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeReturnModal()">
+            <i class="bi bi-x me-1"></i>Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="!isReturnButtonEnabled()"
+            (click)="onCreateReturnOrder()"
+          >
+            <i class="bi bi-check-circle me-1"></i>{{ getReturnButtonLabel() }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Backdrop -->
+  <div class="modal-backdrop fade" [class.show]="returnModalOrder !== null" *ngIf="returnModalOrder !== null"></div>

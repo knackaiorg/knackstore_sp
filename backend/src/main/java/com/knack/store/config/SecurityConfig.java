@@ -51,9 +51,14 @@ public class SecurityConfig {
                         .requestMatchers("/notify_me").permitAll()
                         .requestMatchers("/fetch_all_notifications").permitAll()
                         .requestMatchers("/delete_notification").permitAll()
+                        // Return Orders endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/return-orders/create").permitAll()
                         // Admin API endpoints - no authorization required
+                        .requestMatchers(HttpMethod.PUT, "/api/return-orders/admin/**").permitAll()
                         .requestMatchers("/api/return-orders/admin/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/return-orders/*").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/return-orders/*/process").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/return-orders/*/mark-received").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/return-orders/*/process-refund").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers(

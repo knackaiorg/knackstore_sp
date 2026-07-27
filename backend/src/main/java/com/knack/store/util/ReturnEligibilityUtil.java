@@ -48,7 +48,7 @@ public class ReturnEligibilityUtil {
         }
 
         // Check order status
-        if (order.getStatus() == null || !order.getStatus().equalsIgnoreCase("DELIVERED")) {
+        if (order.getStatus() == null || !order.getStatus().equalsIgnoreCase("PLACED")) {
             return false;
         }
 
@@ -73,7 +73,7 @@ public class ReturnEligibilityUtil {
         if (entry == null) {
             return false;
         }
-        return entry.getEligibleForReturn() != null && entry.getEligibleForReturn();
+        return entry.getEligibleForReturn() == null || entry.getEligibleForReturn();
     }
 
     /**

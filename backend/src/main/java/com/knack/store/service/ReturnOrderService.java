@@ -318,7 +318,7 @@ public class ReturnOrderService {
             returnOrder.setItemsReceivedDate(LocalDateTime.now());
             // Don't change status to COMPLETED if the return has been REJECTED
             if (returnOrder.getStatus() == null || !returnOrder.getStatus().equals("REJECTED")) {
-                returnOrder.setStatus("COMPLETED");
+                returnOrder.setStatus("REFUND_INITIATED");
             }
         }
         returnOrder.setLastModifiedDate(LocalDateTime.now());

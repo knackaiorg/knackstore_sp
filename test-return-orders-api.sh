@@ -12,9 +12,9 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Default values
-BASE_URL="${1:-http://localhost:8080}"
-CUSTOMER_EMAIL="${2:-customer@example.com}"
-ORDER_CODE="ORD-001"
+BASE_URL="${1:http://localhost:8080}"
+CUSTOMER_EMAIL="${2:demo@knack.com}"
+ORDER_CODE="ORD-9D28DD3B"
 RETURN_CODE=""
 ADMIN_NOTES="Test admin notes"
 

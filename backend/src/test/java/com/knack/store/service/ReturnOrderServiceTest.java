@@ -141,7 +141,7 @@ public class ReturnOrderServiceTest {
     @DisplayName("Should reject return if order placed more than 10 days ago")
     void testReturnNotEligibleIfOlderThan10Days() {
         Order oldOrder = Order.builder()
-                .status("DELIVERED")
+                .status("PLACED")
                 .placedDate(LocalDateTime.now().minusDays(12))
                 .entries(new ArrayList<>(List.of(orderEntry1)))
                 .build();

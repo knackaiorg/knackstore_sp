@@ -14,7 +14,7 @@
       >
         ReOrder
       </button>
-        <span class="badge bg-primary fs-6">{{ order.status }}</span>
+        <span [class]="getStatusClass(order.status)">{{ order.status }}</span>
       </div>
     </div>
 
