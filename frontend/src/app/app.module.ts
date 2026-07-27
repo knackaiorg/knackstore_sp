@@ -32,6 +32,7 @@ import { PromoCodeComponent } from './shared/components/promo-code/promo-code.co
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { SavedCartsComponent } from './pages/saved-carts/saved-carts.component';
+import { ToastComponent } from './shared/components/toast/toast.component';
 
 @NgModule({
   declarations: [
@@ -58,6 +59,7 @@ import { SavedCartsComponent } from './pages/saved-carts/saved-carts.component';
     WishlistComponent,
     NotificationsComponent,
     SavedCartsComponent
+    ToastComponent
   ],
   imports: [
     BrowserModule,
