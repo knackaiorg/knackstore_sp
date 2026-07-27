@@ -1,0 +1,71 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Saved Carts</h2>
+      <p class="text-muted mb-0">Keep multiple shopping lists ready for later.</p>
+    </div>
+    <a *ngIf="selectedCart" routerLink="/account/saved-carts" class="btn btn-outline-secondary btn-sm">← Back to list</a>
+  </div>
+
+  <div *ngIf="message" class="alert alert-info py-2">{{ message }}</div>
+
+  <div *ngIf="loading" class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+
+  <div *ngIf="!loading && !selectedCart" class="card shadow-sm">
+    <div class="card-body">
+      <div *ngIf="savedCarts.length === 0" class="text-center py-5 text-muted">
+        You have no saved carts yet. Save a cart from the cart page to keep it for later.
+      </div>
+      <div *ngIf="savedCarts.length > 0" class="row g-3">
+        <div *ngFor="let cart of savedCarts" class="col-md-6">
+          <div class="border rounded p-3 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h6 class="fw-bold mb-1">{{ cart.cartNumber }}</h6>
+                <div class="text-muted small">Saved {{ cart.createdAt | date:'mediumDate' }}</div>
+              </div>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteSavedCart(cart.id)">Delete</button>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">{{ cart.skuCount }} items</span>
+              <span class="fw-bold">$ {{ cart.totalPrice | number:'1.2-2' }}</span>
+            </div>
+            <button class="btn btn-primary btn-sm" (click)="openSavedCart(cart)">View details</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && selectedCart" class="card shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h5 class="fw-bold mb-1">{{ selectedCart.cartNumber }}</h5>
+          <div class="text-muted small">{{ selectedCart.skuCount }} items • $ {{ selectedCart.totalPrice | number:'1.2-2' }}</div>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-warning btn-sm" (click)="addToCart(selectedCart.id)">Add all to cart</button>
+          <button class="btn btn-outline-danger btn-sm" (click)="deleteSavedCart(selectedCart.id)">Delete</button>
+        </div>
+      </div>
+
+      <div *ngIf="selectedCart.entries.length === 0" class="text-center py-4 text-muted">This saved cart has no items.</div>
+      <div *ngIf="selectedCart.entries.length > 0" class="border rounded">
+        <div *ngFor="let entry of selectedCart.entries; let last = last" class="d-flex align-items-center justify-content-between p-3" [class.border-bottom]="!last">
+          <div class="d-flex align-items-center gap-3">
+            <img [src]="entry.productImageUrl" [alt]="entry.productName" class="rounded" style="width:64px;height:64px;object-fit:cover" onerror="this.onerror=null;this.src='https://via.placeholder.com/64'">
+            <div>
+              <div class="fw-semibold">{{ entry.productName }}</div>
+              <div class="text-muted small">Qty {{ entry.quantity }} • $ {{ entry.unitPrice | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="fw-bold">$ {{ entry.lineTotal | number:'1.2-2' }}</div>
+            <button class="btn btn-outline-danger btn-sm" (click)="removeEntry(selectedCart.id, entry.entryId)">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

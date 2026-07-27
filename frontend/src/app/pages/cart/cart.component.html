@@ -80,6 +80,9 @@
           <button class="btn btn-warning w-100 fw-bold mb-2" (click)="checkout()" [disabled]="hasInvalidEntries">
             Proceed to Checkout →
           </button>
+          <button class="btn btn-outline-primary w-100 mb-2" (click)="saveCart()">
+            Save Cart for Later
+          </button>
           <a routerLink="/products" class="btn btn-outline-secondary w-100">
             Continue Shopping
           </a>

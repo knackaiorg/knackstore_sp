@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
 import { Cart } from '../../models';
 import { CartService } from '../../core/services/cart.service';
+import { SavedCartService } from '../../core/services/saved-cart.service';
 import { AuthService } from '../../core/services/auth.service';
 
 /**
@@ -22,6 +23,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   constructor(
     private cartService: CartService,
+    private savedCartService: SavedCartService,
     private authService: AuthService,
     private router: Router
   ) {}
@@ -95,6 +97,13 @@ export class CartComponent implements OnInit, OnDestroy {
    */
   checkout() {
     this.router.navigate(['/checkout']);
+  }
+
+  saveCart() {
+    this.savedCartService.saveCurrentCart().subscribe({
+      next: () => this.loadCart(),
+      error: () => this.updateError = 'Unable to save this cart right now.'
+    });
   }
 
   get hasInvalidEntries(): boolean {
