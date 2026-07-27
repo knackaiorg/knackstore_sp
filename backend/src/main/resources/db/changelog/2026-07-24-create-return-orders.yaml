@@ -1,0 +1,172 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-return-orders-tables
+      author: dev-team
+      description: "Create return_orders and return_order_entries tables for return order management"
+      changes:
+        # Create return_orders table
+        - createTable:
+            tableName: return_orders
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: return_code
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: order_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_return_orders_order
+                    references: orders(id)
+              - column:
+                  name: customer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_return_orders_customer
+                    references: customers(id)
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                  remarks: "PENDING, APPROVED, REJECTED, COMPLETED"
+              - column:
+                  name: return_type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                  remarks: "FULL or PARTIAL"
+              - column:
+                  name: return_reason
+                  type: VARCHAR(2000)
+              - column:
+                  name: admin_notes
+                  type: VARCHAR(2000)
+              - column:
+                  name: refund_amount
+                  type: DECIMAL(10,2)
+              - column:
+                  name: requested_date
+                  type: DATETIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: processed_date
+                  type: DATETIME
+              - column:
+                  name: completed_date
+                  type: DATETIME
+              - column:
+                  name: last_modified_date
+                  type: DATETIME
+              - column:
+                  name: items_received
+                  type: BOOLEAN
+              - column:
+                  name: items_received_date
+                  type: DATETIME
+              - column:
+                  name: return_tracking_number
+                  type: VARCHAR(255)
+
+        # Create return_order_entries table
+        - createTable:
+            tableName: return_order_entries
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: return_order_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_return_order_entries_return_order
+                    references: return_orders(id)
+              - column:
+                  name: order_entry_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_return_order_entries_order_entry
+                    references: order_entries(id)
+              - column:
+                  name: quantity_returned
+                  type: INT
+              - column:
+                  name: refund_amount
+                  type: DECIMAL(10,2)
+              - column:
+                  name: item_condition
+                  type: VARCHAR(50)
+                  remarks: "UNOPENED, OPENED, USED, DAMAGED, OTHER"
+              - column:
+                  name: notes
+                  type: VARCHAR(1000)
+              - column:
+                  name: product_code
+                  type: VARCHAR(255)
+              - column:
+                  name: quantity
+                  type: INT
+              - column:
+                  name: return_reason
+                  type: VARCHAR(2000)
+              - column:
+                  name: total_price
+                  type: DECIMAL(10,2)
+              - column:
+                  name: condition
+                  type: VARCHAR(255)
+
+        # Create indexes
+        - createIndex:
+            indexName: idx_return_orders_customer
+            tableName: return_orders
+            columns:
+              - column:
+                  name: customer_id
+
+        - createIndex:
+            indexName: idx_return_orders_status
+            tableName: return_orders
+            columns:
+              - column:
+                  name: status
+
+        - createIndex:
+            indexName: idx_return_orders_order
+            tableName: return_orders
+            columns:
+              - column:
+                  name: order_id
+
+        - createIndex:
+            indexName: idx_return_order_entries_return_order
+            tableName: return_order_entries
+            columns:
+              - column:
+                  name: return_order_id
+
+        - createIndex:
+            indexName: idx_return_order_entries_order_entry
+            tableName: return_order_entries
+            columns:
+              - column:
+                  name: order_entry_id
+

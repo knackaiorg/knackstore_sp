@@ -4,7 +4,7 @@ import { Order } from '../../models';
 import { OrderService } from '../../core/services/order.service';
 import { CartService } from '../../core/services/cart.service';
 
-@Component({ selector: 'app-order-detail', templateUrl: './order-detail.component.html' })
+@Component({ selector: 'app-order-detail', templateUrl: './order-detail.component.html', styleUrls: ['./order-detail.component.css'] })
 export class OrderDetailComponent implements OnInit {
   order: Order | null = null;
   loading = true;
@@ -34,5 +34,24 @@ export class OrderDetailComponent implements OnInit {
       console.error('Reorder failed', err);
     }
   });
+}
+
+getStatusClass(status: string): string {
+  const statusMap: { [key: string]: string } = {
+    PENDING: 'status-badge status-pending',
+    CONFIRMED: 'status-badge status-processing',
+    PROCESSING: 'status-badge status-processing',
+    PACKED: 'status-badge status-packed',
+    SHIPPED: 'status-badge status-shipped',
+    OUT_FOR_DELIVERY: 'status-badge status-out-for-delivery',
+    DELIVERED: 'status-badge status-delivered',
+    RETURN_REQUESTED: 'status-badge status-return-requested',
+    RETURNED: 'status-badge status-returned',
+    REFUND_PROCESSING: 'status-badge status-refund-processing',
+    REFUNDED: 'status-badge status-refunded',
+    CANCELLED: 'status-badge status-cancelled',
+    FAILED_PAYMENT: 'status-badge status-failed-payment',
+  };
+  return statusMap[status] || 'status-badge status-default';
 }
 }

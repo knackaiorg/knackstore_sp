@@ -300,6 +300,62 @@ export interface PlaceOrderRequest {
 }
 
 // ---- Customer ----
+// ---- Return Order ----
+export interface ReturnOrderEntry {
+  id: number;
+  orderEntryId: number;
+  productCode: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  quantityReturned: number;
+  refundAmount: number;
+  itemCondition: string;
+  notes: string;
+}
+
+export interface ReturnOrder {
+  id: number;
+  returnCode: string;
+  orderCode: string;
+  status: string;
+  returnType: string;
+  returnReason: string;
+  refundAmount: number;
+  requestedDate: string;
+  processedDate: string | null;
+  completedDate: string | null;
+  itemsReceived: boolean | null;
+  itemsReceivedDate: string | null;
+  returnTrackingNumber: string;
+  adminNotes: string | null;
+  returnEntries: ReturnOrderEntry[];
+}
+
+// ---- Create Return Order Request ----
+export interface ReturnEntryRequest {
+  orderEntryId: number;
+  quantityToReturn: number;
+  itemCondition: string;
+  notes: string;
+}
+
+export interface CreateReturnOrderRequest {
+  orderCode: string;
+  returnType: string;
+  returnReason: string;
+  returnTrackingNumber?: string;
+  returnEntries: ReturnEntryRequest[];
+}
+
+export interface CreateReturnOrderResponse {
+  success: boolean;
+  returnCode: string;
+  estimatedRefund: number;
+  message: string;
+}
+
+// ---- Customer ----
 export interface Customer {
   id: number;
   email: string;

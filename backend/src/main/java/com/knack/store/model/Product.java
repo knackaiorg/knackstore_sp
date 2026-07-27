@@ -52,6 +52,8 @@ public class Product {
     @Builder.Default
     private int lowStockThreshold = 10;
 
+    private Boolean eligibleForReturn;
+
     public Long getId() {
         return id;
     }
@@ -162,5 +164,13 @@ public class Product {
 
     public void setLowStockThreshold(int lowStockThreshold) {
         this.lowStockThreshold = lowStockThreshold;
+    }
+
+    public Boolean getEligibleForReturn() {
+        return eligibleForReturn;
+    }
+
+    public void setEligibleForReturn(Boolean eligibleForReturn) {
+        this.eligibleForReturn = eligibleForReturn;
     }
 }

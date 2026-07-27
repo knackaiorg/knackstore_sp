@@ -6,7 +6,14 @@ import com.knack.store.dto.OrderDTO;
 import com.knack.store.dto.ReorderDTO;
 import com.knack.store.dto.DeliveryOptionDTO;
 import com.knack.store.exception.InsufficientStockException;
-import com.knack.store.model.*;
+import com.knack.store.model.Address;
+import com.knack.store.model.Cart;
+import com.knack.store.model.CartEntry;
+import com.knack.store.model.Customer;
+import com.knack.store.model.Order;
+import com.knack.store.model.OrderEntry;
+import com.knack.store.model.Product;
+import com.knack.store.model.ProductVariant;
 import com.knack.store.repository.CustomerRepository;
 import com.knack.store.repository.OrderRepository;
 import com.knack.store.repository.ProductRepository;
@@ -71,6 +78,7 @@ public class OrderService {
                 .quantity(e.getQuantity())
                 .unitPrice(e.getUnitPrice())
                 .totalPrice(e.getQuantity() * e.getUnitPrice())
+                .eligibleForReturn(e.getProduct().getEligibleForReturn())
                 .build()).collect(Collectors.toList());
 
         double deliveryCost = 0.0;
@@ -154,10 +162,7 @@ public class OrderService {
                 throw new RuntimeException("Access denied: Order does not belong to this customer");
             }
             
-            // Step 3: Get or create customer's current cart
-            Cart cart = cartService.getOrCreateCart(email);
-            
-            // Step 4: Process each order entry and add to current cart
+            // Step 3: Process each order entry and add to current cart
             int itemsAdded = 0;
             int itemsUnavailable = 0;
 
@@ -311,6 +316,7 @@ public class OrderService {
     }
 
     public OrderDTO toDTO(Order o) {
+        boolean eligibleForReturn = isEligibleForReturn(o);
         return OrderDTO.builder()
                 .id(o.getId())
                 .orderCode(o.getOrderCode())
@@ -332,8 +338,26 @@ public class OrderService {
                         .quantity(e.getQuantity())
                         .unitPrice(e.getUnitPrice())
                         .totalPrice(e.getTotalPrice())
+                        .eligibleForReturn(e.getEligibleForReturn())
                         .build()).collect(Collectors.toList()))
+                .eligibleForReturn(eligibleForReturn)
                 .build();
+    }
+
+    private boolean isEligibleForReturn(Order o) {
+        // Order is eligible for return if:
+        // 1. Order status is DELIVERED
+        // 2. Order was placed within the last 10 days
+        if (o == null || o.getStatus() == null || o.getPlacedDate() == null) {
+            return false;
+        }
+        
+        if (!"PLACED".equalsIgnoreCase(o.getStatus())) {
+            return false;
+        }
+        
+        LocalDateTime tenDaysAgo = LocalDateTime.now().minusDays(10);
+        return o.getPlacedDate().isAfter(tenDaysAgo);
     }
 
     private Address toAddress(AddressDTO dto) {
