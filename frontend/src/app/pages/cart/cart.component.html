@@ -8,6 +8,8 @@
   </div>
 
   <div *ngIf="updateError" class="alert alert-warning small py-2">{{ updateError }}</div>
+  <div *ngIf="saveSuccess" class="alert alert-success small py-2">{{ saveSuccess }}</div>
+  <div *ngIf="saveError" class="alert alert-danger small py-2">{{ saveError }}</div>
 
   <div *ngIf="!loading && cart && hasInvalidEntries" class="alert alert-warning">
     <strong>Uh oh!</strong> Something has changed in your cart. Please remove &amp; try adding the highlighted products again.
@@ -80,6 +82,13 @@
           <button class="btn btn-warning w-100 fw-bold mb-2" (click)="checkout()" [disabled]="hasInvalidEntries">
             Proceed to Checkout →
           </button>
+          <button
+            class="btn btn-outline-primary w-100 mb-2"
+            [disabled]="!cart || cart.entries.length === 0"
+            (click)="openSaveCartModal()">
+            Save Cart
+          </button>
+
           <a routerLink="/products" class="btn btn-outline-secondary w-100">
             Continue Shopping
           </a>
@@ -100,6 +109,62 @@
   </div>
 </div>
 
+<div *ngIf="showSaveCartModal" class="save-cart-modal-backdrop" (click)="closeSaveCartModal()">
+  <div class="save-cart-modal card shadow-lg" (click)="$event.stopPropagation()">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="fw-bold mb-0">Save Cart</h5>
+        <button class="btn btn-sm btn-outline-secondary" [disabled]="savingCart" (click)="closeSaveCartModal()">Close</button>
+      </div>
+      <p class="text-muted small mb-3">Give this cart a name, or select an existing saved cart to update it.</p>
+
+      <label class="form-label small fw-semibold mb-1">Cart name</label>
+      <input
+        class="form-control mb-3"
+        type="text"
+        maxlength="60"
+        placeholder="e.g. Home Office Setup"
+        [(ngModel)]="saveCartName">
+
+      <label class="form-label small fw-semibold mb-1">Update existing saved cart (optional)</label>
+      <select
+        class="form-select mb-3"
+        [disabled]="loadingSavedCartOptions || savingCart"
+        [(ngModel)]="selectedSavedCartId"
+        (ngModelChange)="onSelectedSavedCartChange()">
+        <option [ngValue]="null">Create new saved cart</option>
+        <option *ngFor="let option of savedCartOptions" [ngValue]="option.id">
+          {{ option.cartName }} ({{ option.cartNumber }})
+        </option>
+      </select>
+
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-outline-secondary" [disabled]="savingCart" (click)="closeSaveCartModal()">Cancel</button>
+        <button class="btn btn-primary" [disabled]="!canSaveCart" (click)="saveCart()">
+          {{ savingCart ? 'Saving...' : (selectedSavedCartId ? 'Update Saved Cart' : 'Save as New Cart') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <style>
 .cart-entry-invalid { background-color: rgba(220, 53, 69, 0.06); border-left: 4px solid #dc3545; }
+.save-cart-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 35, 0.55);
+  z-index: 1080;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.save-cart-modal {
+  width: 100%;
+  max-width: 520px;
+  border: 1px solid #d8e2f3;
+  border-radius: 0.85rem;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
 </style>
