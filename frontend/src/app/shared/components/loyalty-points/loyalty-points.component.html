@@ -1,0 +1,93 @@
+<!-- Loyalty Points Section -->
+<div class="loyalty-points-section">
+  <!-- Alert Messages -->
+  <div *ngIf="showMessage" class="alert alert-dismissible fade show mb-3"
+       [ngClass]="messageType === 'success' ? 'alert-success' : 'alert-danger'"
+       role="alert">
+    <i class="bi" [ngClass]="messageType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+    {{ messageText }}
+    <button type="button" class="btn-close" (click)="hideMessage()" aria-label="Close"></button>
+  </div>
+
+  <!-- Applied Points Display -->
+  <div *ngIf="redeemedPoints > 0" class="applied-points-card mb-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <i class="bi bi-stars text-success me-2"></i>
+        <span class="fw-semibold">Points Redeemed:</span>
+        <span class="ms-2 badge bg-success">{{ redeemedPoints }} pts</span>
+      </div>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-danger"
+        (click)="removePoints()"
+        [disabled]="isRemoving">
+        <span *ngIf="isRemoving" class="spinner-border spinner-border-sm me-1"></span>
+        {{ isRemoving ? 'Removing...' : 'Remove' }}
+      </button>
+    </div>
+    <div class="discount-info mt-2">
+      <small class="text-success">
+        <i class="bi bi-check-circle"></i>
+        You saved $ {{ pointsDiscountAmount | number:'1.2-2' }} with your points!
+      </small>
+    </div>
+  </div>
+
+  <!-- Balance + Redeem Form -->
+  <div class="loyalty-points-form">
+    <label class="form-label fw-semibold mb-2">
+      <i class="bi bi-gem me-1"></i>
+      Rewards Points
+    </label>
+
+    <div *ngIf="balance" class="balance-line mb-2">
+      <span class="fw-bold">{{ balance.pointsBalance }}</span> pts available
+      <span class="text-muted">(worth $ {{ balance.redeemableValue | number:'1.2-2' }})</span>
+    </div>
+
+    <form *ngIf="redeemedPoints === 0" [formGroup]="redeemForm" (ngSubmit)="redeemPoints()">
+      <div class="input-group">
+        <input
+          type="number"
+          class="form-control"
+          formControlName="points"
+          placeholder="Points to redeem"
+          min="1"
+          [class.is-invalid]="pointsControl?.invalid && pointsControl?.touched">
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="redeemAllEligible()"
+          [disabled]="!canRedeem">
+          Max
+        </button>
+
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="isRedeeming || !canRedeem">
+          <span *ngIf="isRedeeming" class="spinner-border spinner-border-sm me-1"></span>
+          {{ isRedeeming ? 'Applying...' : 'Apply' }}
+        </button>
+      </div>
+
+      <div *ngIf="pointsControl?.invalid && pointsControl?.touched" class="invalid-feedback d-block">
+        <small>
+          <i class="bi bi-exclamation-circle"></i>
+          Redemption points must be a positive value
+        </small>
+      </div>
+
+      <small *ngIf="balance && !canRedeem" class="text-muted d-block mt-2">
+        <i class="bi bi-info-circle"></i>
+        You need at least {{ balance.minRedeemPoints }} points to redeem
+      </small>
+      <small *ngIf="balance && canRedeem" class="text-muted d-block mt-2">
+        <i class="bi bi-info-circle"></i>
+        {{ 1 / balance.pointValue | number:'1.0-0' }} points = $1 off. Minimum {{ balance.minRedeemPoints }} points per redemption.
+      </small>
+    </form>
+  </div>
+</div>

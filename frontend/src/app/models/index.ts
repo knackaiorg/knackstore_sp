@@ -213,6 +213,8 @@ export interface Cart {
   subtotal: number;
   appliedPromoCode: string | null;
   discountAmount: number;
+  redeemedPoints: number;
+  pointsDiscountAmount: number;
   totalPrice: number;
   totalItems: number;
 }
@@ -275,6 +277,9 @@ export interface Order {
   subtotal: number;
   appliedPromoCode: string | null;
   discountAmount: number;
+  redeemedPoints: number;
+  pointsDiscountAmount: number;
+  pointsEarned: number;
   totalPrice: number;
   paymentMethod: string;
   trackingNumber: string;

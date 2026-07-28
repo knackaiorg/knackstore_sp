@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SavedAddress } from '../../models';
 import { CustomerService } from '../../core/services/customer.service';
 import { AddressService } from '../../core/services/address.service';
+import { LoyaltyService } from '../../core/services/loyalty.service';
+import { LoyaltyBalance, LoyaltyTransaction } from '../../models/loyalty.model';
 
 @Component({ selector: 'app-profile', templateUrl: './profile.component.html' })
 export class ProfileComponent implements OnInit {
@@ -10,6 +12,11 @@ export class ProfileComponent implements OnInit {
   loading = true;
   saving = false;
   success = '';
+
+  // Rewards Points: balance + transaction history shown on the profile page.
+  loyaltyBalance: LoyaltyBalance | null = null;
+  loyaltyHistory: LoyaltyTransaction[] = [];
+  loyaltyLoading = true;
 
   // Multi-Address Book: "My Addresses" section state.
   addresses: SavedAddress[] = [];
@@ -23,7 +30,8 @@ export class ProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private customerService: CustomerService,
-    private addressService: AddressService
+    private addressService: AddressService,
+    private loyaltyService: LoyaltyService
   ) {}
 
   ngOnInit() {
@@ -51,6 +59,31 @@ export class ProfileComponent implements OnInit {
     });
 
     this.loadAddresses();
+    this.loadLoyalty();
+  }
+
+  loadLoyalty() {
+    this.loyaltyLoading = true;
+    this.loyaltyService.getBalance().subscribe({
+      next: (b) => (this.loyaltyBalance = b),
+      error: () => {}
+    });
+    this.loyaltyService.getHistory().subscribe({
+      next: (res) => {
+        this.loyaltyHistory = res.transactions;
+        this.loyaltyLoading = false;
+      },
+      error: () => (this.loyaltyLoading = false)
+    });
+  }
+
+  loyaltyBadgeClass(type: string): string {
+    switch (type) {
+      case 'EARNED': return 'bg-success';
+      case 'REDEEMED': return 'bg-warning text-dark';
+      case 'REFUNDED': return 'bg-secondary';
+      default: return 'bg-light text-dark';
+    }
   }
 
   save() {

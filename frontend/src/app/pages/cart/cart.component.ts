@@ -91,6 +91,14 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Handle loyalty points redemption change event
+   * Reload cart to get updated discount information
+   */
+  onPointsChanged() {
+    this.loadCart();
+  }
+
+  /**
    * Navigate to checkout
    */
   checkout() {
