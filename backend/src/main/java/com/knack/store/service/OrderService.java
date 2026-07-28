@@ -32,6 +32,7 @@ public class OrderService {
     private final CartService cartService;
     private final ProductRepository productRepository;
     private final StockService stockService;
+    private final LoyaltyService loyaltyService;
 
     @Transactional
     public OrderDTO placeOrder(String email, OrderDTO.PlaceOrderRequest request) {
@@ -88,6 +89,9 @@ public class OrderService {
         LocalDateTime placedDate = LocalDateTime.now();
         LocalDate expectedDeliveryDate = calculateDeliveryDate(placedDate, selectedDeliveryOption);
 
+        double finalTotalPrice = cart.getTotalPrice() + deliveryCost;
+        int pointsEarned = loyaltyService.calculateEarnedPoints(finalTotalPrice);
+
         Order order = Order.builder()
                 .orderCode("ORD-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
                 .customer(customer)
@@ -98,7 +102,10 @@ public class OrderService {
                 .subtotal(cart.getSubtotal())
                 .appliedPromoCode(cart.getAppliedPromoCode())
                 .discountAmount(cart.getDiscountAmount() != null ? cart.getDiscountAmount() : 0.0)
-                .totalPrice(cart.getTotalPrice() + deliveryCost)
+                .redeemedPoints(cart.getRedeemedPoints() != null ? cart.getRedeemedPoints() : 0)
+                .pointsDiscountAmount(cart.getPointsDiscountAmount() != null ? cart.getPointsDiscountAmount() : 0.0)
+                .pointsEarned(pointsEarned)
+                .totalPrice(finalTotalPrice)
                 .deliveryDate(expectedDeliveryDate)
                 .paymentMethod(request.getPaymentMethod())
                 .trackingNumber("TRK-" + UUID.randomUUID().toString().substring(0, 10).toUpperCase())
@@ -108,6 +115,9 @@ public class OrderService {
 
         entries.forEach(e -> e.setOrder(order));
         Order saved = orderRepository.save(order);
+        // Redeemed points were already deducted from the balance when applied to the cart;
+        // earned points are credited now that the order is confirmed.
+        loyaltyService.recordEarnedPoints(customer, saved.getOrderCode(), pointsEarned);
         cartService.clearCart(cart);
         return toDTO(saved);
     }
@@ -318,6 +328,9 @@ public class OrderService {
                 .subtotal(o.getSubtotal())
                 .appliedPromoCode(o.getAppliedPromoCode())
                 .discountAmount(o.getDiscountAmount() != null ? o.getDiscountAmount() : 0.0)
+                .redeemedPoints(o.getRedeemedPoints() != null ? o.getRedeemedPoints() : 0)
+                .pointsDiscountAmount(o.getPointsDiscountAmount() != null ? o.getPointsDiscountAmount() : 0.0)
+                .pointsEarned(o.getPointsEarned() != null ? o.getPointsEarned() : 0)
                 .totalPrice(o.getTotalPrice())
                 .paymentMethod(o.getPaymentMethod())
                 .trackingNumber(o.getTrackingNumber())
