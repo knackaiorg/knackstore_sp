@@ -61,4 +61,6 @@ public class Order {
     private LocalDateTime placedDate;
 
     private LocalDateTime lastModifiedDate;
+
+    private String cancellationReason;
 }

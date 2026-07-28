@@ -24,6 +24,8 @@ public class OrderDTO {
     private LocalDateTime placedDate;
     private LocalDate deliveryDate;
     private AddressDTO deliveryAddress;
+    private String cancellationReason;
+    private LocalDateTime lastModifiedDate;
     private List<OrderEntryDTO> entries;
 
     @Data
@@ -44,5 +46,10 @@ public class OrderDTO {
         private String paymentMethod;
         private String orderStatus;
         private DeliveryOptionDTO deliveryOption;
+    }
+
+    @Data
+    public static class CancelOrderRequest {
+        private String reason;
     }
 }

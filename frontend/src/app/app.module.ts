@@ -33,6 +33,13 @@ import { LoyaltyPointsComponent } from './shared/components/loyalty-points/loyal
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 
+import { QuickOrderComponent } from './pages/quick-order/quick-order.component';
+
+import { SavedCartsComponent } from './pages/saved-carts/saved-carts.component';
+import { SavedCartDetailComponent } from './pages/saved-cart-detail/saved-cart-detail.component';
+import { ToastComponent } from './shared/components/toast/toast.component';
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -57,7 +64,14 @@ import { NotificationsComponent } from './pages/notifications/notifications.comp
     PromoCodeComponent,
     LoyaltyPointsComponent,
     WishlistComponent,
-    NotificationsComponent
+    NotificationsComponent,
+
+    QuickOrderComponent
+
+    SavedCartsComponent,
+    SavedCartDetailComponent
+    ToastComponent
+
   ],
   imports: [
     BrowserModule,
