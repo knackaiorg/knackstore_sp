@@ -4,6 +4,7 @@ import { Subscription, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
+import { LoyaltyService } from '../../core/services/loyalty.service';
 import { SearchSuggestionService, SuggestionGroup } from '../../core/services/search-suggestion.service';
 
 @Component({
@@ -13,6 +14,7 @@ import { SearchSuggestionService, SuggestionGroup } from '../../core/services/se
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   cartCount = 0;
+  pointsBalance = 0;
   isLoggedIn = false;
   userName = '';
   searchQuery = '';
@@ -28,6 +30,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private cartService: CartService,
+    private loyaltyService: LoyaltyService,
     private router: Router,
     private searchService: SearchSuggestionService,
     private el: ElementRef
@@ -37,10 +40,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.subs.add(this.authService.currentUser$.subscribe(user => {
       this.isLoggedIn = !!user;
       this.userName = user ? user.firstName : '';
-      if (user) this.cartService.loadCart().subscribe();
+      if (user) {
+        this.cartService.loadCart().subscribe();
+        this.loyaltyService.getBalance().subscribe();
+      }
     }));
     this.subs.add(this.cartService.cart$.subscribe(cart => {
       this.cartCount = cart?.totalItems ?? 0;
+    }));
+    this.subs.add(this.loyaltyService.balance$.subscribe(balance => {
+      this.pointsBalance = balance?.pointsBalance ?? 0;
     }));
 
     // listen to search input and fetch suggestions (debounced 300ms)
@@ -223,6 +232,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   logout() {
     this.authService.logout();
     this.cartService.clearLocal();
+    this.loyaltyService.clearLocal();
     this.router.navigate(['/']);
   }
 }

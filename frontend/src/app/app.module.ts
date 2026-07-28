@@ -29,6 +29,7 @@ import { ProductCardComponent } from './shared/components/product-card/product-c
 import { RecentlyViewedProductsComponent } from './shared/components/recently-viewed-products/recently-viewed-products.component';
 import { ProductCarouselComponent } from './shared/components/product-carousel/product-carousel.component';
 import { PromoCodeComponent } from './shared/components/promo-code/promo-code.component';
+import { LoyaltyPointsComponent } from './shared/components/loyalty-points/loyalty-points.component';
 import { WishlistComponent } from './pages/wishlist/wishlist.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 
@@ -61,6 +62,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     RecentlyViewedProductsComponent,
     ProductCarouselComponent,
     PromoCodeComponent,
+    LoyaltyPointsComponent,
     WishlistComponent,
     NotificationsComponent,
 

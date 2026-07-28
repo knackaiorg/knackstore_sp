@@ -15,6 +15,9 @@ public class OrderDTO {
     private Double subtotal;
     private String appliedPromoCode;
     private Double discountAmount;
+    private int redeemedPoints;
+    private Double pointsDiscountAmount;
+    private int pointsEarned;
     private Double totalPrice;
     private String paymentMethod;
     private String trackingNumber;

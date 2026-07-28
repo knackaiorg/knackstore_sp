@@ -38,6 +38,9 @@
     </div>
 
     <div class="d-flex align-items-center gap-3">
+      <a *ngIf="isLoggedIn" routerLink="/account/profile" class="btn btn-outline-warning btn-sm d-flex align-items-center gap-1">
+        ⭐ <span>{{ pointsBalance }} pts</span>
+      </a>
       <a routerLink="/quick-order" class="btn btn-outline-warning btn-sm">Quick Order</a>
 
       <a routerLink="/cart" class="btn btn-outline-light position-relative">

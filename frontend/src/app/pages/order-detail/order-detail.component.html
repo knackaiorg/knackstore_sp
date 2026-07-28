@@ -85,10 +85,25 @@
               <span>-$ {{ order.discountAmount | number:'1.2-2' }}</span>
             </div>
 
+            <!-- Points redeemed (if applied) -->
+            <div *ngIf="order.redeemedPoints > 0 && order.pointsDiscountAmount > 0"
+                 class="d-flex justify-content-between text-success">
+              <span>
+                <i class="bi bi-stars"></i> Points Redeemed ({{ order.redeemedPoints }} pts)
+              </span>
+              <span>-$ {{ order.pointsDiscountAmount | number:'1.2-2' }}</span>
+            </div>
+
             <!-- Total -->
             <div class="d-flex justify-content-between fw-bold mt-2 pt-2 border-top">
               <span>Total</span>
               <span class="text-primary">$ {{ order.totalPrice | number:'1.2-2' }}</span>
+            </div>
+
+            <!-- Points earned -->
+            <div *ngIf="order.pointsEarned > 0" class="d-flex justify-content-between mt-2 text-muted small">
+              <span><i class="bi bi-gem"></i> Rewards points earned</span>
+              <span>+{{ order.pointsEarned }} pts</span>
             </div>
           </div>
         </div>

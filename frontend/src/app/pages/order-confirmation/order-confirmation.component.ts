@@ -24,9 +24,21 @@ import { OrderService } from '../../core/services/order.service';
               <div class="small">-$ {{ order.discountAmount | number:'1.2-2' }}</div>
             </div>
           </div>
+          <div class="col-6" *ngIf="order.redeemedPoints > 0 && order.pointsDiscountAmount > 0">
+            <small class="text-muted">Points Redeemed</small>
+            <div class="text-success">
+              <i class="bi bi-stars"></i> {{ order.redeemedPoints }} pts
+              <div class="small">-$ {{ order.pointsDiscountAmount | number:'1.2-2' }}</div>
+            </div>
+          </div>
           
           <div class="col-6"><small class="text-muted">Total</small><div class="fw-bold text-primary fs-5">$ {{ order.totalPrice | number:'1.2-2' }}</div></div>
           <div class="col-6"><small class="text-muted">Tracking No.</small><div class="fw-bold">{{ order.trackingNumber }}</div></div>
+          <div class="col-12" *ngIf="order.pointsEarned > 0">
+            <div class="alert alert-light border mb-0 mt-2 py-2 small">
+              <i class="bi bi-gem text-primary"></i> You earned <strong>{{ order.pointsEarned }} points</strong> from this order!
+            </div>
+          </div>
         </div>
       </div>
     </div>

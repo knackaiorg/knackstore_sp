@@ -42,6 +42,14 @@ public class Order {
 
     private Double discountAmount;
 
+    // Loyalty points redeemed against this order, and the rupee value they were worth.
+    private Integer redeemedPoints;
+
+    private Double pointsDiscountAmount;
+
+    // Loyalty points earned from placing this order (credited to the customer's balance).
+    private Integer pointsEarned;
+
     private Double totalPrice;
 
     private LocalDate deliveryDate;
