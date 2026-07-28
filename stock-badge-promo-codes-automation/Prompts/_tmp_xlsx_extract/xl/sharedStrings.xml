@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="603" uniqueCount="483"><si><t>REQ-ID</t></si><si><t>Requirement</t></si><si><t>TC-ID</t></si><si><t>Test Case Summary</t></si><si><t>Precondition</t></si><si><t>Test Steps</t></si><si><t>Expected Result</t></si><si><t>Test Type</t></si><si><t>R-001</t></si><si><t>Promo Code Entry Field</t></si><si><t>TC-001</t></si><si><t>Apply a valid promo code</t></si><si><t>Customer has at least one item in the cart. A valid promo code exists.</t></si><si><t>1. Open the cart page.2. Enter a valid promo code.3. Click Apply.</t></si><si><t>You are an experienced Angular developer working on an Angular 17 application.
+
+Project Details
+- Angular 17
+- Bootstrap 5
+- RxJS
+- HttpClient
+- JWT Authentication Interceptor already configured
+- Architecture: Component → Service → HttpClient
+- Use NgModules (unless standalone is explicitly requested).
+- Follow Angular best practices.
+- Use strongly typed interfaces/models.
+- Keep business logic inside services.
+- Use Reactive Forms.
+- Use Observables.
+- Write clean, reusable, maintainable, production-ready code.
+
+Generate the following:
+
+1. Angular Component (.ts)
+2. HTML Template (.html)
+3. Component SCSS (if required)
+4. PromoCodeService with HttpClient methods
+5. TypeScript models/interfaces
+6. Required module imports
+7. Routing changes (if required)
+8. API integration
+9. Reactive Form validation
+10. Error handling
+11. Loading state
+12. Success/Error alert placeholders
+13. Example integration with existing Cart component
+14. Inline comments explaining important logic
+
+---------------------------------------------------------
+USER STORY
+---------------------------------------------------------
+
+Feature
+Promo Code / Discount Coupon
+
+Objective
+
+Allow logged-in users to apply a promo code on the Cart page to receive a discount before checkout.
+
+---------------------------------------------------------
+FUNCTIONAL REQUIREMENTS
+---------------------------------------------------------
+
+1. Cart Page UI
+
+- Display a Promo Code text field prominently near the Order Summary.
+- Display an Apply button beside the text field.
+- Promo code field is optional.
+- Checkout must work even when no promo code is entered.
+- Display the applied promo code after successful application.
+- Display a Remove link beside the applied promo code.
+
+---------------------------------------------------------
+
+2. Promo Code Field Validation
+
+The Promo Code field should:
+
+- Accept only alphanumeric characters.
+- Maximum length: 20 characters.
+- Trim leading/trailing spaces before sending to backend.
+- Show validation if Apply is clicked with an empty field.
+- Validate only when Apply button is clicked.
+
+---------------------------------------------------------
+
+3. Promo Code Validation
+
+When Apply is clicked:
+
+Call backend API.
+
+Backend validates:
+
+- Promo code exists.
+- Promo code is active.
+- Promo code is within valid start and end dates.
+- Only one promo code is allowed per cart.
+- Minimum order amount is met (if configured).
+
+Minimum order amount is optional for every promo code.
+
+---------------------------------------------------------
+
+4. Error Messages
+
+Display backend messages exactly as received.
+
+Invalid code
+
+&quot;This promo code is not valid.&quot;
+
+Already applied
+
+&quot;A promo code is already applied. Remove it before adding a new one.&quot;
+
+Minimum order amount not met
+
+&quot;This code requires a minimum cart value of ₹X.&quot;
+
+---------------------------------------------------------
+
+5. Discount Types
+
+Support two discount types.
+
+PERCENTAGE
+
+Example
+
+SAVE10
+
+10% discount on cart subtotal.
+
+FIXED
+
+Example
+
+FLAT200
+
+₹200 discount on cart subtotal.
+
+Example rule
+
+FLAT200 applies only when minimum cart value ₹2000 is met.
+
+---------------------------------------------------------
+
+6. One Promo Code Per Cart
+
+If one promo code is already applied:
+
+- Do not allow another promo code.
+- Display
+
+&quot;A promo code is already applied. Remove it before adding a new one.&quot;
+
+Customer must remove the current promo code before applying another.
+
+---------------------------------------------------------
+
+7. Cart Summary
+
+After successful application:
+
+- Refresh cart from backend.
+- Display Discount as a separate line item.
+- Label format
+
+Discount — Code (FLAT200)
+
+- Display discount amount as a negative value.
+Example
+
+-₹200
+
+- Display discount line in green.
+- Immediately display revised Order Total below the discount.
+- Show Remove link beside applied promo code.
+
+---------------------------------------------------------
+
+8. Remove Promo Code
+
+Clicking Remove should
+
+- Call backend Remove Promo Code API.
+- Refresh cart.
+- Remove discount line.
+- Restore original order total.
+- Allow another promo code to be applied.
+
+---------------------------------------------------------
+
+9. User Access
+
+- Available only for logged-in users.
+- Guest checkout is out of scope.
+
+---------------------------------------------------------
+
+10. Order Persistence
+
+When cart converts to order
+
+Store:
+
+- Applied promo code.
+- Discount type.
+- Discount value.
+- Discount amount.
+- Final discounted order total.
+
+Customer Order History should display
+
+- Promo code
+- Discount line item
+- Adjusted order total
+
+Finance systems should be able to retrieve discount information from the order record.
+
+---------------------------------------------------------
+BACKEND APIs
+---------------------------------------------------------
+
+POST /cart/promocode/apply
+
+Request
+
+{
+    &quot;promoCode&quot;: &quot;SAVE10&quot;
+}
+
+Example Response
+
+{
+    &quot;success&quot;: true,
+    &quot;promoCode&quot;: &quot;SAVE10&quot;,
+    &quot;discountType&quot;: &quot;PERCENTAGE&quot;,
+    &quot;discountValue&quot;: 10,
+    &quot;discountAmount&quot;: 250,
+    &quot;cartSubtotal&quot;: 2500,
+    &quot;cartTotal&quot;: 2250
+}
+
+---------------------------------------------------------
+
+POST /cart/promocode/remove
+
+Response
+
+{
+    &quot;success&quot;: true
+}
+
+---------------------------------------------------------
+IMPLEMENTATION REQUIREMENTS
+---------------------------------------------------------
+
+- Use Reactive Forms.
+- Use Validators.required only when Apply button is clicked.
+- Use Validators.maxLength(20).
+- Validate alphanumeric input using Regex.
+- Trim spaces before API call.
+- Disable Apply button while API request is in progress.
+- Disable Remove button while remove request is in progress.
+- Display backend error messages exactly.
+- Refresh cart after Apply and Remove.
+- Keep all HTTP calls inside PromoCodeService.
+- Component should never call HttpClient directly.
+- Use Observables throughout.
+- Handle loading, success and error states.
+- Strongly type all request/response models.
+- Follow Angular 17 best practices.
+- Use Bootstrap 5 styling.
+
+---------------------------------------------------------
+EXPECTED OUTPUT
+---------------------------------------------------------
+
+Generate complete Angular implementation including
+
+- promo-code.component.ts
+- promo-code.component.html
+- promo-code.component.scss
+- promo-code.service.ts
+- promo-code.model.ts
+- API request/response interfaces
+- Required Angular module imports
+- Routing updates (if required)
+- Example integration into existing Cart component
+- Bootstrap 5 responsive UI
+- Reactive Form validation
+- Loading indicators
+- Success/Error message placeholders
+- Proper comments explaining the implementation
+
+The generated code should be complete, production-ready, and follow Angular 17 best practices.</t></si><si><t>Sr.NO.</t></si><si><t>Promo code is accepted and the applicable discount is reflected in the order summary.</t></si><si><t xml:space="preserve">You are a Java developer working on a Spring Boot 3.2 application.
+
+The project uses: Java 17, Spring Data JPA, Spring Security with JWT, Lombok, H2 database.
+Architecture: Controller → Service → Repository.
+
+Using the user story below, generate the backend code:
+REST Controller
+Service class
+Repository interface
+JPA Entity
+Request/Response DTOs
+
+1. Create two types of the promotions 1.Fixed 2.Percentage
+2. Minimum cart value check is required for the Fixed promotion and optional for the percentage promotion
+3. failure cases need to be addrssed a. code not found — &quot;This promo code is not valid&quot;; b. minimum order amount not met — &quot;This code requires a minimum cart value of ₹X. c. code already applied.
+4. Craete a table to store the code string, discount type (PERCENTAGE or FIXED), discount value, and optional minimum order amount.
+5. A promo code input field and Apply button appear on the cart page. The customer enters a code; the system validates it against the promo code table. Valid codes reduce the cart subtotal either by a percentage or a fixed amount. A minimum order amount can be set per code and is enforced at apply time. Only one code per cart — customers can remove and replace. Discount is shown as a labelled negative line item in the cart summary, with a revised total. On order placement, the discount amount and code are stored on the order record. No admin code management UI this sprint — codes are pre-seeded via data loader. Login required (guest checkout not in scope)
+</t></si><si><t>Positive</t></si><si><t>TC-002</t></si><si><t>Verify promo code field and Apply button are displayed</t></si><si><t>Customer has at least one item in the cart.</t></si><si><t>Requirements</t></si><si><t>1. Open the cart page.2. Observe the order summary section.</t></si><si><t>A promo code text field and Apply button are displayed prominently near the order summary.</t></si><si><t>UI / Positive</t></si><si><t xml:space="preserve">User Story:  </t></si><si><t>TC-003</t></si><si><t>Checkout without entering a promo code</t></si><si><t>Acceptance Criteria:</t></si><si><t>1. Open the cart page.2. Leave the promo code field blank.3. Proceed to checkout.</t></si><si><t>Checkout proceeds successfully without requiring a promo code.</t></si><si><t xml:space="preserve">Estimated Effort: </t></si><si><t>TC-004</t></si><si><t>Enter a valid alphanumeric promo code with exactly 20 characters</t></si><si><t>Customer has at least one item in the cart. A valid 20-character alphanumeric code exists.</t></si><si><t>1. Enter a valid 20-character alphanumeric promo code.2. Click Apply.</t></si><si><t>The field accepts the code and processes it successfully.</t></si><si><t>Boundary / Positive</t></si><si><t>TC-005</t></si><si><t>Enter a promo code longer than 20 characters</t></si><si><t>1. Enter a promo code containing 21 or more characters.2. Click Apply.</t></si><si><t>The field does not accept more than 20 characters or displays an appropriate validation message.</t></si><si><t>Boundary / Negative</t></si><si><t>TC-006</t></si><si><t>Enter an invalid promo code</t></si><si><t>1. Enter an invalid alphanumeric promo code.2. Click Apply.</t></si><si><t>An appropriate error message is displayed and no discount is applied.</t></si><si><t>Negative</t></si><si><t>TC-007</t></si><si><t>Enter special characters in the promo code field</t></si><si><t>1. Enter a promo code containing special characters (e.g., SAVE@10!).2. Click Apply.</t></si><si><t>The system rejects invalid characters or displays an appropriate validation message since only alphanumeric codes are accepted.</t></si><si><t>As a customer, I want to enter a promo code on the cart page so that I can receive a discount before checkout.</t></si><si><t>TC-008</t></si><si><t>Enter only alphabetic promo code</t></si><si><t>A text field and Apply button are displayed prominently near the order summary.
+
+Field accepts alphanumeric codes up to 20 characters.
+
+Field is optional; checkout works without entry.</t></si><si><t>Small</t></si><si><t>1. Enter an alphabetic promo code (e.g., SAVEWELCOME).2. Click Apply.</t></si><si><t>The field accepts the input because alphabetic characters are alphanumeric. The code is validated by the system.</t></si><si><t>TC-009</t></si><si><t>Leave the promo code field blank and click Apply</t></si><si><t>1. Leave the promo code field empty.2. Click Apply.</t></si><si><t>The system displays an appropriate message (if applicable) or takes no action without affecting checkout functionality.</t></si><si><t>TC-010</t></si><si><t>Enter a 1-character alphanumeric promo code</t></si><si><t>1. Enter a single alphanumeric character.2. Click Apply.</t></si><si><t>The field accepts the input and validates the promo code according to business rules.</t></si><si><t>Boundary</t></si><si><t>TC-011</t></si><si><t>Verify leading and trailing spaces handling</t></si><si><t>1. Enter a valid promo code with leading/trailing spaces.2. Click Apply.</t></si><si><t>Spaces are trimmed before validation or an appropriate validation message is displayed, according to system behavior.</t></si><si><t>Edge / Negative</t></si><si><t>TC-012</t></si><si><t>Copy and paste a valid promo code</t></si><si><t>1. Copy a valid promo code.2. Paste it into the promo code field.3. Click Apply.</t></si><si><t>The pasted alphanumeric code is accepted and processed correctly.</t></si><si><t>TC-013</t></si><si><t>Verify field accepts mixed alphanumeric characters</t></si><si><t>1. Enter a mixed alphanumeric code (e.g., SAVE2026AB).2. Click Apply.</t></si><si><t>The field accepts the input and validates the promo code successfully.</t></si><si><t>R-002</t></si><si><t>Validation &amp; Error Handling</t></si><si><t xml:space="preserve">
+As a system, I want to validate promo codes against the promo code table, so that only eligible codes are applied.</t></si><si><t>TC-014</t></si><si><t>Apply a valid promo code successfully</t></si><si><t>Promo code exists, is active, and cart subtotal meets minimum order amount (if configured)</t></si><si><r><rPr><rFont val="Arial"/><color theme="1"/></rPr><t>Code must exist in the promo code table.
+
+Code must be within valid start/end dates.
+
+If a minimum order amount is set, cart subtotal must meet it.
+
+Error messages:
+
+Invalid code →</t></r><r><rPr><rFont val="Arial"/><b/><color rgb="FFFF0000"/></rPr><t xml:space="preserve"> “This promo code is not valid.”</t></r><r><rPr><rFont val="Arial"/><color theme="1"/></rPr><t xml:space="preserve">
+
+Already applied →</t></r><r><rPr><rFont val="Arial"/><color rgb="FFFF0000"/></rPr><t xml:space="preserve"> </t></r><r><rPr><rFont val="Arial"/><b/><color rgb="FFFF0000"/></rPr><t>“A promo code is already applied. Remove it before adding a new one.”</t></r><r><rPr><rFont val="Arial"/><color theme="1"/></rPr><t xml:space="preserve">
+
+Minimum not met →</t></r><r><rPr><rFont val="Arial"/><b/><color rgb="FFFF0000"/></rPr><t xml:space="preserve"> “This code requires a minimum cart value of ₹X.”</t></r></si><si><t>1. Add eligible items to cart.2. Enter a valid promo code.3. Click Apply.</t></si><si><t>Promo code is applied successfully and applicable discount is reflected in the order total.</t></si><si><t>Medium</t></si><si><t>TC-015</t></si><si><t>Apply a valid promo code with no minimum order requirement</t></si><si><t>Active promo code exists with no minimum order amount configured</t></si><si><t>1. Add items to cart.2. Enter the valid promo code.3. Click Apply.</t></si><si><t>Promo code is applied successfully regardless of cart subtotal.</t></si><si><t>TC-016</t></si><si><t>Apply a promo code when cart subtotal exactly equals the minimum amount</t></si><si><t>Active promo code with minimum order amount configured; cart subtotal equals the minimum value</t></si><si><t>1. Add items until subtotal equals the minimum amount.2. Apply the promo code.</t></si><si><t>Promo code is applied successfully.</t></si><si><t>TC-017</t></si><si><t>Enter a promo code that does not exist</t></si><si><t>Cart contains items</t></si><si><t>1. Enter a non-existent promo code.2. Click Apply.</t></si><si><t>Promo code is not applied. Error message displayed: &quot;This promo code is not valid.&quot;</t></si><si><t>TC-018</t></si><si><t>Apply an expired promo code</t></si><si><t>Promo code exists but end date has passed</t></si><si><t>1. Enter the expired promo code.2. Click Apply.</t></si><si><t>Promo code is rejected. Error message displayed: &quot;This promo code is not valid.&quot;</t></si><si><t>TC-019</t></si><si><t>Apply a promo code before its start date</t></si><si><t>Promo code exists but start date is in the future</t></si><si><t>1. Enter the future-dated promo code.2. Click Apply.</t></si><si><t>TC-020</t></si><si><t>Apply a promo code when cart subtotal is below the minimum amount</t></si><si><t>Active promo code with minimum order amount configured; cart subtotal is less than the required amount</t></si><si><t>1. Add items below the required minimum subtotal.2. Apply the promo code.</t></si><si><t>Promo code is not applied. Error message displayed: &quot;This code requires a minimum cart value of ₹X.&quot;</t></si><si><t>TC-021</t></si><si><t>Apply a second promo code when one is already applied</t></si><si><t>Discount Types Supported</t></si><si><t>One valid promo code is already applied to the cart</t></si><si><t>1. Apply a valid promo code.2. Enter another valid promo code.3. Click Apply.</t></si><si><t>Second promo code is not applied. Error message displayed: &quot;A promo code is already applied. Remove it before adding a new one.&quot;</t></si><si><t>As a customer, I want promo codes to apply either a percentage or fixed discount, so that I can benefit from different types of offers.</t></si><si><t>TC-022</t></si><si><r><rPr><rFont val="Arial"/><color theme="1"/></rPr><t xml:space="preserve">System supports two discount types: PERCENTAGE and FIXED.
+
+Percentage discounts apply to cart subtotal.
+</t></r><r><rPr><rFont val="Arial"/><b/><color rgb="FF00FF00"/></rPr><t xml:space="preserve">WELCOME10 </t></r><r><rPr><rFont val="Arial"/><color theme="1"/></rPr><t xml:space="preserve"> might give ten percent off
+Fixed discounts deduct a flat amount from cart subtotal.
+</t></r><r><rPr><rFont val="Arial"/><b/><color rgb="FF00FF00"/></rPr><t>FLAT500</t></r><r><rPr><rFont val="Arial"/><color theme="1"/></rPr><t xml:space="preserve"> will deduct the 500 when minimum cart value 2000 is met.</t></r></si><si><t>Remove an applied promo code and apply another valid promo code</t></si><si><t>One promo code is already applied</t></si><si><t>1. Remove the existing promo code.2. Enter a different valid promo code.3. Click Apply.</t></si><si><t>Previous promo code is removed and new promo code is applied successfully.</t></si><si><t>TC-023</t></si><si><t>Apply a promo code when cart subtotal is ₹1 less than the minimum amount</t></si><si><t>Active promo code with minimum order amount configured</t></si><si><t>1. Set cart subtotal to ₹1 below the required minimum.2. Apply the promo code.</t></si><si><t>Promo code is rejected. Error message displayed: &quot;This code requires a minimum cart value of ₹X.&quot;</t></si><si><t>TC-024</t></si><si><t>Apply a promo code on its start date</t></si><si><t>Promo code start date is today's date</t></si><si><t>1. Enter the promo code on its start date.2. Click Apply.</t></si><si><t>Promo code is accepted and applied successfully.</t></si><si><t>TC-025</t></si><si><t>Apply a promo code on its end date</t></si><si><t>Promo code end date is today's date</t></si><si><t>1. Enter the promo code on its end date.2. Click Apply.</t></si><si><t>TC-026</t></si><si><t>Submit an empty promo code</t></si><si><t>Promo code is not applied. User is prevented from submission or receives an appropriate validation message.</t></si><si><t>TC-027</t></si><si><t>Apply a promo code after increasing cart value to meet the minimum</t></si><si><t>Active promo code with minimum order amount configured; initial subtotal is below minimum</t></si><si><t>1. Attempt to apply the promo code below the minimum.2. Add more items until subtotal meets the minimum.3. Apply the promo code again.</t></si><si><t>Promo code is applied successfully after the minimum cart value requirement is met.</t></si><si><t>R-003</t></si><si><t>TC-028</t></si><si><t>Apply a valid percentage promo code</t></si><si><t>Customer has items in cart with subtotal ₹1,000. Promo code WELCOME10 exists with PERCENTAGE = 10%. (MOQ=500)</t></si><si><t>1. Open cart.2. Enter WELCOME10.3. Click Apply.</t></si><si><t>Promo code is accepted. A 10% (₹100) discount is applied to the cart subtotal. Final subtotal becomes ₹900.</t></si><si><t>TC-029</t></si><si><t>Apply a valid fixed discount promo code</t></si><si><t>Customer has items in cart with subtotal ₹1,000. Promo code FLAT500 exists with FIXED = ₹500. (MOQ=2000)</t></si><si><t>1. Open cart.2. Enter FLAT500.3. Click Apply.</t></si><si><t>Promo code is accepted. ₹200 is deducted from the subtotal. Final subtotal becomes ₹800.</t></si><si><t>TC-030</t></si><si><t>Apply percentage promo code to a small subtotal</t></si><si><t>Single Code Enforcement and Failure Cases</t></si><si><t>Cart subtotal is ₹100. Promo code FIRST15 is valid. (No MOQ)</t></si><si><t>1. Open cart.2. Apply FIRST15</t></si><si><t>As a customer, I want only one promo code active per cart, so that the rules are clear and consistent.
+and want clear error messages when a promo code fails, so that I understand why the discount was not applied and can take corrective action.</t></si><si><t>System calculates 10% of ₹100 correctly (₹10). Final subtotal becomes ₹90.</t></si><si><t>If a code is already applied, system prevents adding another.
+
+Message displayed: “A promo code is already applied. Remove it before adding a new one.”
+
+Customers can remove the current code and apply a different one.
+If code not found — 
+
+Message displayed&quot;This promo code is not valid&quot;
+If  minimum order amount not met —
+
+Message displayed &quot;This code requires a minimum cart value of ₹2000.&quot; 
+The minimum is an optional property on each code record</t></si><si><t>TC-031</t></si><si><t>Apply fixed promo code when discount exceeds subtotal</t></si><si><t>Cart subtotal is ₹150. Promo code FLAT200 is valid.</t></si><si><t>1. Open cart.2. Apply FLAT200.</t></si><si><t>System does not allow the payable amount to become negative. Final payable amount is ₹0 (or as per business rule).</t></si><si><t>TC-032</t></si><si><t>Apply promo code with empty input</t></si><si><t>Customer has items in cart.</t></si><si><t>1. Leave promo code field blank.2. Click Apply.</t></si><si><t>Validation message is displayed indicating promo code cannot be empty. No discount is applied.</t></si><si><t>TC-033</t></si><si><t>Apply an invalid promo code</t></si><si><t>1. Enter INVALID123.2. Click Apply.</t></si><si><t>Error message indicates the promo code is invalid. Cart total remains unchanged.</t></si><si><t>TC-034</t></si><si><t>Apply promo code with incorrect letter case</t></si><si><t>Promo code SAVE10 exists.</t></si><si><t>1. Enter save10.2. Click Apply.</t></si><si><t>System behavior matches business rules (accepts if case-insensitive; otherwise displays invalid code message).</t></si><si><t>Negative / Validation</t></si><si><t>TC-035</t></si><si><t>Verify percentage discount calculation accuracy</t></si><si><t>Cart subtotal is ₹999. Promo code WELCOME10 is valid.</t></si><si><t>1. Apply WELCOME10</t></si><si><t>Discount is calculated accurately (₹99.90 if decimals are supported, or according to the application's rounding rules).</t></si><si><t>TC-036</t></si><si><t>Verify fixed discount does not affect calculation method</t></si><si><t>Cart subtotal is ₹750. Promo code FLAT500 is valid.</t></si><si><t xml:space="preserve">Cart Summary Display
+
+
+
+</t></si><si><t>1. Apply FLAT500</t></si><si><t>Exactly ₹200 is deducted regardless of subtotal percentage. Final subtotal becomes ₹550.</t></si><si><t>As a customer, I want the discount shown clearly in the cart summary, so that I can see my savings.</t></si><si><t>TC-037</t></si><si><t>Discount appears as a separate line item labeled “Discount — Code (XYZ)” in green with a negative value.
+
+Revised total is displayed immediately after discount line.
+
+A “Remove” link is shown beside the applied code.</t></si><si><t>Verify only supported discount types are applied</t></si><si><t>Promo codes configured with supported types only (PERCENTAGE, FIXED).</t></si><si><t xml:space="preserve">
+Medium</t></si><si><t>1. Apply a percentage promo code.2. Apply a fixed promo code.</t></si><si><t>System successfully applies only supported discount types as defined in the acceptance criteria.</t></si><si><t>R-004</t></si><si><t>TC-038</t></si><si><t>Apply a valid promo code to cart</t></si><si><t>Customer has items in cart. Valid promo code exists.</t></si><si><t>1. Add item(s) to cart.2. Enter a valid promo code.3. Click Apply.</t></si><si><t>Promo code is successfully applied. Discount is calculated correctly. Only one promo code is active in the cart.</t></si><si><t>TC-039</t></si><si><t>Convert cart with valid promo code into an order</t></si><si><t>Valid promo code already applied to cart.</t></si><si><t>1. Proceed to checkout.2. Complete payment.3. View order details in database/order record.</t></si><si><t>Promo code string is stored on the order record.</t></si><si><t>TC-040</t></si><si><t>Verify discount type and value are stored in order record</t></si><si><t>Order placed with percentage promo code.</t></si><si><t>1. Complete order using percentage promo code.2. Verify order record.</t></si><si><t>Discount type = Percentage and configured discount value are stored correctly.</t></si><si><t>TC-041</t></si><si><t>Verify fixed discount details are stored</t></si><si><t>Order placed with fixed-value promo code.</t></si><si><t>1. Apply fixed discount promo code.2. Place order.3. Verify order record.</t></si><si><t>Discount type = Fixed and configured discount value are stored correctly.</t></si><si><t>TC-042</t></si><si><t>Verify discount amount field is recorded</t></si><si><t>Valid promo code applied.</t></si><si><t>1. Apply promo code.2. Place order.3. Check order record.</t></si><si><t>Actual discount amount applied is stored in a separate field.</t></si><si><t>TC-043</t></si><si><t>Verify final order total after discount</t></si><si><t>1. Apply promo code.2. Verify cart total.3. Complete checkout.4. Verify order total.</t></si><si><t>Final order total equals subtotal minus applied discount.</t></si><si><t>TC-044</t></si><si><t>Verify customer order history displays discount</t></si><si><t>Order with promo discount exists.</t></si><si><t>1. Login as customer.2. Open Order History.3. View order details.</t></si><si><t>Discount line item, promo code (if applicable), and adjusted total are displayed correctly.</t></si><si><t>TC-045</t></si><si><t>Verify finance report contains discount information</t></si><si><t>Completed order with promo exists.</t></si><si><t>1. Generate finance report.2. Search for completed order.</t></si><si><t>Report includes promo code, discount type, discount value, discount amount, and adjusted order total.</t></si><si><t>TC-046</t></si><si><t xml:space="preserve">Order History Discount Recording
+
+</t></si><si><t>Apply a second promo code when one is already active</t></si><si><t>Cart already has a valid promo code applied.</t></si><si><t>1. Enter another valid promo code.2. Click Apply.</t></si><si><t>As a system, I want the discount amount and promo code recorded on the order, so that finance and reconciliation teams can trace discounts and customers can see accurate order totals.</t></si><si><t>System prevents multiple active promo codes. Clear error message is displayed indicating only one promo code is allowed.</t></si><si><t>When a cart is converted to an order, the applied promo code string is stored on the order record.
+
+The discount type (percentage or fixed) and discount value are stored along with the code.
+
+The discount amount applied is recorded as a separate field in the order record.
+
+The final order total reflects the post‑discount value.
+
+Order history views for customers show the discount line item and adjusted total.
+
+Finance reports can query discount details from the order record for reconciliation.</t></si><si><t>TC-047</t></si><si><t>1. Enter an invalid promo code.2. Click Apply.</t></si><si><t>Promo code is rejected. Clear error message explains the code is invalid. No discount is applied.</t></si><si><t>TC-048</t></si><si><t>Expired promo code exists.</t></si><si><t>1. Enter expired promo code.2. Click Apply.</t></si><si><t>Promo code is rejected with clear message indicating it has expired.</t></si><si><t>TC-049</t></si><si><t>Apply promo code that does not meet eligibility criteria</t></si><si><t>Promo code requires minimum purchase or eligible products.</t></si><si><t>1. Create cart that does not satisfy criteria.2. Apply promo code.</t></si><si><t>Promo code is not applied. Clear error message explains why eligibility requirements are not met.</t></si><si><t>TC-050</t></si><si><t>Apply promo code with incorrect format</t></si><si><t>1. Enter promo code with invalid characters or incorrect format.2. Click Apply.</t></si><si><t>Validation prevents application. User receives clear format-related error message.</t></si><si><t>TC-051</t></si><si><t>Apply empty promo code</t></si><si><t>System displays validation message requesting a promo code.</t></si><si><t>TC-052</t></si><si><t>Verify promo code removal and application of a new code</t></si><si><t>Valid promo code already applied.</t></si><si><t>1. Remove existing promo code.2. Apply another valid promo code.</t></si><si><t>Previous promo code is removed successfully. New promo code becomes the only active promo code.</t></si><si><t>TC-053</t></si><si><t>Verify boundary case with 100% discount promo</t></si><si><t>100% discount promo exists.</t></si><si><t>1. Apply 100% discount promo.2. Complete checkout.</t></si><si><t>Discount is applied correctly. Final order total is zero (or minimum allowed amount per business rule). Order record stores correct discount details.</t></si><si><t>TC-054</t></si><si><t>Verify fixed discount equal to cart total</t></si><si><t>Fixed discount equals cart subtotal.</t></si><si><t>1. Apply fixed discount equal to subtotal.2. Complete checkout.</t></si><si><t>Final order total becomes zero (or minimum payable amount per business rule). Discount details are stored correctly.</t></si><si><t>TC-055</t></si><si><t>Verify fixed discount greater than cart total</t></si><si><t>Fixed discount exceeds cart subtotal.</t></si><si><t>1. Apply oversized fixed discount.2. Complete checkout or apply promo.</t></si><si><t>System follows business rules (caps discount at order value or rejects promo). Appropriate message is displayed if rejected.</t></si><si><t>TC-056</t></si><si><t>Verify promo code application on minimum qualifying amount</t></si><si><t>Promo requires minimum cart value.</t></si><si><t>1. Create cart exactly at minimum qualifying value.2. Apply promo code.</t></si><si><t>Promo code is accepted and discount is applied successfully.</t></si><si><t>TC-057</t></si><si><t>Verify promo code just below minimum qualifying amount</t></si><si><t>1. Create cart value just below minimum threshold.2. Apply promo code.</t></si><si><t>Promo code is rejected with clear eligibility error message.</t></si><si><t>R-005</t></si><si><t>Cart Summary Display</t></si><si><t>TC-058</t></si><si><t>Verify discount is displayed after applying a valid discount code</t></si><si><t>Customer has items in cart and a valid discount code (e.g., XYZ)</t></si><si><t>1. Add item(s) to cart.2. Apply valid discount code &quot;XYZ&quot;.3. View cart summary.</t></si><si><t>A separate line item labeled &quot;Discount — Code (XYZ)&quot; is displayed in green with a negative discount value.</t></si><si><t>TC-059</t></si><si><t>Verify revised total is updated immediately after discount is applied</t></si><si><t>Customer has items in cart and a valid discount code</t></si><si><t>1. Add item(s) to cart.2. Apply valid discount code.3. Observe cart summary.</t></si><si><t>Revised total is displayed immediately below the discount line and reflects the applied discount correctly.</t></si><si><t>TC-060</t></si><si><t>Verify &quot;Remove&quot; link is displayed beside the applied discount code</t></si><si><t>Valid discount code has been applied</t></si><si><t>1. Apply valid discount code.2. View discount line in cart summary.</t></si><si><t>A &quot;Remove&quot; link is displayed beside the applied discount code.</t></si><si><t>TC-061</t></si><si><t>Verify removing the applied discount</t></si><si><t>1. Click the &quot;Remove&quot; link.2. Observe the cart summary.</t></si><si><t>Discount line is removed, original total is restored, and the discount code is no longer applied.</t></si><si><t>TC-062</t></si><si><t>Verify discount label format</t></si><si><t>1. Apply discount code &quot;XYZ&quot;.2. Check the discount line label.</t></si><si><t>Label is displayed exactly as &quot;Discount — Code (XYZ)&quot;.</t></si><si><t>TC-063</t></si><si><t>Verify discount value is displayed as a negative amount</t></si><si><t>1. Apply valid discount code.2. Observe the discount amount.</t></si><si><t>Discount value is prefixed with a minus (-) sign and represents the correct deducted amount.</t></si><si><t>TC-064</t></si><si><t>Verify discount line is displayed in green</t></si><si><t>1. Apply valid discount code.2. Inspect the cart summary visually.</t></si><si><t>Discount line (label and/or amount as per UI design) is displayed in green.</t></si><si><t>UI</t></si><si><t>TC-065</t></si><si><t>Verify cart without an applied discount</t></si><si><t>Customer has items in cart but no discount applied</t></si><si><t>1. Add items to cart.2. Open cart summary.</t></si><si><t>No discount line or &quot;Remove&quot; link is displayed. Cart total shows the original amount.</t></si><si><t>TC-066</t></si><si><t>Verify behavior with an invalid discount code</t></si><si><t>Customer has items in cart</t></si><si><t>1. Enter an invalid discount code.2. Attempt to apply it.</t></si><si><t>Discount is not applied. No discount line or revised total is displayed. Appropriate validation/error message is shown (if supported).</t></si><si><t>TC-067</t></si><si><t>Verify behavior when an empty discount code is submitted</t></si><si><t>1. Leave the discount code field blank.2. Click Apply.</t></si><si><t>Discount is not applied. No discount line or revised total is displayed. Appropriate validation message is shown (if supported).</t></si><si><t>TC-068</t></si><si><t>Verify revised total calculation with a zero discount value</t></si><si><t>System allows a discount code resulting in ₹0 discount (if applicable)</t></si><si><t>1. Apply a code with ₹0 discount.2. Observe cart summary.</t></si><si><t>Discount line displays -₹0.00 (or equivalent), and revised total remains unchanged.</t></si><si><t>TC-069</t></si><si><t>Verify discount display with a maximum allowed discount</t></si><si><t>Cart qualifies for the maximum permitted discount</t></si><si><t>1. Add qualifying items.2. Apply eligible discount code.3. Review cart summary.</t></si><si><t>Discount amount matches the maximum allowed value, is shown as a negative amount in green, and revised total is calculated correctly.</t></si><si><t>TC-070</t></si><si><t>Verify display with a minimal discount amount</t></si><si><t>Cart qualifies for the minimum non-zero discount</t></si><si><t>1. Apply a discount resulting in the smallest possible discount (e.g., ₹0.01).2. Observe cart summary.</t></si><si><t>Discount is displayed correctly with the minimum value, revised total is updated accurately, and formatting remains correct.</t></si><si><t>TC-071</t></si><si><t>Verify cart summary after page refresh</t></si><si><t>1. Apply valid discount code.2. Refresh the cart page.</t></si><si><t>Discount line, revised total, and &quot;Remove&quot; link remain visible and accurate after refresh.</t></si><si><t>TC-072</t></si><si><t>Verify multiple cart updates after discount application</t></si><si><t>1. Apply valid discount code.2. Increase/decrease item quantity.3. Observe cart summary.</t></si><si><t>Discount line remains correctly formatted, revised total updates immediately, and calculations remain accurate.</t></si><si><t>R-006</t></si><si><t>Order History Discount Recording</t></si><si><t>TC-073</t></si><si><t>Verify order is created with valid percentage promo code</t></si><si><t>Valid percentage promo code exists (e.g., SAVE10 = 10%)</t></si><si><t>1. Add eligible product(s) to cart.2. Apply valid percentage promo code.3. Proceed to checkout.4. Place the order.5. Verify order record in database/admin.</t></si><si><t>Promo code is stored on the order record. Discount type = Percentage, discount value = 10%, discount amount is recorded, and final order total reflects the discount.</t></si><si><t>TC-074</t></si><si><t>Verify order is created with valid fixed amount promo code</t></si><si><t>Valid fixed discount promo code exists (e.g., FLAT20 = $20 off)</t></si><si><t>1. Add eligible products.2. Apply fixed discount promo code.3. Complete checkout.4. Verify order record.</t></si><si><t>Promo code, discount type = Fixed, discount value = 20, discount amount, and adjusted order total are correctly stored.</t></si><si><t>TC-075</t></si><si><t>Verify final order total after applying percentage discount</t></si><si><t>Valid percentage promo code exists</t></si><si><t>1. Add products totaling $100.2. Apply 10% discount.3. Place order.</t></si><si><t>Discount amount = $10. Final order total = $90 (excluding applicable taxes/shipping rules).</t></si><si><t>TC-076</t></si><si><t>Verify final order total after applying fixed discount</t></si><si><t>Valid fixed promo code exists</t></si><si><t>1. Add products totaling $100.2. Apply $20 discount.3. Place order.</t></si><si><t>Discount amount = $20. Final order total = $80.</t></si><si><t>TC-077</t></si><si><t>Verify discount amount is stored as a separate field</t></si><si><t>Valid promo code applied</t></si><si><t>1. Place an order with a promo code.2. Check order record.</t></si><si><t>Separate field for discount amount exists and contains the applied discount value.</t></si><si><t>TC-078</t></si><si><t>Verify customer order history displays discount details</t></si><si><t>Order placed with promo code</t></si><si><t>1. Log in as customer.2. Open Order History.3. View order details.</t></si><si><t>Discount line item, promo code (if applicable), discount amount, and adjusted order total are displayed correctly.</t></si><si><t>TC-079</t></si><si><t>Verify finance report includes discount details</t></si><si><t>Order exists with applied discount</t></si><si><t>1. Generate finance/reconciliation report.2. Search for the order.</t></si><si><t>Report contains promo code, discount type, discount value, discount amount, and final order total.</t></si><si><t>TC-080</t></si><si><t>Verify order creation without promo code</t></si><si><t>No promo code applied</t></si><si><t>1. Add products.2. Complete checkout without applying a promo code.3. Verify order record.</t></si><si><t>Promo code and discount fields are empty/null. Discount amount = 0. Final order total equals original cart total.</t></si><si><t>TC-081</t></si><si><t>Verify invalid promo code cannot be applied</t></si><si><t>Invalid promo code available for testing</t></si><si><t>1. Add products.2. Enter invalid promo code.3. Attempt checkout.</t></si><si><t>Invalid promo code is rejected. No discount fields are populated. Final order total remains unchanged.</t></si><si><t>TC-082</t></si><si><t>Verify expired promo code is not recorded</t></si><si><t>Expired promo code exists</t></si><si><t>1. Apply expired promo code.2. Attempt checkout.</t></si><si><t>Promo code is rejected. No discount information is stored on the order.</t></si><si><t>TC-083</t></si><si><t>Verify removed promo code before checkout</t></si><si><t>1. Apply promo code.2. Remove promo code.3. Complete checkout.4. Verify order record.</t></si><si><t>Order record contains no promo code or discount values. Final order total is restored to original value.</t></si><si><t>TC-084</t></si><si><t>Verify order record when discount amount is zero</t></si><si><t>Promo code configured to produce zero discount (e.g., non-eligible items)</t></si><si><t>1. Add non-eligible products.2. Apply promo code.3. Complete checkout.</t></si><si><t>Discount amount = 0. System behavior matches business rules (promo rejected or stored appropriately). Final total is correct.</t></si><si><t>Edge</t></si><si><t>TC-085</t></si><si><t>Verify maximum allowed percentage discount</t></si><si><t>100% discount promo code exists</t></si><si><t>1. Add eligible product.2. Apply 100% discount promo.3. Complete checkout.</t></si><si><t>Discount amount equals eligible subtotal. Final payable amount follows business rules (e.g., $0 if allowed). Order record stores all discount details correctly.</t></si><si><t>TC-086</t></si><si><t>Verify fixed discount equal to order subtotal</t></si><si><t>Fixed discount equals cart subtotal</t></si><si><t>1. Add products totaling $50.2. Apply $50 promo.3. Complete checkout.</t></si><si><t>Discount amount = $50. Final total = $0 (or minimum allowed amount per business rule). All discount details are stored.</t></si><si><t>TC-087</t></si><si><t>Verify fixed discount greater than order subtotal</t></si><si><t>Fixed discount exceeds subtotal</t></si><si><t>1. Add products totaling $40.2. Apply $50 promo.3. Complete checkout.</t></si><si><t>Discount does not exceed eligible order value. Final total is not negative. Stored discount amount follows business rules.</t></si><si><t>TC-088</t></si><si><t>Verify promo code string is stored exactly as applied</t></si><si><t>Valid promo code with mixed case exists</t></si><si><t>1. Apply promo code (e.g., Save10).2. Complete checkout.3. Verify stored order record.</t></si><si><t>Promo code string is stored according to system requirements (original input or normalized format). No data corruption occurs.</t></si><si><t>TC-089</t></si><si><t>Verify discount calculation with decimal values</t></si><si><t>Percentage promo code exists</t></si><si><t>1. Add products with decimal prices (e.g., $99.99).2. Apply percentage discount.3. Complete checkout.</t></si><si><t>Discount amount and final total are correctly rounded according to business rules and stored accurately.</t></si><si><t>TC-090</t></si><si><t>Verify discount details persist after order completion</t></si><si><t>Completed order with discount</t></si><si><t>1. Place order using promo code.2. Reopen order later from admin/customer view.3. Verify order details.</t></si><si><t>Promo code, discount type, discount value, discount amount, and adjusted total remain unchanged after order completion.</t></si><si><t>TC-091</t></si><si><t>Verify finance reconciliation query retrieves correct discount fields</t></si><si><t>Orders with multiple discount scenarios exist</t></si><si><t>1. Execute reconciliation query/report.2. Compare results against stored order records.</t></si><si><t>Query returns accurate promo code, discount type, discount value, discount amount, and final order totals for all applicable orders.</t></si><si><t>TC-092</t></si><si><t>Verify discount information remains accurate after cart-to-order conversion</t></si><si><t>Valid promo applied before checkout</t></si><si><t>1. Apply promo code to cart.2. Convert cart into order.3. Compare cart discount values with stored order record.</t></si><si><t>Order record exactly matches the discount information applied in the cart, with no data loss or mismatch during conversion.</t></si></sst>
