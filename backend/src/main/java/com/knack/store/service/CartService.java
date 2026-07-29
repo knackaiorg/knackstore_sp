@@ -17,6 +17,7 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CustomerRepository customerRepository;
     private final StockService stockService;
+    private final LoyaltyService loyaltyService;
 
     public CartDTO getCart(String email) {
         Cart cart = getOrCreateCart(email);
@@ -63,6 +64,7 @@ public class CartService {
 
         // Clear promo code when cart is modified
         clearPromoCodeIfApplied(cart);
+        loyaltyService.releaseReservedPointsIfAny(cart);
 
         cartRepository.save(cart);
         return toDTO(cart);
@@ -87,6 +89,7 @@ public class CartService {
 
         // Clear promo code when cart is modified
         clearPromoCodeIfApplied(cart);
+        loyaltyService.releaseReservedPointsIfAny(cart);
 
         cartRepository.save(cart);
         return toDTO(cart);
@@ -99,6 +102,7 @@ public class CartService {
 
         // Clear promo code when cart is modified
         clearPromoCodeIfApplied(cart);
+        loyaltyService.releaseReservedPointsIfAny(cart);
 
         cartRepository.save(cart);
         return toDTO(cart);
@@ -107,6 +111,10 @@ public class CartService {
     @Transactional
     public void clearCart(Cart cart) {
         cart.getEntries().clear();
+        // Redeemed points were already deducted from the balance and copied onto the Order at
+        // checkout, so reset the cart's copy rather than releasing them back (that would double-credit).
+        cart.setRedeemedPoints(0);
+        cart.setPointsDiscountAmount(0.0);
         cartRepository.save(cart);
     }
 
@@ -125,6 +133,8 @@ public class CartService {
                 .subtotal(cart.getSubtotal())
                 .appliedPromoCode(cart.getAppliedPromoCode())
                 .discountAmount(cart.getDiscountAmount() != null ? cart.getDiscountAmount() : 0.0)
+                .redeemedPoints(cart.getRedeemedPoints() != null ? cart.getRedeemedPoints() : 0)
+                .pointsDiscountAmount(cart.getPointsDiscountAmount() != null ? cart.getPointsDiscountAmount() : 0.0)
                 .totalPrice(cart.getTotalPrice())
                 .totalItems(cart.getTotalItems())
                 .entries(cart.getEntries().stream().map(e -> CartDTO.CartEntryDTO.builder()

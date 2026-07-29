@@ -13,6 +13,8 @@ public class CartDTO {
     private Double subtotal;
     private String appliedPromoCode;
     private Double discountAmount;
+    private int redeemedPoints;
+    private Double pointsDiscountAmount;
     private Double totalPrice;
     private int totalItems;
 

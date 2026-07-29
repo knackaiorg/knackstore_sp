@@ -213,6 +213,8 @@ export interface Cart {
   subtotal: number;
   appliedPromoCode: string | null;
   discountAmount: number;
+  redeemedPoints: number;
+  pointsDiscountAmount: number;
   totalPrice: number;
   totalItems: number;
 }
@@ -221,6 +223,54 @@ export interface AddEntryRequest {
   productId: number;
   variantId?: number;
   quantity: number;
+}
+
+// ---- Saved Carts ----
+export interface SavedCartSummary {
+  id: number;
+  cartNumber: string;
+  cartName: string;
+  skuCount: number;
+  totalPrice: number;
+  savedAt: string;
+}
+
+export interface SavedCartEntryDetail {
+  entryId: number;
+  productId: number;
+  productCode: string;
+  productName: string;
+  productImageUrl: string;
+  variantId: number | null;
+  variantSku: string | null;
+  variantDescription: string | null;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export interface SavedCartDetail {
+  id: number;
+  cartNumber: string;
+  cartName: string;
+  skuCount: number;
+  totalPrice: number;
+  savedAt: string;
+  entries: SavedCartEntryDetail[];
+}
+
+export interface SaveCartRequest {
+  cartName: string;
+  targetSavedCartId?: number;
+}
+
+export interface AddSavedCartToCartResponse {
+  success: boolean;
+  message: string;
+  itemsAdded: number;
+  itemsUnavailable: number;
+  unavailableItems: string[];
+  updatedCart: Cart;
 }
 
 // ---- Wishlist ----
@@ -253,6 +303,7 @@ export interface ToggleWishlistEntryRequest {
 export interface OrderEntry {
   productCode: string;
   productName: string;
+  productImageUrl?: string;
   variantSku: string;
   variantDescription: string;
   quantity: number;
@@ -275,13 +326,22 @@ export interface Order {
   subtotal: number;
   appliedPromoCode: string | null;
   discountAmount: number;
+  redeemedPoints: number;
+  pointsDiscountAmount: number;
+  pointsEarned: number;
   totalPrice: number;
   paymentMethod: string;
   trackingNumber: string;
   placedDate: string;
   deliveryDate?: string;
+  cancellationReason?: string;
+  lastModifiedDate?: string;
   deliveryAddress: Address;
   entries: OrderEntry[];
+}
+
+export interface CancelOrderRequest {
+  reason: string;
 }
 
 export interface ReorderResponse {
