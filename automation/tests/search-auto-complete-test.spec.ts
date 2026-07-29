@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { TestConfig } from '../SearchAutocompleteData.config';
-import { SearchAutocompletePage } from '../pages/SearchAutocompletePage';
+import { TestConfig } from '../search-auto-complete-data.config';
+import { SearchAutocompletePage } from '../pages/search-auto-complete-page';
 
 /**
  * Search Autocomplete — functional automation for the KnackStore global search

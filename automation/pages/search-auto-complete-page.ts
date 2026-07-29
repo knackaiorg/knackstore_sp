@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from '../base-pages/BasePage';
-import { TestConfig } from '../SearchAutocompleteData.config';
+import { TestConfig } from '../search-auto-complete-data.config';
 
 /**
  * SearchAutocompletePage — Page Object for the KnackStore global search autocomplete
