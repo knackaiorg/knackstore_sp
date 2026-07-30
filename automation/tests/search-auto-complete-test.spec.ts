@@ -11,7 +11,7 @@ import { SearchAutocompletePage } from '../pages/search-auto-complete-page';
  * NOTE: The only Page Object available today is SearchAutocompletePage. TC-05/TC-06/TC-12
  * reference a few additional POM methods and TestConfig values that do not exist yet.
  */
-test.describe('Search Autocomplete - Suggestion Dropdown & Navigation', { tag: '@sanity' }, () => {
+test.describe('Search Autocomplete - Suggestion Dropdown & Navigation', () => {
 
   const config = new TestConfig();
   let searchPage: SearchAutocompletePage;
@@ -32,7 +32,7 @@ test.describe('Search Autocomplete - Suggestion Dropdown & Navigation', { tag: '
   });
 
   test('TC-01 (US-01) Typing exactly 2 characters with matching data displays the suggestion dropdown', 
-    { tag: '@sanity' }, async ({ page }) => {
+    { tag: ['@sanity', '@regression'] }, async ({ page }) => {
 
     await test.step('Type exactly 2 characters that match seeded catalog data', async () => {
       await searchPage.searchAndAwaitSuggestions(config.matchingTwoCharQuery);
@@ -48,7 +48,7 @@ test.describe('Search Autocomplete - Suggestion Dropdown & Navigation', { tag: '
   });
 
   test('TC-05 (US-03) Clicking a product suggestion navigates directly to the PDP, bypassing the search results page',
-    { tag: '@sanity' }, async ({ page }) => {
+    { tag: ['@sanity', '@regression'] }, async ({ page }) => {
 
     const initialUrl = await searchPage.getCurrentUrl();
     await test.step('Search for a product term and await suggestions', async () => {
@@ -68,7 +68,7 @@ test.describe('Search Autocomplete - Suggestion Dropdown & Navigation', { tag: '
   });
 
   test('TC-06 (US-04) Clicking a category suggestion navigates to the PLP filtered to that category', 
-    { tag: '@sanity' }, async ({ page }) => {
+    { tag: ['@sanity', '@regression'] }, async ({ page }) => {
 
     const initialUrl = await searchPage.getCurrentUrl();
     await test.step('Search for a category term and await suggestions', async () => {
@@ -88,7 +88,7 @@ test.describe('Search Autocomplete - Suggestion Dropdown & Navigation', { tag: '
   });
 
   test('TC-12 (US-09) A zero-match query renders the dropdown with no products and a "no results found" message', 
-    { tag: '@sanity' }, async ({ page }) => {
+    { tag: ['@sanity', '@regression'] }, async ({ page }) => {
 
      await test.step('Type a term that matches no products, categories, or brands', async () => {
       await searchPage.enterSearchQuery(config.noMatchQuery);
