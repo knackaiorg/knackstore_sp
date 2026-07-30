@@ -69,7 +69,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     QuickOrderComponent,
 
     SavedCartsComponent,
-    SavedCartDetailComponent
+    SavedCartDetailComponent,
     ToastComponent
 
   ],
