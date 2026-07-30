@@ -10,4 +10,4 @@ applications:
     env:
       JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.+ } }'
       SPRING_PROFILES_ACTIVE: cloud
-   health-check-type: process
+     health-check-type: process
