@@ -1,6 +1,6 @@
 ---
 applications:
-  - name: knackstore
+  - name: knackstore-test
     memory: 768M
     disk_quota: 512M
     instances: 1
