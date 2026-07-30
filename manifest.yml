@@ -1,0 +1,14 @@
+---
+applications:
+  - name: knackstore
+    memory: 768M
+    disk_quota: 512M
+    instances: 1
+    buildpacks:
+      - java_buildpack
+    path: backend/target/electronics-store-api-1.0.0.jar
+    env:
+      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.+ } }'
+      SPRING_PROFILES_ACTIVE: cloud
+    health-check-type: http
+    health-check-http-endpoint: /actuator/health
