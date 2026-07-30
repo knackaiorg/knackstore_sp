@@ -1,0 +1,68 @@
+Sr.NO.,Requirements,User Story:  ,Acceptance Criteria:,Estimated Effort: 
+1,Promo Code Entry Field,"As a customer, I want to enter a promo code on the cart page so that I can receive a discount before checkout.","A text field and Apply button are displayed prominently near the order summary.
+
+Field accepts alphanumeric codes up to 20 characters.
+
+Field is optional; checkout works without entry.",Small
+,,,,
+2,Validation & Error Handling,"
+As a system, I want to validate promo codes against the promo code table, so that only eligible codes are applied.","Code must exist in the promo code table.
+
+Code must be within valid start/end dates.
+
+If a minimum order amount is set, cart subtotal must meet it.
+
+Error messages:
+
+Invalid code → “This promo code is not valid.”
+
+Already applied → “A promo code is already applied. Remove it before adding a new one.”
+
+Minimum not met → “This code requires a minimum cart value of ₹X.”",Medium
+,,,,
+3,Discount Types Supported,"As a customer, I want promo codes to apply either a percentage or fixed discount, so that I can benefit from different types of offers.","System supports two discount types: PERCENTAGE and FIXED.
+
+Percentage discounts apply to cart subtotal.
+WELCOME10  might give ten percent off
+Fixed discounts deduct a flat amount from cart subtotal.
+FLAT500 will deduct the 500 when minimum cart value 2000 is met.",Medium
+,,,,
+4,Single Code Enforcement and Failure Cases,"As a customer, I want only one promo code active per cart, so that the rules are clear and consistent.
+and want clear error messages when a promo code fails, so that I understand why the discount was not applied and can take corrective action.","If a code is already applied, system prevents adding another.
+
+Message displayed: “A promo code is already applied. Remove it before adding a new one.”
+
+Customers can remove the current code and apply a different one.
+If code not found — 
+
+Message displayed""This promo code is not valid""
+If  minimum order amount not met —
+
+Message displayed ""This code requires a minimum cart value of ₹2000."" 
+The minimum is an optional property on each code record",Medium
+,,,,
+5,"Cart Summary Display
+
+
+
+","As a customer, I want the discount shown clearly in the cart summary, so that I can see my savings.","Discount appears as a separate line item labeled “Discount — Code (XYZ)” in green with a negative value.
+
+Revised total is displayed immediately after discount line.
+
+A “Remove” link is shown beside the applied code.","
+Medium"
+,,,,
+,,,,
+6,"Order History Discount Recording
+
+","As a system, I want the discount amount and promo code recorded on the order, so that finance and reconciliation teams can trace discounts and customers can see accurate order totals.","When a cart is converted to an order, the applied promo code string is stored on the order record.
+
+The discount type (percentage or fixed) and discount value are stored along with the code.
+
+The discount amount applied is recorded as a separate field in the order record.
+
+The final order total reflects the post‑discount value.
+
+Order history views for customers show the discount line item and adjusted total.
+
+Finance reports can query discount details from the order record for reconciliation.",Medium
