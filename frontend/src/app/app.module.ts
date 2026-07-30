@@ -66,7 +66,7 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     WishlistComponent,
     NotificationsComponent,
 
-    QuickOrderComponent
+    QuickOrderComponent,
 
     SavedCartsComponent,
     SavedCartDetailComponent
