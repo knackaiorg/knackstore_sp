@@ -2,7 +2,7 @@ name: Deploy KnackStoretest to SAP BTP
 
 on:
   push:
-    branches: [cicd-setup]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
