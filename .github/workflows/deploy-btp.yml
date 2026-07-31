@@ -1,4 +1,4 @@
-name: Deploy KnackStoretest to SAP BTP
+name: Deploy KnackStore to SAP BTP
 
 on:
   push:
@@ -6,9 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
       - name: Checkout code
@@ -32,6 +31,27 @@ jobs:
         run: |
           chmod +x deploy/build.sh
           bash deploy/build.sh
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: backend/target/*.jar
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-jar
+          path: backend/target
 
       - name: Install Cloud Foundry CLI
         run: |
