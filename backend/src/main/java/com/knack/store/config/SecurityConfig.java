@@ -53,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/fetch_all_notifications").permitAll()
                         .requestMatchers("/delete_notification").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/*.js", "/*.css", "/assets/**", "/favicon.ico", "/static/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
