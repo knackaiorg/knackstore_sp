@@ -78,4 +78,4 @@ jobs:
 
       - name: Show app status
         if: always()
-        run: cf app knackstore-test
+        run: cf app knackstore
