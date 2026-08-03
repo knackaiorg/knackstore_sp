@@ -2,11 +2,11 @@
 
 ## Automation Suite Overview
 
-This test plan describes the end-to-end automated test coverage for the **KnackStore** online storefront. It is written from a functional, business-facing point of view: every automated test is listed with the manual steps a tester would follow to execute the same scenario by hand, together with the tags used to select that test for a given run.
+This test plan describes the end-to-end automated test coverage for the **KnackStore** online storefront. It is written from a functional, business-facing point of view: every automated test is listed with the manual steps a tester would follow to execute the same scenario by hand. Every automated test is authored as an ordered sequence of narrated manual steps, so an execution report reads exactly like a manual test case run — each step is individually reported as passed or failed, which makes the automated results directly reviewable by manual testers, business analysts and product owners.
 
-The suite validates the complete shopper journey across eight customer-facing features — from searching for a product, browsing a product detail page, applying a promo code, choosing a delivery option, placing an order, through to reviewing and reordering from order history. Both guest and logged-in shopper journeys are covered, as are positive (happy path) and negative (validation and error) scenarios.
+The suite validates the complete shopper journey across eight customer-facing features — from searching for a product, browsing a product detail page, applying a promo code, choosing a delivery option, placing an order, through to reviewing and reordering from order history. 
 
-Every automated test is authored as an ordered sequence of narrated steps, so an execution report reads exactly like a manual test case run — each step is individually reported as passed or failed, which makes the automated results directly reviewable by manual testers, business analysts and product owners.
+
 
 **Suite goals**
 
@@ -15,34 +15,23 @@ Every automated test is authored as an ordered sequence of narrated steps, so an
 - Keep every automated test traceable back to a documented manual test case and its originating user story.
 - Cover both the expected behaviour and the failure/validation behaviour of each feature.
 
-**Test selection tags**
+**Feature coverage**
+| Feature | Spec | Data config | Tests |
+| --- | --- | --- | --- |
+| Checkout delivery options | [tests/checkout-delivery-options-test.spec.ts](tests/checkout-delivery-options-test.spec.ts) | `checkout-delivery-options-data.config.ts` | 10 |
+| Order history & reorder | [tests/order-history-and-reorder-test.spec.ts](tests/order-history-and-reorder-test.spec.ts) | `order-history-and-reorder-data.config.ts` | 11 |
+| PDP product Q&A | [tests/pdp-product-q&a-test.spec.ts](tests/pdp-product-q&a-test.spec.ts) | `pdp-product-q&a-recommendation-data.config.ts` | 7 |
+| PDP product recommendations | [tests/pdp-product-recommendation-test.spec.ts](tests/pdp-product-recommendation-test.spec.ts) | `pdp-product-q&a-recommendation-data.config.ts` | 12 |
+| PDP low-stock badge | [tests/pdp-stock-badge-test.spec.ts](tests/pdp-stock-badge-test.spec.ts) | `pdp-stock-badge-data.config.ts` | 10 |
+| Promo code | [tests/promo-code-test.spec.ts](tests/promo-code-test.spec.ts) | `promo-code-data.config.ts` | 10 |
+| Recently viewed products | [tests/recently-viewed-products-test.spec.ts](tests/recently-viewed-products-test.spec.ts) | `recently-viewed-products-data.config.ts` | 4 |
+| Search autocomplete | [tests/search-auto-complete-test.spec.ts](tests/search-auto-complete-test.spec.ts) | `search-auto-complete-data.config.ts` | 4 |
 
-| Tag | Purpose |
-| --- | --- |
-| `@sanity` | Critical-path checks — the minimum set that must pass for a build to be considered usable. |
-| `@regression` | Full regression coverage for the feature. |
-| `@positive` | Happy-path scenarios where valid input produces the expected outcome. |
-| `@negative` | Validation, error-handling and restricted-access scenarios. |
-| `@setup` | Data-preparation scenarios that create the pre-conditions other tests depend on. |
+**Total: 68 tests across 8 spec files.** Every test is written as a sequence of `test.step(...)` blocks so the HTML report reads like a manual test case, and each spec traces back to a markdown test case in [testcases/](testcases/) and a user story in [user-stories/](user-stories/).
 
----
+**Total Validated Tests: Full sanity suite with 32 tests across 8 spec files.** In each feature, 3 critical positive test cases and 1 critical negative test case are automated and fully validated. The sanity suite is fully working with full parallel execution support. Remaining tests need to be properly validated before considering for sanity or regression suites.
 
-## Feature Coverage
-
-| Feature | Tests |
-| --- | --- |
-| Checkout delivery options | 10 |
-| Order history & reorder | 11 |
-| PDP product Q&A | 7 |
-| PDP product recommendations | 12 |
-| PDP low-stock badge | 10 |
-| Promo code | 10 |
-| Recently viewed products | 4 |
-| Search autocomplete | 4 |
-
-**Total: 68 tests across 8 features.**
-
-**Tags in use:** `@sanity`, `@regression`, `@positive`, `@negative`, `@setup`.
+**Tags in use:** `@sanity`, `@regression`, `@positive`, `@negative`, `@playwright`, `@setup`.
 
 ---
 

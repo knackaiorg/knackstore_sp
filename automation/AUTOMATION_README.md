@@ -18,6 +18,8 @@ End-to-end UI automation for the **KnackStore** Angular storefront (`http://loca
 
 **Total: 68 tests across 8 spec files.** Every test is written as a sequence of `test.step(...)` blocks so the HTML report reads like a manual test case, and each spec traces back to a markdown test case in [testcases/](testcases/) and a user story in [user-stories/](user-stories/).
 
+**Total Validated Tests: Full sanity suite with 32 tests across 8 spec files.** In each feature, 3 critical positive test cases and 1 critical negative test case are automated and fully validated. The sanity suite is fully working with full parallel execution support. Remaining tests need to be properly validated before considering for sanity or regression suites.
+
 **Tags in use:** `@sanity`, `@regression`, `@positive`, `@negative`, `@playwright`, `@setup`.
 
 **Stack**
@@ -93,6 +95,7 @@ npx playwright test tests/search-auto-complete-test.spec.ts
 ```
 automation/
 ├── AUTOMATION_README.md                      # This file
+├── AUTOMATION_TEST_PLAN.md                   # Automation test plan, test coverage and individual test case details
 ├── playwright.config.ts                      # Runner config: chromium/chrome, timeouts, reporter, artifacts
 ├── tsconfig.json                             # TypeScript compiler options (ES2022, strict)
 ├── package.json                              # Dev dependencies (@playwright/test, @types/node)
