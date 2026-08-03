@@ -59,9 +59,11 @@ jobs:
       - name: Deploy Docker image to Cloud Foundry
         run: |
           APP_NAME="${{ github.ref_name == 'main' && 'knackstore' || 'knackstore-test' }}"
-          cf push "$APP_NAME" --docker-image knackstore/knackstore-backend:latest -m 768M -k 512M --var jwt_secret="$APP_JWT_SECRET"
+          cf push "$APP_NAME" --docker-image knackstore/knackstore-backend:latest --docker-username "$DOCKERHUB_USERNAME" -m 768M -k 512M --var jwt_secret="$APP_JWT_SECRET"
         env:
           APP_JWT_SECRET: ${{ secrets.APP_JWT_SECRET }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          CF_DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Show app status
         if: always()
         run: |
