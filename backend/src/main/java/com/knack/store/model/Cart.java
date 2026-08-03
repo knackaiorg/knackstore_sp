@@ -31,6 +31,14 @@ public class Cart {
     @Builder.Default
     private Double discountAmount = 0.0;
 
+    // Loyalty points currently redeemed against this cart (reserved from the customer's balance until
+    // the order is placed or the redemption is removed/replaced).
+    @Builder.Default
+    private Integer redeemedPoints = 0;
+
+    @Builder.Default
+    private Double pointsDiscountAmount = 0.0;
+
     public Double getSubtotal() {
         return entries.stream()
                 .mapToDouble(e -> e.getQuantity() * e.getUnitPrice())
@@ -38,7 +46,9 @@ public class Cart {
     }
 
     public Double getTotalPrice() {
-        return Math.max(0, getSubtotal() - (discountAmount != null ? discountAmount : 0.0));
+        double promo = discountAmount != null ? discountAmount : 0.0;
+        double points = pointsDiscountAmount != null ? pointsDiscountAmount : 0.0;
+        return Math.max(0, getSubtotal() - promo - points);
     }
 
     public int getTotalItems() {

@@ -171,6 +171,16 @@
                         <span>-$ {{ cart.discountAmount | number:'1.2-2' }}</span>
                     </div>
 
+                    <!-- Points discount (if applied) -->
+                    <div *ngIf="cart.redeemedPoints > 0 && cart.pointsDiscountAmount > 0"
+                         class="d-flex justify-content-between mb-2 text-success">
+            <span>
+              <i class="bi bi-stars me-1"></i>
+              Points Redeemed ({{ cart.redeemedPoints }} pts)
+            </span>
+                        <span>-$ {{ cart.pointsDiscountAmount | number:'1.2-2' }}</span>
+                    </div>
+
                     <!-- Shipping -->
                     <div class="d-flex justify-content-between mb-2">
                         <span>Delivery</span>

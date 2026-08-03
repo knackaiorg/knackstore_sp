@@ -15,12 +15,17 @@ public class OrderDTO {
     private Double subtotal;
     private String appliedPromoCode;
     private Double discountAmount;
+    private int redeemedPoints;
+    private Double pointsDiscountAmount;
+    private int pointsEarned;
     private Double totalPrice;
     private String paymentMethod;
     private String trackingNumber;
     private LocalDateTime placedDate;
     private LocalDate deliveryDate;
     private AddressDTO deliveryAddress;
+    private String cancellationReason;
+    private LocalDateTime lastModifiedDate;
     private List<OrderEntryDTO> entries;
 
     @Data
@@ -41,5 +46,10 @@ public class OrderDTO {
         private String paymentMethod;
         private String orderStatus;
         private DeliveryOptionDTO deliveryOption;
+    }
+
+    @Data
+    public static class CancelOrderRequest {
+        private String reason;
     }
 }
