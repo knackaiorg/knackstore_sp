@@ -62,7 +62,13 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml",
                                 "/swagger-resources/**",
                                 "/webjars/**").permitAll()
-                        .anyRequest().authenticated()
+
+                        // Every backend endpoint lives under /api, so anything left
+                        // there stays protected...
+                        .requestMatchers("/api/**").authenticated()
+                        // ...and everything else is the Angular bundle or an SPA deep
+                        // link (/cart, /products/5), which must reach SpaWebConfig.
+                        .anyRequest().permitAll()
                 )
                 .headers(h -> h.frameOptions(f -> f.disable()))
                 .authenticationProvider(authenticationProvider())
