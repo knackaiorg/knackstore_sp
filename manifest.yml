@@ -1,13 +1,56 @@
 ---
+# SAP BTP Cloud Foundry deployment — single app serving both the Angular UI
+# and the Spring Boot API on one origin.
+#
+# Build first (produces the JAR referenced by `path`):   ./build-cf.sh
+# Then:                                                  see DEPLOYMENT.md
 applications:
-  - name: knackstore-test
-    memory: 768M
-    disk_quota: 512M
-    instances: 1
-    health-check-type: process
+  - name: knackstore
+    path: backend/target/electronics-store-api-1.0.0.jar
+
+    # Community Java buildpack. (sap_java_buildpack is only needed once the app
+    # consumes XSUAA / SAP-managed service bindings, which this one does not.)
     buildpacks:
       - java_buildpack
-    path: backend/target/electronics-store-api-1.0.0.jar
+
+    # Sized for Spring Boot 3.2 + JPA/Hibernate + H2 + springdoc. 768M may work
+    # if the org is short on quota, but it is tight and untested here; below
+    # ~768M the buildpack memory calculator starts failing outright.
+    memory: 1G
+    disk_quota: 1G
+    instances: 1
+
+    # Pinned deliberately rather than random-route: a fixed hostname is reused
+    # on redeploy instead of minting (and leaking) another route each attempt,
+    # which matters wherever the org is near its route quota.
+    #
+    # The domain must be one that actually exists in the target org, and it
+    # follows the API endpoint: api.cf.us21-001.hana.ondemand.com -> cfapps.us21-001...
+    # Confirm with `cf domains` (or the domain dropdown in the cockpit's Routes
+    # view) before changing region — a wrong domain fails with "No domains
+    # exist for route".
+    #
+    # The hostname must be unique across the whole domain, so keep a suffix.
+    # Change it if the push reports "Host is taken".
+    routes:
+      - route: knackstore-knackcoe.cfapps.us21-001.hana.ondemand.com
+
+    # H2 is in-memory and DataInitializer reseeds on boot, so a port check is
+    # enough — there is no external dependency to wait on.
+    health-check-type: port
+    timeout: 180
+
     env:
-      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.+ } }'
       SPRING_PROFILES_ACTIVE: cloud
+
+      # pom.xml targets Java 17; pin the JRE so the buildpack doesn't pick a
+      # newer default that Lombok/Hibernate haven't been validated against here.
+      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.+ } }'
+
+      # Nothing is service-bound, so keep the buildpack from rewriting the
+      # DataSource behind our back.
+      JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{ enabled: false }'
+
+# NOTE: JWT_SECRET is deliberately NOT set here — this file is committed to git.
+# Set it with `cf set-env` before the first start (see DEPLOYMENT.md); the app
+# fails fast rather than falling back to the well-known development secret.
